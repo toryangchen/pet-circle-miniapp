@@ -1,13 +1,33 @@
-import { HOME_FEEDS, HOME_TAGS } from '../../utils/mock';
+import { loadHomeFeed } from '../../utils/api';
+import { mockHomeState } from '../../utils/mock-api';
 
 Page({
   data: {
-    location: '西安',
-    title: '宠友圈',
-    heroTitle: '今天值得被分享的宠物日常',
-    heroSummary: '用更轻盈的浏览体验看见小猫小狗、领养故事和城市里的温柔瞬间。',
-    tags: HOME_TAGS,
-    featuredPosts: HOME_FEEDS,
+    location: mockHomeState.location,
+    title: mockHomeState.title,
+    heroTitle: mockHomeState.heroTitle,
+    heroSummary: mockHomeState.heroSummary,
+    tags: mockHomeState.tags,
+    featuredPosts: mockHomeState.featuredPosts,
+    isLoading: false,
+  },
+
+  async onLoad() {
+    this.setData({ isLoading: true });
+
+    try {
+      const result = await loadHomeFeed();
+      this.setData({
+        location: mockHomeState.location,
+        title: mockHomeState.title,
+        heroTitle: mockHomeState.heroTitle,
+        heroSummary: mockHomeState.heroSummary,
+        tags: mockHomeState.tags,
+        featuredPosts: result.items,
+      });
+    } finally {
+      this.setData({ isLoading: false });
+    }
   },
 
   onTapPost(event: WechatMiniprogram.BaseEvent) {

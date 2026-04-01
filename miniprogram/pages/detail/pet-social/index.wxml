@@ -6,19 +6,19 @@
     </view>
     <view class="detail-topbar__nav">
       <view class="detail-back" bindtap="goBack">‹</view>
-      <view class="detail-author">
-        <view class="detail-author__avatar">宠</view>
-        <view class="detail-author__meta">
-          <text class="detail-author__name">{{authorName}}</text>
-          <text class="detail-author__sub">宠物圈 · 热门帖子</text>
+        <view class="detail-author">
+          <view class="detail-author__avatar">宠</view>
+          <view class="detail-author__meta">
+            <text class="detail-author__name">{{authorName}}</text>
+            <text class="detail-author__sub">{{isLoading ? '加载中...' : '宠物圈 · 热门帖子'}}</text>
+          </view>
         </view>
-      </view>
     </view>
   </view>
 
   <scroll-view class="detail-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="detail-hero">
-      <image class="detail-hero__image" src="https://images.unsplash.com/photo-1571566882372-1598d88abd90?auto=format&fit=crop&w=1080&q=80" mode="aspectFill"></image>
+      <image class="detail-hero__image" src="{{image}}" mode="aspectFill"></image>
       <view class="detail-dots">
         <view class="detail-dot detail-dot--active"></view>
         <view class="detail-dot"></view>
@@ -28,22 +28,14 @@
 
     <view class="pc-page-body detail-body">
       <view class="pc-card detail-card">
-        <view class="pc-chip pc-chip--warm">宠物圈</view>
-        <text class="detail-card__title">猫咪春天第一次出门晒太阳</text>
-        <text class="detail-card__summary">今天带家里猫咪出去晒太阳，真的很乖。社区里的宠物日常、救助故事和成长瞬间都放在这里。</text>
+        <view class="pc-chip pc-chip--warm">{{badge}}</view>
+        <text class="detail-card__title">{{postTitle}}</text>
+        <text class="detail-card__summary">{{summary}}</text>
 
         <view class="detail-meta">
-          <view class="detail-meta__item">
-            <text class="detail-meta__value">128</text>
-            <text class="detail-meta__label">点赞</text>
-          </view>
-          <view class="detail-meta__item">
-            <text class="detail-meta__value">36</text>
-            <text class="detail-meta__label">评论</text>
-          </view>
-          <view class="detail-meta__item">
-            <text class="detail-meta__value">12</text>
-            <text class="detail-meta__label">收藏</text>
+          <view wx:for="{{stats}}" wx:key="label" class="detail-meta__item">
+            <text class="detail-meta__value">{{item.value}}</text>
+            <text class="detail-meta__label">{{item.label}}</text>
           </view>
         </view>
       </view>
@@ -51,19 +43,14 @@
       <view class="pc-card detail-section">
         <text class="detail-section__title">内容标签</text>
         <view class="detail-tag-row">
-          <view class="detail-tag">晒日常</view>
-          <view class="detail-tag">领养故事</view>
-          <view class="detail-tag">城市宠物</view>
+          <view wx:for="{{tags}}" wx:key="*this" class="detail-tag">{{item}}</view>
         </view>
       </view>
 
       <view class="pc-card detail-section">
         <text class="detail-section__title">互动入口</text>
         <view class="detail-action-row">
-          <view class="detail-action">点赞</view>
-          <view class="detail-action">评论</view>
-          <view class="detail-action">收藏</view>
-          <view class="detail-action">分享</view>
+          <view wx:for="{{actions}}" wx:key="*this" class="detail-action">{{item}}</view>
         </view>
       </view>
     </view>

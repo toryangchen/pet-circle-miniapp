@@ -63,7 +63,10 @@
 
         <view class="publish-form__bottom">
           <view class="publish-form__tip">人工审核后即发布成功，预计 3 - 5 分钟完成审核。</view>
-          <view class="publish-form__button">发布</view>
+          <view wx:if="{{submitState}}" class="publish-form__status">{{submitState}}</view>
+          <view class="publish-form__button" bindtap="submitDraft">
+            {{isSubmitting ? '提交中...' : '发布'}}
+          </view>
         </view>
       </view>
     </view>

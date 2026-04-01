@@ -1,16 +1,33 @@
+import { loadMyPageData } from '../../utils/api';
 import { PROFILE_ACTIONS } from '../../utils/mock';
+import { mockProfileState } from '../../utils/mock-api';
 
 Page({
   data: {
     title: '我的',
-    nickname: '糯米和团子的家',
-    phoneStatus: '已绑定手机号',
-    phoneMask: '138****2048',
-    stats: [
-      { label: '收藏', value: '12' },
-      { label: '发布', value: '8' },
-      { label: '消息', value: '3' },
-    ],
+    nickname: mockProfileState.nickname,
+    avatarUrl: mockProfileState.avatarUrl,
+    phoneStatus: mockProfileState.phoneStatus,
+    phoneMask: mockProfileState.phoneMask,
+    stats: mockProfileState.stats,
     actions: PROFILE_ACTIONS,
+    isLoading: false,
+  },
+
+  async onLoad() {
+    this.setData({ isLoading: true });
+
+    try {
+      const profile = await loadMyPageData();
+      this.setData({
+        nickname: profile.nickname,
+        avatarUrl: profile.avatarUrl,
+        phoneStatus: profile.phoneStatus,
+        phoneMask: profile.phoneMask,
+        stats: profile.stats,
+      });
+    } finally {
+      this.setData({ isLoading: false });
+    }
   },
 });

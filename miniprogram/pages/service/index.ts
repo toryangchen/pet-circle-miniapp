@@ -1,15 +1,40 @@
-import { SERVICE_FEEDS, SERVICE_TAGS, SERVICE_TABS } from '../../utils/mock';
+import { loadServiceFeed } from '../../utils/api';
+import { mockServiceState } from '../../utils/mock-api';
+
+const TAB_CATEGORY_MAP: Array<'ALL' | 'ADOPTION' | 'BOARDING' | 'HOME_FEEDING' | 'SECOND_HAND'> = [
+  'ALL',
+  'ADOPTION',
+  'BOARDING',
+  'HOME_FEEDING',
+  'SECOND_HAND',
+];
 
 Page({
   data: {
-    location: '西安',
-    title: '服务',
-    tabs: SERVICE_TABS,
+    location: mockServiceState.location,
+    title: mockServiceState.title,
+    tabs: mockServiceState.tabs,
     currentTab: 0,
-    tags: SERVICE_TAGS,
-    highlightTitle: '在西安找到更靠谱的宠物帮助',
-    highlightSummary: '寄养、领养、上门喂养和闲置发布都用更清晰的卡片结构呈现。',
-    servicePosts: SERVICE_FEEDS,
+    tags: mockServiceState.tags,
+    highlightTitle: mockServiceState.highlightTitle,
+    highlightSummary: mockServiceState.highlightSummary,
+    servicePosts: mockServiceState.servicePosts,
+    allServicePosts: mockServiceState.servicePosts,
+    isLoading: false,
+  },
+
+  async onLoad() {
+    this.setData({ isLoading: true });
+
+    try {
+      const result = await loadServiceFeed();
+      this.setData({
+        allServicePosts: result.items,
+      });
+      this.applyCurrentTab(this.data.currentTab);
+    } finally {
+      this.setData({ isLoading: false });
+    }
   },
 
   switchTab(event: WechatMiniprogram.BaseEvent) {
@@ -21,6 +46,30 @@ Page({
 
     this.setData({
       currentTab: nextIndex,
+    });
+    this.applyCurrentTab(nextIndex);
+  },
+
+  applyCurrentTab(tabIndex: number) {
+    const category = TAB_CATEGORY_MAP[tabIndex] ?? 'ALL';
+    const servicePosts =
+      category === 'ALL'
+        ? this.data.allServicePosts
+        : this.data.allServicePosts.filter((item) => {
+            if (category === 'ADOPTION') {
+              return item.badge === '领养';
+            }
+            if (category === 'BOARDING') {
+              return item.badge === '宠物寄养';
+            }
+            if (category === 'SECOND_HAND') {
+              return item.badge === '闲置';
+            }
+            return item.badge === '上门喂养';
+          });
+
+    this.setData({
+      servicePosts,
     });
   },
 

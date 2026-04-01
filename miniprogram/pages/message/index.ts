@@ -1,15 +1,36 @@
-import { NOTIFICATION_CARDS } from '../../utils/mock';
+import { loadNotifications } from '../../utils/api';
+import { mockMessageState } from '../../utils/mock-api';
 
 Page({
   data: {
-    title: '消息',
-    unreadCount: 2,
-    notifications: NOTIFICATION_CARDS,
+    title: mockMessageState.title,
+    unreadCount: mockMessageState.unreadCount,
+    notifications: mockMessageState.notifications,
+    isLoading: false,
   },
 
-  openConversation() {
+  async onLoad() {
+    this.setData({ isLoading: true });
+
+    try {
+      const result = await loadNotifications();
+      this.setData({
+        notifications: result.items,
+        unreadCount: result.items.filter((item) => item.unread).length,
+      });
+    } finally {
+      this.setData({ isLoading: false });
+    }
+  },
+
+  openConversation(event: WechatMiniprogram.BaseEvent) {
+    const { route } = event.currentTarget.dataset as { route?: string };
+    if (!route) {
+      return;
+    }
+
     wx.navigateTo({
-      url: '/pages/detail/service/index',
+      url: route,
     });
   },
 });
