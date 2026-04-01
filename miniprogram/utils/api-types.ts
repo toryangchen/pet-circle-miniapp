@@ -57,7 +57,7 @@ export interface PostDetail {
   id: string;
   type: PostType;
   serviceCategory: ServiceCategory | null;
-  status: string;
+  status: PostStatus;
   title: string;
   content: string;
   city: string;
@@ -194,7 +194,7 @@ export interface PublishDraft {
 
 export interface PublishResult {
   id: string;
-  status: string;
+  status: PostStatus;
 }
 
 export interface ContactRequestResult {

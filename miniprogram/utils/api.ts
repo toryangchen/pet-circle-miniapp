@@ -564,7 +564,7 @@ export async function submitPublishDraft(draft: PublishDraft): Promise<PublishRe
       }),
     {
       id: `mock-post-${Date.now()}`,
-      status: 'PENDING',
+      status: 'PENDING' as PostStatus,
     },
   );
 }
@@ -574,14 +574,14 @@ export async function offlineMyPost(postId: string) {
     () =>
       request<{
         id: string;
-        status: string;
+        status: PostStatus;
       }>({
         method: 'PATCH',
         path: `/posts/${postId}/offline`,
       }),
     {
       id: postId,
-      status: 'OFFLINE',
+      status: 'OFFLINE' as PostStatus,
     },
   );
 }
@@ -591,14 +591,14 @@ export async function completeMyPost(postId: string) {
     () =>
       request<{
         id: string;
-        status: string;
+        status: PostStatus;
       }>({
         method: 'PATCH',
         path: `/posts/${postId}/complete`,
       }),
     {
       id: postId,
-      status: 'COMPLETED',
+      status: 'COMPLETED' as PostStatus,
     },
   );
 }
