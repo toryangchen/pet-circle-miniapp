@@ -4,7 +4,6 @@ import type {
   ContactRequestResult,
   FeedCardView,
   FeedItem,
-  MiniappUserSummary,
   MyPostCardView,
   NotificationCardView,
   NotificationItem,
@@ -20,19 +19,21 @@ import type {
 import {
   appendMockComment,
   appendMockReply,
-  getMockFavorites,
   getMockComments,
-  getMockMyPosts,
   getMockPostDetail,
-  getMockProfile,
   mockHomeState,
-  mockMessageState,
-  mockProfileState,
   mockServiceState,
   toggleMockFavorite,
   toggleMockLike,
 } from './mock-api';
-import { getMockSession } from './session';
+import {
+  bootstrapSession,
+  ensureAuthenticated,
+  getAuthState,
+  getCurrentSession,
+  recoverSession,
+  syncCurrentUser,
+} from './session';
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
@@ -48,6 +49,19 @@ interface RequestOptions {
   data?: WechatMiniprogram.IAnyObject | string | ArrayBuffer;
 }
 
+class ApiRequestError extends Error {
+  statusCode?: number;
+
+  bodyCode?: number;
+
+  constructor(message: string, options?: { statusCode?: number; bodyCode?: number }) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.statusCode = options?.statusCode;
+    this.bodyCode = options?.bodyCode;
+  }
+}
+
 const DEFAULT_API_BASE_URL = 'http://127.0.0.1:3000/api';
 const DEFAULT_POST_IMAGE =
   'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80';
@@ -56,20 +70,23 @@ function getApiBaseUrl() {
   return DEFAULT_API_BASE_URL;
 }
 
-function getAuthHeader() {
-  const session = getMockSession();
-  return session?.token && !session.isMock
+function isUnauthorizedError(error: unknown) {
+  return error instanceof ApiRequestError && error.statusCode === 401;
+}
+
+function getAuthHeader(token?: string | null) {
+  return token
     ? {
-        Authorization: `Bearer ${session.token}`,
+        Authorization: `Bearer ${token}`,
       }
     : {};
 }
 
-function request<T>(options: RequestOptions): Promise<T> {
+function requestRaw<T>(options: RequestOptions, token?: string | null): Promise<T> {
   const url = `${getApiBaseUrl()}${options.path}`;
   const headers = {
     'content-type': 'application/json',
-    ...getAuthHeader(),
+    ...getAuthHeader(token),
   };
 
   return new Promise<T>((resolve, reject) => {
@@ -86,13 +103,38 @@ function request<T>(options: RequestOptions): Promise<T> {
           return;
         }
 
-        reject(new Error(body?.message || `HTTP ${response.statusCode}`));
+        reject(
+          new ApiRequestError(body?.message || `HTTP ${response.statusCode}`, {
+            statusCode: response.statusCode,
+            bodyCode: body?.code,
+          }),
+        );
       },
-      fail: (error) => {
-        reject(error);
+      fail: () => {
+        reject(new ApiRequestError('Network request failed.'));
       },
     });
   });
+}
+
+async function request<T>(options: RequestOptions): Promise<T> {
+  const session = getCurrentSession();
+  return requestRaw(options, session?.token);
+}
+
+async function requestWithAuth<T>(options: RequestOptions): Promise<T> {
+  const session = await ensureAuthenticated();
+
+  try {
+    return await requestRaw<T>(options, session.token);
+  } catch (error) {
+    if (!isUnauthorizedError(error)) {
+      throw error;
+    }
+
+    const recoveredSession = await recoverSession();
+    return requestRaw<T>(options, recoveredSession.token);
+  }
 }
 
 async function withFallback<T>(loader: () => Promise<T>, fallback: T | (() => T)) {
@@ -329,17 +371,10 @@ export async function loadPostDetail(postId: string, channel: 'PET_SOCIAL' | 'SE
 }
 
 export async function requestContactForPost(postId: string) {
-  return withFallback(
-    () =>
-      request<ContactRequestResult>({
-        method: 'POST',
-        path: `/posts/${postId}/contact-request`,
-      }),
-    {
-      conversationId: `mock-conversation-${postId}`,
-      status: 'PENDING',
-    },
-  );
+  return requestWithAuth<ContactRequestResult>({
+    method: 'POST',
+    path: `/posts/${postId}/contact-request`,
+  });
 }
 
 export async function loadComments(postId: string) {
@@ -404,87 +439,57 @@ export async function togglePostFavorite(postId: string, favorited: boolean) {
 }
 
 export async function loadNotifications() {
-  return withFallback(
-    async () => {
-      const result = await request<PagedResult<NotificationItem>>({
-        method: 'GET',
-        path: '/notifications?page=1&pageSize=20',
-      });
+  const result = await requestWithAuth<PagedResult<NotificationItem>>({
+    method: 'GET',
+    path: '/notifications?page=1&pageSize=20',
+  });
 
-      return {
-        ...result,
-        items: result.items.map(toNotificationCardView),
-      };
-    },
-    buildPagedFallback(mockMessageState.notifications, 1, 20),
-  );
+  return {
+    ...result,
+    items: result.items.map(toNotificationCardView),
+  };
 }
 
 export async function markNotificationRead(notificationId: string) {
-  return withFallback(
-    () =>
-      request<{
-        id: string;
-        isRead: boolean;
-      }>({
-        method: 'POST',
-        path: `/notifications/${notificationId}/read`,
-      }),
-    {
-      id: notificationId,
-      isRead: true,
-    },
-  );
+  return requestWithAuth<{
+    id: string;
+    isRead: boolean;
+  }>({
+    method: 'POST',
+    path: `/notifications/${notificationId}/read`,
+  });
 }
 
 export async function markAllNotificationsRead() {
-  return withFallback(
-    () =>
-      request<{
-        updatedCount: number;
-      }>({
-        method: 'POST',
-        path: '/notifications/read-all',
-      }),
-    {
-      updatedCount: mockMessageState.notifications.filter((item) => item.unread).length,
-    },
-  );
+  return requestWithAuth<{
+    updatedCount: number;
+  }>({
+    method: 'POST',
+    path: '/notifications/read-all',
+  });
 }
 
 export async function loadMe() {
-  return withFallback(
-    () =>
-      request<MiniappUserSummary>({
-        method: 'GET',
-        path: '/auth/me',
-      }),
-    {
-      id: 'mock-user-1',
-      nickname: mockProfileState.nickname,
-      avatarUrl: mockProfileState.avatarUrl,
-      phoneAuthorized: true,
-      profileAuthorized: true,
-      phoneMasked: mockProfileState.phoneMask,
-    },
-  );
+  await bootstrapSession();
+
+  if (!getAuthState().isAuthenticated) {
+    return null;
+  }
+
+  const syncedUser = await syncCurrentUser();
+  return syncedUser ?? getAuthState().user;
 }
 
 export async function loadMyFavorites() {
-  return withFallback(
-    async () => {
-      const result = await request<PagedResult<FeedItem>>({
-        method: 'GET',
-        path: '/favorites/my?page=1&pageSize=20',
-      });
+  const result = await requestWithAuth<PagedResult<FeedItem>>({
+    method: 'GET',
+    path: '/favorites/my?page=1&pageSize=20',
+  });
 
-      return {
-        ...result,
-        items: result.items.map(toFeedCardView),
-      };
-    },
-    buildPagedFallback(getMockFavorites(), 1, 20),
-  );
+  return {
+    ...result,
+    items: result.items.map(toFeedCardView),
+  };
 }
 
 export async function loadMyPosts(status?: PostStatus, page = 1, pageSize = 20) {
@@ -494,128 +499,98 @@ export async function loadMyPosts(status?: PostStatus, page = 1, pageSize = 20) 
   }
 
   const query = `?${searchParams.join('&')}`;
-  return withFallback(
-    async () => {
-      const result = await request<PagedResult<{
-        id: string;
-        type: FeedItem['type'];
-        serviceCategory: FeedItem['serviceCategory'];
-        title: string;
-        status: PostStatus;
-        city?: string;
-        rejectReason?: string | null;
-        summary?: string;
-      }>>({
-        method: 'GET',
-        path: `/posts/my${query}`,
-      });
+  const result = await requestWithAuth<
+    PagedResult<{
+      id: string;
+      type: FeedItem['type'];
+      serviceCategory: FeedItem['serviceCategory'];
+      title: string;
+      status: PostStatus;
+      city?: string;
+      rejectReason?: string | null;
+      summary?: string;
+    }>
+  >({
+    method: 'GET',
+    path: `/posts/my${query}`,
+  });
 
-      return {
-        ...result,
-        items: result.items.map((item) => toMyPostCardView(item)),
-      };
-    },
-    (() => {
-      const filteredItems = getMockMyPosts().filter((item) => !status || item.status === status);
-      const pagedItems = filteredItems
-        .slice((page - 1) * pageSize, page * pageSize)
-        .map((item) =>
-          toMyPostCardView({
-            id: item.id,
-            type: item.type,
-            serviceCategory: item.serviceCategory,
-            title: item.title,
-            status: item.status,
-            summary: item.summary,
-            route: item.route,
-          }),
-        );
-
-      return {
-        items: pagedItems,
-        page,
-        pageSize,
-        total: filteredItems.length,
-        hasMore: page * pageSize < filteredItems.length,
-      };
-    })(),
-  );
+  return {
+    ...result,
+    items: result.items.map((item) => toMyPostCardView(item)),
+  };
 }
 
 export async function loadMyPageData(): Promise<ProfileSummary> {
-  return withFallback(async () => {
-    const [me, favorites, posts, notifications] = await Promise.all([
-      loadMe(),
-      loadMyFavorites(),
-      loadMyPosts(),
-      loadNotifications(),
-    ]);
+  await bootstrapSession();
 
-    const unreadCount = notifications.items.filter((item) => item.unread).length;
-
+  if (!getAuthState().isAuthenticated) {
     return {
-      nickname: me.nickname ?? mockProfileState.nickname,
-      avatarUrl: me.avatarUrl,
-      phoneStatus: me.phoneAuthorized ? '已绑定手机号' : '未绑定手机号',
-      phoneMask: me.phoneMasked ?? mockProfileState.phoneMask,
+      nickname: '未登录',
+      avatarUrl: null,
+      phoneStatus: '登录不可用',
+      phoneMask: '可继续浏览公开内容',
       stats: [
-        { label: '收藏', value: String(favorites.total) },
-        { label: '发布', value: String(posts.total) },
-        { label: '消息', value: String(unreadCount) },
+        { label: '收藏', value: '0' },
+        { label: '发布', value: '0' },
+        { label: '消息', value: '0' },
       ],
-      favorites: favorites.items,
-      posts: posts.items,
+      favorites: [],
+      posts: [],
     };
-  }, getMockProfile());
+  }
+
+  const [me, favorites, posts, notifications] = await Promise.all([
+    loadMe(),
+    loadMyFavorites(),
+    loadMyPosts(),
+    loadNotifications(),
+  ]);
+
+  const unreadCount = notifications.items.filter((item) => item.unread).length;
+  const currentUser = me ?? getAuthState().user;
+
+  return {
+    nickname: currentUser?.nickname ?? '宠友圈用户',
+    avatarUrl: currentUser?.avatarUrl ?? null,
+    phoneStatus: currentUser?.phoneAuthorized ? '已绑定手机号' : '未绑定手机号',
+    phoneMask: currentUser?.phoneMasked ?? '发布或联系前需先授权',
+    stats: [
+      { label: '收藏', value: String(favorites.total) },
+      { label: '发布', value: String(posts.total) },
+      { label: '消息', value: String(unreadCount) },
+    ],
+    favorites: favorites.items,
+    posts: posts.items,
+  };
 }
 
 export async function submitPublishDraft(draft: PublishDraft): Promise<PublishResult> {
-  return withFallback(
-    () =>
-      request<PublishResult>({
-        method: 'POST',
-        path: '/posts',
-        data: buildPublishRequest(draft),
-      }),
-    {
-      id: `mock-post-${Date.now()}`,
-      status: 'PENDING' as PostStatus,
-    },
-  );
+  return requestWithAuth<PublishResult>({
+    method: 'POST',
+    path: '/posts',
+    data: buildPublishRequest(draft),
+  });
 }
 
 export async function offlineMyPost(postId: string) {
-  return withFallback(
-    () =>
-      request<{
-        id: string;
-        status: PostStatus;
-      }>({
-        method: 'PATCH',
-        path: `/posts/${postId}/offline`,
-      }),
-    {
-      id: postId,
-      status: 'OFFLINE' as PostStatus,
-    },
-  );
+  return requestWithAuth<{
+    id: string;
+    status: PostStatus;
+  }>({
+    method: 'PATCH',
+    path: `/posts/${postId}/offline`,
+  });
 }
 
 export async function completeMyPost(postId: string) {
-  return withFallback(
-    () =>
-      request<{
-        id: string;
-        status: PostStatus;
-      }>({
-        method: 'PATCH',
-        path: `/posts/${postId}/complete`,
-      }),
-    {
-      id: postId,
-      status: 'COMPLETED' as PostStatus,
-    },
-  );
+  return requestWithAuth<{
+    id: string;
+    status: PostStatus;
+  }>({
+    method: 'PATCH',
+    path: `/posts/${postId}/complete`,
+  });
 }
 
 export { buildPublishRequest };

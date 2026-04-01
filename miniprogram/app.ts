@@ -1,4 +1,4 @@
-import { ensureMockSession } from './utils/session';
+import { bootstrapSession } from './utils/session';
 
 App<IAppOption>({
   globalData: {},
@@ -7,6 +7,6 @@ App<IAppOption>({
     logs.unshift(Date.now());
     wx.setStorageSync('logs', logs);
 
-    void ensureMockSession();
+    void bootstrapSession();
   },
 });

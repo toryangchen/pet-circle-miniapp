@@ -55,7 +55,16 @@
           <text class="detail-contact__title">{{contactTitle}}</text>
           <text class="detail-contact__summary">{{contactSummary}}</text>
         </view>
-        <view class="detail-contact__button" bindtap="requestContact">{{contactButtonLabel}}</view>
+        <button
+          wx:if="{{!phoneAuthorized}}"
+          class="detail-contact__button detail-action-button"
+          open-type="getPhoneNumber"
+          bindgetphonenumber="handleGetPhoneNumber"
+          loading="{{isAuthorizingPhone}}"
+        >
+          {{isAuthorizingPhone ? '授权中...' : contactButtonLabel}}
+        </button>
+        <view wx:else class="detail-contact__button" bindtap="requestContact">{{contactButtonLabel}}</view>
       </view>
 
       <view class="pc-card detail-section">
@@ -111,6 +120,15 @@
     <view class="detail-bottom__button detail-bottom__button--secondary" bindtap="toggleFavorite">
       {{favorited ? '已收藏' : '收藏'}}
     </view>
-    <view class="detail-bottom__button detail-bottom__button--primary" bindtap="requestContact">{{contactButtonLabel}}</view>
+    <button
+      wx:if="{{!phoneAuthorized}}"
+      class="detail-bottom__button detail-bottom__button--primary detail-action-button"
+      open-type="getPhoneNumber"
+      bindgetphonenumber="handleGetPhoneNumber"
+      loading="{{isAuthorizingPhone}}"
+    >
+      {{isAuthorizingPhone ? '授权中...' : contactButtonLabel}}
+    </button>
+    <view wx:else class="detail-bottom__button detail-bottom__button--primary" bindtap="requestContact">{{contactButtonLabel}}</view>
   </view>
 </view>

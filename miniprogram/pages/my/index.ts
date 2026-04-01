@@ -1,7 +1,6 @@
 import type { MyPostCardView, PostStatus } from '../../utils/api-types';
 import { completeMyPost, loadMyPageData, loadMyPosts, offlineMyPost } from '../../utils/api';
 import { PROFILE_ACTIONS } from '../../utils/mock';
-import { mockProfileState } from '../../utils/mock-api';
 
 const POST_STATUS_TABS = [
   { key: '', label: '全部' },
@@ -35,19 +34,23 @@ function decoratePosts(
 Page({
   data: {
     title: '我的',
-    nickname: mockProfileState.nickname,
-    avatarUrl: mockProfileState.avatarUrl,
-    phoneStatus: mockProfileState.phoneStatus,
-    phoneMask: mockProfileState.phoneMask,
-    stats: mockProfileState.stats,
+    nickname: '未登录',
+    avatarUrl: null as string | null,
+    phoneStatus: '登录不可用',
+    phoneMask: '可继续浏览公开内容',
+    stats: [
+      { label: '收藏', value: '0' },
+      { label: '发布', value: '0' },
+      { label: '消息', value: '0' },
+    ],
     actions: PROFILE_ACTIONS,
-    favorites: mockProfileState.favorites,
-    posts: decoratePosts(mockProfileState.posts),
+    favorites: [] as Array<{ id: string; route: string; image: string; badge: string; title: string; summary: string; meta: string }>,
+    posts: [] as ReturnType<typeof decoratePosts>,
     postStatusTabs: POST_STATUS_TABS,
     currentPostStatus: '' as PostStatusFilter,
     postPage: 1,
     postPageSize: DEFAULT_POST_PAGE_SIZE,
-    postTotal: mockProfileState.posts.length,
+    postTotal: 0,
     postHasMore: false,
     isPostLoadingMore: false,
     isLoading: false,
@@ -87,6 +90,11 @@ Page({
         postPageSize: DEFAULT_POST_PAGE_SIZE,
         postTotal: posts.total,
         postHasMore: posts.hasMore,
+      });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : '加载我的页面失败',
+        icon: 'none',
       });
     } finally {
       this.setData({ isLoading: false });
@@ -151,6 +159,11 @@ Page({
         postTotal: result.total,
         postHasMore: result.hasMore,
       });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : '加载发布列表失败',
+        icon: 'none',
+      });
     } finally {
       if (postListRequestId === requestId) {
         this.setData({
@@ -211,6 +224,11 @@ Page({
       }
 
       await this.reloadPageData();
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : '操作失败',
+        icon: 'none',
+      });
     } finally {
       this.setData({ isLoading: false });
     }

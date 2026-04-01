@@ -1,6 +1,7 @@
 import type { PublishDraftType } from '../../utils/api-types';
 import { submitPublishDraft } from '../../utils/api';
 import { mockPublishTypes } from '../../utils/mock-api';
+import { bootstrapSession, ensurePhoneAuthorized, getAuthState, syncCurrentUser } from '../../utils/session';
 
 type DraftField = {
   label: string;
@@ -56,6 +57,16 @@ Page({
     fields: draftMap.SERVICE.fields,
     submitState: '',
     isSubmitting: false,
+    isAuthorizingPhone: false,
+    phoneAuthorized: false,
+  },
+
+  async onLoad() {
+    await this.syncAuthState();
+  },
+
+  async onShow() {
+    await this.syncAuthState();
   },
 
   switchType(event: WechatMiniprogram.BaseEvent) {
@@ -73,6 +84,14 @@ Page({
 
   async submitDraft() {
     if (this.data.isSubmitting) {
+      return;
+    }
+
+    if (!this.data.phoneAuthorized) {
+      wx.showToast({
+        title: '请先授权手机号',
+        icon: 'none',
+      });
       return;
     }
 
@@ -115,5 +134,64 @@ Page({
         isSubmitting: false,
       });
     }
+  },
+
+  async handleGetPhoneNumber(
+    event: WechatMiniprogram.CustomEvent<{ code?: string; errMsg?: string }>,
+  ) {
+    const phoneCode = event.detail.code;
+    if (!phoneCode) {
+      wx.showToast({
+        title: '需要手机号授权后才能发布',
+        icon: 'none',
+      });
+      return;
+    }
+
+    this.setData({
+      isAuthorizingPhone: true,
+      submitState: '正在同步手机号授权...',
+    });
+
+    try {
+      await ensurePhoneAuthorized(phoneCode);
+      await syncCurrentUser();
+      await this.syncAuthState();
+      wx.showToast({
+        title: '授权成功',
+        icon: 'success',
+      });
+      await this.submitDraft();
+    } catch (error) {
+      this.setData({
+        submitState: '手机号授权失败，请稍后重试。',
+      });
+      wx.showToast({
+        title: error instanceof Error ? error.message : '手机号授权失败',
+        icon: 'none',
+      });
+    } finally {
+      this.setData({
+        isAuthorizingPhone: false,
+      });
+    }
+  },
+
+  async syncAuthState() {
+    await bootstrapSession();
+    const state = getAuthState();
+    if (state.isAuthenticated) {
+      try {
+        await syncCurrentUser();
+      } catch {
+        // Keep the last known auth state; publish gating only trusts phoneAuthorized below.
+      }
+    }
+
+    const nextState = getAuthState();
+    this.setData({
+      phoneAuthorized: nextState.phoneAuthorized,
+      submitState: nextState.phoneAuthorized ? '' : '发布前需先完成手机号授权。',
+    });
   },
 });

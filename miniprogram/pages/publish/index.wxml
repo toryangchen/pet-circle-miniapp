@@ -64,7 +64,16 @@
         <view class="publish-form__bottom">
           <view class="publish-form__tip">人工审核后即发布成功，预计 3 - 5 分钟完成审核。</view>
           <view wx:if="{{submitState}}" class="publish-form__status">{{submitState}}</view>
-          <view class="publish-form__button" bindtap="submitDraft">
+          <button
+            wx:if="{{!phoneAuthorized}}"
+            class="publish-form__button publish-form__button--action"
+            open-type="getPhoneNumber"
+            bindgetphonenumber="handleGetPhoneNumber"
+            loading="{{isAuthorizingPhone}}"
+          >
+            {{isAuthorizingPhone ? '授权中...' : '授权手机号后发布'}}
+          </button>
+          <view wx:else class="publish-form__button" bindtap="submitDraft">
             {{isSubmitting ? '提交中...' : '发布'}}
           </view>
         </view>

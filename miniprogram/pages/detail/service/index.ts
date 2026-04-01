@@ -7,6 +7,7 @@ import {
   togglePostFavorite,
 } from '../../../utils/api';
 import type { CommentItem, ServiceCategory } from '../../../utils/api-types';
+import { bootstrapSession, ensurePhoneAuthorized, getAuthState, syncCurrentUser } from '../../../utils/session';
 
 Page({
   data: {
@@ -38,9 +39,12 @@ Page({
     favorited: false,
     isLoading: false,
     isSubmittingComment: false,
+    isAuthorizingPhone: false,
+    phoneAuthorized: false,
   },
 
   async onLoad(query: Record<string, string | undefined>) {
+    await bootstrapSession();
     const postId = query.id || 'service-1';
     this.setData({
       postId,
@@ -83,11 +87,29 @@ Page({
         contactButtonLabel: detail.viewerState.phoneAuthorized
           ? '请求加好友'
           : '先绑定手机号',
+        phoneAuthorized: detail.viewerState.phoneAuthorized,
       });
     } finally {
       this.setData({
         isLoading: false,
       });
+    }
+  },
+
+  async onShow() {
+    if (!getAuthState().isAuthenticated) {
+      return;
+    }
+
+    try {
+      await syncCurrentUser();
+      const nextState = getAuthState();
+      this.setData({
+        phoneAuthorized: nextState.phoneAuthorized,
+        contactButtonLabel: nextState.phoneAuthorized ? '请求加好友' : '先绑定手机号',
+      });
+    } catch {
+      // Preserve the last successful state when sync fails.
     }
   },
 
@@ -99,13 +121,7 @@ Page({
 
   async requestContact() {
     const postId = this.data.postId as string;
-    const contactButtonLabel = this.data.contactButtonLabel as string;
-
-    if (contactButtonLabel !== '请求加好友') {
-      wx.showToast({
-        title: '请先完成手机号授权',
-        icon: 'none',
-      });
+    if (!(await this.ensurePhoneReady())) {
       return;
     }
 
@@ -205,6 +221,47 @@ Page({
     }
   },
 
+  async handleGetPhoneNumber(
+    event: WechatMiniprogram.CustomEvent<{ code?: string; errMsg?: string }>,
+  ) {
+    const phoneCode = event.detail.code;
+    if (!phoneCode) {
+      wx.showToast({
+        title: '需要手机号授权后才能联系发布者',
+        icon: 'none',
+      });
+      return;
+    }
+
+    this.setData({
+      isAuthorizingPhone: true,
+    });
+
+    try {
+      await ensurePhoneAuthorized(phoneCode);
+      await syncCurrentUser();
+      const nextState = getAuthState();
+      this.setData({
+        phoneAuthorized: nextState.phoneAuthorized,
+        contactButtonLabel: '请求加好友',
+      });
+      wx.showToast({
+        title: '授权成功',
+        icon: 'success',
+      });
+      await this.requestContact();
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : '手机号授权失败',
+        icon: 'none',
+      });
+    } finally {
+      this.setData({
+        isAuthorizingPhone: false,
+      });
+    }
+  },
+
   resolveBadge(serviceCategory: ServiceCategory | null) {
     switch (serviceCategory) {
       case 'BOARDING':
@@ -231,5 +288,32 @@ Page({
         value: label === '收藏' ? `${nextValue} 收藏` : String(nextValue),
       };
     });
+  },
+
+  async ensurePhoneReady() {
+    if (this.data.phoneAuthorized) {
+      return true;
+    }
+
+    try {
+      await syncCurrentUser();
+    } catch {
+      // Ignore sync failures and rely on the latest local state.
+    }
+
+    const nextState = getAuthState();
+    if (nextState.phoneAuthorized) {
+      this.setData({
+        phoneAuthorized: true,
+        contactButtonLabel: '请求加好友',
+      });
+      return true;
+    }
+
+    wx.showToast({
+      title: '请先完成手机号授权',
+      icon: 'none',
+    });
+    return false;
   },
 });
