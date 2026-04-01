@@ -1,4 +1,11 @@
-import { loadPostDetail } from '../../../utils/api';
+import {
+  createComment,
+  loadComments,
+  loadPostDetail,
+  togglePostFavorite,
+  togglePostLike,
+} from '../../../utils/api';
+import type { CommentItem } from '../../../utils/api-types';
 
 Page({
   data: {
@@ -18,7 +25,12 @@ Page({
     ],
     tags: ['晒日常', '领养故事', '城市宠物'],
     actions: ['点赞', '评论', '收藏', '分享'],
+    comments: [] as CommentItem[],
+    commentInput: '',
+    liked: false,
+    favorited: true,
     isLoading: false,
+    isSubmittingComment: false,
   },
 
   async onLoad(query: Record<string, string | undefined>) {
@@ -29,7 +41,10 @@ Page({
     });
 
     try {
-      const detail = await loadPostDetail(postId, 'PET_SOCIAL');
+      const [detail, comments] = await Promise.all([
+        loadPostDetail(postId, 'PET_SOCIAL'),
+        loadComments(postId),
+      ]);
       this.setData({
         authorName: detail.author?.nickname || '宠友分享',
         badge: '宠物圈',
@@ -41,12 +56,10 @@ Page({
           { value: String(detail.stats.commentCount), label: '评论' },
           { value: String(detail.stats.favoriteCount), label: '收藏' },
         ],
-        actions: [
-          detail.viewerState.liked ? '已点赞' : '点赞',
-          '评论',
-          detail.viewerState.favorited ? '已收藏' : '收藏',
-          '分享',
-        ],
+        comments: comments.items,
+        liked: detail.viewerState.liked,
+        favorited: detail.viewerState.favorited,
+        actions: this.buildActions(detail.viewerState.liked, detail.viewerState.favorited),
       });
     } finally {
       this.setData({
@@ -58,6 +71,90 @@ Page({
   goBack() {
     wx.navigateBack({
       delta: 1,
+    });
+  },
+
+  onCommentInput(event: WechatMiniprogram.CustomEvent<{ value: string }>) {
+    this.setData({
+      commentInput: event.detail.value,
+    });
+  },
+
+  async toggleLike() {
+    const postId = this.data.postId as string;
+    const nextLiked = !this.data.liked;
+    await togglePostLike(postId, nextLiked);
+    this.setData({
+      liked: nextLiked,
+      actions: this.buildActions(nextLiked, this.data.favorited),
+      stats: this.updateStatsValue('点赞', nextLiked ? 1 : -1),
+    });
+  },
+
+  async toggleFavorite() {
+    const postId = this.data.postId as string;
+    const nextFavorited = !this.data.favorited;
+    await togglePostFavorite(postId, nextFavorited);
+    this.setData({
+      favorited: nextFavorited,
+      actions: this.buildActions(this.data.liked, nextFavorited),
+      stats: this.updateStatsValue('收藏', nextFavorited ? 1 : -1),
+    });
+  },
+
+  focusCommentInput() {
+    wx.pageScrollTo({
+      scrollTop: 9999,
+      duration: 200,
+    });
+  },
+
+  async submitComment() {
+    const postId = this.data.postId as string;
+    const content = (this.data.commentInput as string).trim();
+
+    if (!content || this.data.isSubmittingComment) {
+      return;
+    }
+
+    this.setData({
+      isSubmittingComment: true,
+    });
+
+    try {
+      await createComment(postId, content);
+      const comments = await loadComments(postId);
+      this.setData({
+        comments: comments.items,
+        commentInput: '',
+        stats: this.updateStatsValue('评论', 1),
+      });
+      wx.showToast({
+        title: '评论已发送',
+        icon: 'success',
+      });
+    } finally {
+      this.setData({
+        isSubmittingComment: false,
+      });
+    }
+  },
+
+  buildActions(liked: boolean, favorited: boolean) {
+    return [liked ? '已点赞' : '点赞', '评论', favorited ? '已收藏' : '收藏', '分享'];
+  },
+
+  updateStatsValue(label: string, delta: number) {
+    return (this.data.stats as Array<{ value: string; label: string }>).map((item) => {
+      if (item.label !== label) {
+        return item;
+      }
+
+      const nextValue = Math.max(0, Number(item.value) + delta);
+      return {
+        ...item,
+        value: String(nextValue),
+      };
     });
   },
 });

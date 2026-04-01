@@ -1,4 +1,6 @@
 import type {
+  CommentCreateResult,
+  CommentListResult,
   ContactRequestResult,
   FeedCardView,
   FeedItem,
@@ -11,9 +13,13 @@ import type {
   ProfileSummary,
   PublishDraft,
   PublishResult,
+  ToggleFavoriteResult,
+  ToggleLikeResult,
 } from './api-types';
 import {
+  appendMockComment,
   getMockFavorites,
+  getMockComments,
   getMockMyPosts,
   getMockPostDetail,
   getMockProfile,
@@ -21,6 +27,8 @@ import {
   mockMessageState,
   mockProfileState,
   mockServiceState,
+  toggleMockFavorite,
+  toggleMockLike,
 } from './mock-api';
 import { getMockSession } from './session';
 
@@ -48,7 +56,7 @@ function getApiBaseUrl() {
 
 function getAuthHeader() {
   const session = getMockSession();
-  return session?.token
+  return session?.token && !session.isMock
     ? {
         Authorization: `Bearer ${session.token}`,
       }
@@ -178,7 +186,9 @@ function toMyPostCardView(item: {
   serviceCategory: FeedItem['serviceCategory'];
   title: string;
   status: string;
-  summary: string;
+  city?: string;
+  rejectReason?: string | null;
+  summary?: string;
   route?: string;
 }): MyPostCardView {
   return {
@@ -187,7 +197,11 @@ function toMyPostCardView(item: {
     serviceCategory: item.serviceCategory,
     title: item.title,
     status: item.status,
-    summary: item.summary,
+    summary:
+      item.summary ??
+      (item.status === 'REJECTED' && item.rejectReason
+        ? `审核未通过：${item.rejectReason}`
+        : `${item.city ?? '西安'} · ${item.status}`),
     route: item.route ?? buildDetailRoute(item),
   };
 }
@@ -326,6 +340,53 @@ export async function requestContactForPost(postId: string) {
   );
 }
 
+export async function loadComments(postId: string) {
+  return withFallback(
+    () =>
+      request<CommentListResult>({
+        method: 'GET',
+        path: `/posts/${postId}/comments`,
+      }),
+    getMockComments(postId),
+  );
+}
+
+export async function createComment(postId: string, content: string) {
+  return withFallback(
+    () =>
+      request<CommentCreateResult>({
+        method: 'POST',
+        path: `/posts/${postId}/comments`,
+        data: {
+          content,
+        },
+      }),
+    appendMockComment(postId, content),
+  );
+}
+
+export async function togglePostLike(postId: string, liked: boolean) {
+  return withFallback(
+    () =>
+      request<ToggleLikeResult>({
+        method: liked ? 'POST' : 'DELETE',
+        path: `/posts/${postId}/like`,
+      }),
+    toggleMockLike(postId, liked),
+  );
+}
+
+export async function togglePostFavorite(postId: string, favorited: boolean) {
+  return withFallback(
+    () =>
+      request<ToggleFavoriteResult>({
+        method: favorited ? 'POST' : 'DELETE',
+        path: `/posts/${postId}/favorite`,
+      }),
+    toggleMockFavorite(postId, favorited),
+  );
+}
+
 export async function loadNotifications() {
   return withFallback(
     async () => {
@@ -387,7 +448,9 @@ export async function loadMyPosts() {
         serviceCategory: FeedItem['serviceCategory'];
         title: string;
         status: string;
-        summary: string;
+        city?: string;
+        rejectReason?: string | null;
+        summary?: string;
       }>>({
         method: 'GET',
         path: '/posts/my?page=1&pageSize=20',

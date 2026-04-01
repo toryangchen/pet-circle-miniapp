@@ -30,6 +30,7 @@
             wx:key="id"
             class="message-item pc-card"
             bindtap="openConversation"
+            data-route="{{item.route}}"
           >
             <view class="message-item__icon message-item__icon--{{item.type}}">
               <text>{{item.type === 'CONTACT_REQUEST' ? '联' : item.type === 'LIKE_POST' ? '赞' : '评'}}</text>

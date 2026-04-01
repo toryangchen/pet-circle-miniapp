@@ -18,7 +18,13 @@
       <view class="my-hero pc-card">
         <view class="my-profile">
           <view class="my-avatar">
-            <image class="my-avatar__image" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=240&q=80" mode="aspectFill"></image>
+            <image
+              wx:if="{{avatarUrl}}"
+              class="my-avatar__image"
+              src="{{avatarUrl}}"
+              mode="aspectFill"
+            ></image>
+            <view wx:else class="my-avatar__fallback">{{nickname ? nickname.slice(0, 1) : '宠'}}</view>
           </view>
           <view class="my-profile__meta">
             <text class="my-profile__name">{{nickname}}</text>

@@ -57,10 +57,49 @@
         </view>
         <view class="detail-contact__button" bindtap="requestContact">{{contactButtonLabel}}</view>
       </view>
+
+      <view class="pc-card detail-section">
+        <view class="detail-section__header">
+          <text class="detail-section__title">公开评论</text>
+          <text class="detail-section__count">{{comments.length}} 条</text>
+        </view>
+        <view class="detail-comment-box">
+          <input
+            class="detail-comment-box__input"
+            placeholder="补充需求或公开提问"
+            value="{{commentInput}}"
+            bindinput="onCommentInput"
+          />
+          <view class="detail-comment-box__button" bindtap="submitComment">
+            {{isSubmittingComment ? '发送中' : '发送'}}
+          </view>
+        </view>
+        <view wx:if="{{comments.length}}" class="detail-comment-list">
+          <view wx:for="{{comments}}" wx:key="id" class="detail-comment">
+            <view class="detail-comment__head">
+              <view class="detail-comment__avatar">{{item.author.nickname ? item.author.nickname.slice(0, 1) : '宠'}}</view>
+              <view class="detail-comment__meta">
+                <text class="detail-comment__author">{{item.author.nickname || '宠友'}}</text>
+                <text class="detail-comment__time">{{item.createdAt}}</text>
+              </view>
+            </view>
+            <text class="detail-comment__content">{{item.content}}</text>
+            <view wx:if="{{item.replies.length}}" class="detail-reply-list">
+              <view wx:for="{{item.replies}}" wx:key="id" class="detail-reply">
+                <text class="detail-reply__author">{{item.author.nickname || '宠友'}}：</text>
+                <text class="detail-reply__content">{{item.content}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
     </view>
   </scroll-view>
 
   <view class="detail-bottom">
+    <view class="detail-bottom__button detail-bottom__button--secondary" bindtap="toggleFavorite">
+      {{favorited ? '已收藏' : '收藏'}}
+    </view>
     <view class="detail-bottom__button detail-bottom__button--primary" bindtap="requestContact">{{contactButtonLabel}}</view>
   </view>
 </view>

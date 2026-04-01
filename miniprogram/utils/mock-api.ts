@@ -7,6 +7,8 @@ import {
   SERVICE_TAGS,
 } from './mock';
 import type {
+  CommentCreateResult,
+  CommentItem,
   FeedCardView,
   FeedItem,
   NotificationCardView,
@@ -210,6 +212,68 @@ const posts = [
   },
 ];
 
+const commentLookup: Record<string, CommentItem[]> = {
+  'home-1': [
+    {
+      id: 'comment-home-1',
+      content: '太治愈了，晒太阳的小表情真的好可爱。',
+      createdAt: '2026-04-01T10:20:00.000Z',
+      author: {
+        id: 'comment-user-1',
+        nickname: '团子的小邻居',
+        avatarUrl: null,
+      },
+      replies: [
+        {
+          id: 'comment-home-1-reply-1',
+          content: '它当天回家睡了一下午，超级满足。',
+          createdAt: '2026-04-01T10:40:00.000Z',
+          author: {
+            id: 'author-home-1',
+            nickname: '雪球',
+            avatarUrl: null,
+          },
+        },
+      ],
+    },
+    {
+      id: 'comment-home-2',
+      content: '这种社区内容就很适合一期，轻松又真实。',
+      createdAt: '2026-04-01T11:10:00.000Z',
+      author: {
+        id: 'comment-user-2',
+        nickname: '橘猫罐头',
+        avatarUrl: null,
+      },
+      replies: [],
+    },
+  ],
+  'service-1': [
+    {
+      id: 'comment-service-1',
+      content: '节假日也能约吗？我家两只猫需要每天上门一次。',
+      createdAt: '2026-04-01T09:35:00.000Z',
+      author: {
+        id: 'comment-user-3',
+        nickname: '两只布偶的铲屎官',
+        avatarUrl: null,
+      },
+      replies: [
+        {
+          id: 'comment-service-1-reply-1',
+          content: '可以，五一这几天我都在西安。',
+          createdAt: '2026-04-01T09:50:00.000Z',
+          author: {
+            id: 'author-service-1',
+            nickname: '喵咪照护站',
+            avatarUrl: null,
+          },
+        },
+      ],
+    },
+  ],
+};
+
 function toDetailRoute(item: { id: string; type: FeedItem['type'] }) {
   return item.type === 'SERVICE'
     ? `/pages/detail/service/index?id=${item.id}`
@@ -394,6 +458,85 @@ export function getMockPostDetail(
   }
 
   return fallbackType === 'SERVICE' ? postDetails['service-1'] : postDetails['home-1'];
+}
+
+export function getMockComments(postId: string) {
+  return {
+    items: [...(commentLookup[postId] ?? [])],
+  };
+}
+
+export function appendMockComment(postId: string, content: string): CommentCreateResult {
+  const createdAt = new Date().toISOString();
+  const nextComment: CommentItem = {
+    id: `mock-comment-${Date.now()}`,
+    content,
+    createdAt,
+    author: {
+      id: 'mock-user-1',
+      nickname: '糯米和团子的家',
+      avatarUrl: null,
+    },
+    replies: [],
+  };
+
+  const list = commentLookup[postId] ?? [];
+  list.push(nextComment);
+  commentLookup[postId] = list;
+
+  const detail = postDetails[postId];
+  if (detail) {
+    detail.stats.commentCount += 1;
+    detail.updatedAt = createdAt;
+  }
+
+  return {
+    id: nextComment.id,
+  };
+}
+
+export function toggleMockLike(postId: string, liked: boolean) {
+  const detail = postDetails[postId];
+  if (!detail) {
+    return {
+      id: postId,
+      liked,
+    };
+  }
+
+  const previous = detail.viewerState.liked;
+  if (previous !== liked) {
+    detail.stats.likeCount += liked ? 1 : -1;
+    detail.viewerState.liked = liked;
+    detail.updatedAt = new Date().toISOString();
+  }
+
+  return {
+    id: postId,
+    liked: detail.viewerState.liked,
+  };
+}
+
+export function toggleMockFavorite(postId: string, favorited: boolean) {
+  const detail = postDetails[postId];
+  if (!detail) {
+    return {
+      id: postId,
+      favorited,
+    };
+  }
+
+  const previous = detail.viewerState.favorited;
+  if (previous !== favorited) {
+    detail.stats.favoriteCount += favorited ? 1 : -1;
+    detail.viewerState.favorited = favorited;
+    detail.updatedAt = new Date().toISOString();
+  }
+
+  return {
+    id: postId,
+    favorited: detail.viewerState.favorited,
+  };
 }
 
 export function getMockFeed(channel: PostDetail['type']) {

@@ -7,6 +7,6 @@ App<IAppOption>({
     logs.unshift(Date.now());
     wx.setStorageSync('logs', logs);
 
-    ensureMockSession();
+    void ensureMockSession();
   },
 });

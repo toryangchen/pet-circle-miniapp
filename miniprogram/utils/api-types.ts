@@ -88,6 +88,33 @@ export interface PostDetail {
   updatedAt: string;
 }
 
+export interface CommentReplyItem {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: {
+    id: string;
+    nickname: string | null;
+    avatarUrl: string | null;
+  };
+}
+
+export interface CommentItem {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: {
+    id: string;
+    nickname: string | null;
+    avatarUrl: string | null;
+  };
+  replies: CommentReplyItem[];
+}
+
+export interface CommentListResult {
+  items: CommentItem[];
+}
+
 export interface NotificationItem {
   id: string;
   type: NotificationType;
@@ -172,4 +199,18 @@ export interface PublishResult {
 export interface ContactRequestResult {
   conversationId: string;
   status: ConversationStatus;
+}
+
+export interface ToggleLikeResult {
+  id: string;
+  liked: boolean;
+}
+
+export interface ToggleFavoriteResult {
+  id: string;
+  favorited: boolean;
+}
+
+export interface CommentCreateResult {
+  id: string;
 }

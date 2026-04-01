@@ -1,4 +1,11 @@
-import { loadPostDetail, requestContactForPost } from '../../../utils/api';
+import {
+  createComment,
+  loadComments,
+  loadPostDetail,
+  requestContactForPost,
+  togglePostFavorite,
+} from '../../../utils/api';
+import type { CommentItem } from '../../../utils/api-types';
 
 Page({
   data: {
@@ -22,7 +29,11 @@ Page({
     contactTitle: '联系发布者',
     contactSummary: '进入受控联系会话后，系统会帮你发送申请和联系方式。',
     contactButtonLabel: '请求加好友',
+    comments: [] as CommentItem[],
+    commentInput: '',
+    favorited: false,
     isLoading: false,
+    isSubmittingComment: false,
   },
 
   async onLoad(query: Record<string, string | undefined>) {
@@ -33,7 +44,10 @@ Page({
     });
 
     try {
-      const detail = await loadPostDetail(postId, 'SERVICE');
+      const [detail, comments] = await Promise.all([
+        loadPostDetail(postId, 'SERVICE'),
+        loadComments(postId),
+      ]);
       this.setData({
         authorName: detail.author?.nickname || '服务发布',
         badge: this.resolveBadge(detail.serviceCategory),
@@ -60,6 +74,8 @@ Page({
               : '需先完成手机号授权',
           },
         ],
+        comments: comments.items,
+        favorited: detail.viewerState.favorited,
         contactButtonLabel: detail.viewerState.phoneAuthorized
           ? '请求加好友'
           : '先绑定手机号',
@@ -96,6 +112,53 @@ Page({
     });
   },
 
+  onCommentInput(event: WechatMiniprogram.CustomEvent<{ value: string }>) {
+    this.setData({
+      commentInput: event.detail.value,
+    });
+  },
+
+  async toggleFavorite() {
+    const postId = this.data.postId as string;
+    const nextFavorited = !this.data.favorited;
+    await togglePostFavorite(postId, nextFavorited);
+    this.setData({
+      favorited: nextFavorited,
+      stats: this.updateStatsValue('收藏', nextFavorited ? 1 : -1),
+    });
+  },
+
+  async submitComment() {
+    const postId = this.data.postId as string;
+    const content = (this.data.commentInput as string).trim();
+
+    if (!content || this.data.isSubmittingComment) {
+      return;
+    }
+
+    this.setData({
+      isSubmittingComment: true,
+    });
+
+    try {
+      await createComment(postId, content);
+      const comments = await loadComments(postId);
+      this.setData({
+        comments: comments.items,
+        commentInput: '',
+        stats: this.updateStatsValue('评论', 1),
+      });
+      wx.showToast({
+        title: '评论已发送',
+        icon: 'success',
+      });
+    } finally {
+      this.setData({
+        isSubmittingComment: false,
+      });
+    }
+  },
+
   resolveBadge(serviceCategory: string | null) {
     switch (serviceCategory) {
       case 'BOARDING':
@@ -107,5 +170,20 @@ Page({
       default:
         return '上门喂养';
     }
+  },
+
+  updateStatsValue(label: string, delta: number) {
+    return (this.data.stats as Array<{ value: string; label: string }>).map((item) => {
+      if (item.label !== label) {
+        return item;
+      }
+
+      const numericValue = Number(String(item.value).replace(/[^\d]/g, ''));
+      const nextValue = Math.max(0, numericValue + delta);
+      return {
+        ...item,
+        value: label === '收藏' ? `${nextValue} 收藏` : String(nextValue),
+      };
+    });
   },
 });
