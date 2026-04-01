@@ -1,7 +1,12 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/logs/logs"
+    "pages/service/index",
+    "pages/publish/index",
+    "pages/message/index",
+    "pages/my/index",
+    "pages/detail/service/index",
+    "pages/detail/pet-social/index"
   ],
   "window": {
     "navigationBarTextStyle": "black",

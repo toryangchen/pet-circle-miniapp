@@ -1,0 +1,73 @@
+<view class="pc-screen publish-screen">
+  <view class="publish-topbar">
+    <view class="pc-topbar__status">
+      <text>9:41</text>
+      <text>5G 100%</text>
+    </view>
+    <view class="pc-topbar__nav">
+      <view class="pc-topbar__ghost"></view>
+      <text class="pc-topbar__title">{{title}}</text>
+      <view class="pc-topbar__ghost"></view>
+    </view>
+  </view>
+
+  <scroll-view class="publish-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="pc-page-body">
+      <view class="publish-intro">
+        <view class="pc-chip pc-chip--warm">统一发布入口</view>
+        <text class="publish-intro__title">这次想发布什么？</text>
+        <text class="publish-intro__summary">先选择内容类型，再进入对应表单。宠物圈偏分享，服务和闲置更偏本地信息发布。</text>
+      </view>
+
+      <view class="publish-switch">
+        <view
+          wx:for="{{tabs}}"
+          wx:key="key"
+          class="publish-switch__item {{item.key === currentType ? 'publish-switch__item--active' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="switchType"
+        >
+          {{item.label}}
+        </view>
+      </view>
+
+      <view class="publish-type-list">
+        <view
+          wx:for="{{publishTypes}}"
+          wx:key="key"
+          class="publish-type-card {{item.key === currentType ? 'publish-type-card--active' : ''}}"
+        >
+          <view class="publish-type-card__icon">
+            <text>+</text>
+          </view>
+          <view class="publish-type-card__body">
+            <text class="publish-type-card__title">{{item.title}}</text>
+            <text class="publish-type-card__summary">{{item.description}}</text>
+            <view class="publish-type-card__chip">{{item.chip}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="publish-form pc-card">
+        <view class="publish-form__head">
+          <text class="publish-form__title">服务表单预览</text>
+          <text class="publish-form__hint">后续接后端时这里会切换成真实输入项</text>
+        </view>
+
+        <view class="publish-form__fields">
+          <view wx:for="{{fields}}" wx:key="label" class="publish-field">
+            <text class="publish-field__label">{{item.label}}</text>
+            <text class="publish-field__value">{{item.value}}</text>
+          </view>
+        </view>
+
+        <view class="publish-form__bottom">
+          <view class="publish-form__tip">人工审核后即发布成功，预计 3 - 5 分钟完成审核。</view>
+          <view class="publish-form__button">发布</view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <pet-tabbar current="publish"></pet-tabbar>
+</view>

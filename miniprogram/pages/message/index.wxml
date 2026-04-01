@@ -1,0 +1,57 @@
+<view class="pc-screen message-screen">
+  <view class="pc-topbar">
+    <view class="pc-topbar__status">
+      <text>9:41</text>
+      <text>5G 100%</text>
+    </view>
+    <view class="pc-topbar__nav">
+      <view class="pc-topbar__ghost"></view>
+      <text class="pc-topbar__title">{{title}}</text>
+      <view class="pc-topbar__ghost"></view>
+    </view>
+  </view>
+
+  <scroll-view class="message-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="pc-page-body">
+      <view class="message-summary pc-card">
+        <view class="message-summary__meta">
+          <view class="pc-chip pc-chip--warm">通知中心</view>
+          <view class="message-summary__count">{{unreadCount}} 条未读</view>
+        </view>
+        <text class="message-summary__title">点赞、评论和联系申请会统一进这里</text>
+        <text class="message-summary__summary">消息页不是自由聊天列表，点击后会进入帖子详情或受控联系会话。</text>
+      </view>
+
+      <view class="message-section">
+        <text class="message-section__title">最近通知</text>
+        <view class="message-list">
+          <view
+            wx:for="{{notifications}}"
+            wx:key="id"
+            class="message-item pc-card"
+            bindtap="openConversation"
+          >
+            <view class="message-item__icon message-item__icon--{{item.type}}">
+              <text>{{item.type === 'CONTACT_REQUEST' ? '联' : item.type === 'LIKE_POST' ? '赞' : '评'}}</text>
+            </view>
+            <view class="message-item__body">
+              <view class="message-item__head">
+                <text class="message-item__title">{{item.title}}</text>
+                <view wx:if="{{item.unread}}" class="message-item__dot"></view>
+              </view>
+              <text class="message-item__summary">{{item.summary}}</text>
+              <text class="message-item__time">{{item.time}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="message-hint">
+        <text class="message-hint__title">受控联系申请</text>
+        <text class="message-hint__summary">联系申请和联系通过通知会和互动通知放在一起，统一按时间倒序展示。</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <pet-tabbar current="message"></pet-tabbar>
+</view>

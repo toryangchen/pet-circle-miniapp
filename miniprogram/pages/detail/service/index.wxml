@@ -1,0 +1,82 @@
+<view class="pc-screen detail-screen detail-screen--service">
+  <view class="detail-topbar">
+    <view class="pc-topbar__status">
+      <text>9:41</text>
+      <text>5G 100%</text>
+    </view>
+    <view class="detail-topbar__nav">
+      <view class="detail-back" bindtap="goBack">‹</view>
+      <view class="detail-author">
+        <view class="detail-author__avatar">宠</view>
+        <view class="detail-author__meta">
+          <text class="detail-author__name">{{authorName}}</text>
+          <text class="detail-author__sub">服务帖 · 已审核通过</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="detail-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="detail-hero">
+      <image class="detail-hero__image" src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=1080&q=80" mode="aspectFill"></image>
+      <view class="detail-dots">
+        <view class="detail-dot detail-dot--active"></view>
+        <view class="detail-dot"></view>
+        <view class="detail-dot"></view>
+      </view>
+    </view>
+
+    <view class="pc-page-body detail-body">
+      <view class="pc-card detail-card">
+        <view class="pc-chip pc-chip--warm">上门喂养</view>
+        <text class="detail-card__title">未央区可上门喂养，拍照反馈很及时</text>
+        <text class="detail-card__summary">上门喂食、换水、清理猫砂，工作日晚间和周末都可约。</text>
+
+        <view class="detail-meta">
+          <view class="detail-meta__item">
+            <text class="detail-meta__value">3.8km</text>
+            <text class="detail-meta__label">距离</text>
+          </view>
+          <view class="detail-meta__item">
+            <text class="detail-meta__value">30元起</text>
+            <text class="detail-meta__label">费用</text>
+          </view>
+          <view class="detail-meta__item">
+            <text class="detail-meta__value">服务中</text>
+            <text class="detail-meta__label">状态</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="pc-card detail-section">
+        <text class="detail-section__title">服务信息</text>
+        <view class="detail-fields">
+          <view class="detail-field">
+            <text class="detail-field__label">服务区域</text>
+            <text class="detail-field__value">未央区 / 雁塔区</text>
+          </view>
+          <view class="detail-field">
+            <text class="detail-field__label">可约时间</text>
+            <text class="detail-field__value">工作日晚间 / 周末全天</text>
+          </view>
+          <view class="detail-field">
+            <text class="detail-field__label">联系方式</text>
+            <text class="detail-field__value">受控联系申请后展示</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="pc-card detail-contact">
+        <view class="detail-contact__copy">
+          <text class="detail-contact__title">联系发布者</text>
+          <text class="detail-contact__summary">进入受控联系会话后，系统会帮你发送申请和联系方式。</text>
+        </view>
+        <view class="detail-contact__button">请求加好友</view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="detail-bottom">
+    <view class="detail-bottom__button detail-bottom__button--primary">联系发布者</view>
+  </view>
+</view>

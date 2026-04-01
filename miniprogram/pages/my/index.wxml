@@ -1,0 +1,72 @@
+<view class="pc-screen my-screen">
+  <view class="my-hero-bg"></view>
+
+  <view class="my-topbar">
+    <view class="my-topbar__status">
+      <text>9:41</text>
+      <text>5G 100%</text>
+    </view>
+    <view class="my-topbar__nav">
+      <view class="pc-topbar__ghost"></view>
+      <text class="pc-topbar__title">{{title}}</text>
+      <view class="pc-topbar__ghost"></view>
+    </view>
+  </view>
+
+  <scroll-view class="my-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="pc-page-body">
+      <view class="my-hero pc-card">
+        <view class="my-profile">
+          <view class="my-avatar">
+            <image class="my-avatar__image" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=240&q=80" mode="aspectFill"></image>
+          </view>
+          <view class="my-profile__meta">
+            <text class="my-profile__name">{{nickname}}</text>
+            <view class="my-profile__row">
+              <view class="pc-chip pc-chip--soft">{{phoneStatus}}</view>
+              <text class="my-profile__phone">{{phoneMask}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="my-stats">
+          <view wx:for="{{stats}}" wx:key="label" class="my-stat">
+            <text class="my-stat__value">{{item.value}}</text>
+            <text class="my-stat__label">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="my-body">
+        <view class="my-section">
+          <text class="my-section__title">常用入口</text>
+          <view class="my-action-list">
+            <view wx:for="{{actions}}" wx:key="id" class="my-action pc-card">
+              <view class="my-action__copy">
+                <text class="my-action__title">{{item.title}}</text>
+                <text class="my-action__summary">{{item.summary}}</text>
+              </view>
+              <text class="my-action__arrow">›</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="my-section">
+          <text class="my-section__title">内容管理</text>
+          <view class="my-grid">
+            <view class="my-grid__card">
+              <text class="my-grid__title">我的收藏</text>
+              <text class="my-grid__summary">快速回到收藏的内容和服务信息。</text>
+            </view>
+            <view class="my-grid__card">
+              <text class="my-grid__title">我的发布</text>
+              <text class="my-grid__summary">查看正在审核、已上线和已下架的帖子。</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <pet-tabbar current="my"></pet-tabbar>
+</view>

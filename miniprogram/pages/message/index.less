@@ -1,0 +1,146 @@
+.message-screen {
+  background: linear-gradient(180deg, #f7f3ec 0%, #f7f3ec 100%);
+}
+
+.message-scroll {
+  height: calc(100vh - 168rpx);
+}
+
+.message-summary {
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  background: linear-gradient(180deg, #fffaf2 0%, #ffffff 100%);
+}
+
+.message-summary__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10rpx;
+}
+
+.message-summary__count {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: var(--pc-accent);
+}
+
+.message-summary__title {
+  font-size: 40rpx;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.message-summary__summary {
+  font-size: 24rpx;
+  line-height: 1.45;
+  color: var(--pc-text-secondary);
+}
+
+.message-section {
+  margin-top: 22rpx;
+}
+
+.message-section__title {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+  margin-top: 14rpx;
+}
+
+.message-item {
+  padding: 18rpx;
+  display: flex;
+  gap: 14rpx;
+  align-items: flex-start;
+}
+
+.message-item__icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #45b20d 0%, #30920b 100%);
+  flex-shrink: 0;
+}
+
+.message-item__icon--COMMENT_POST,
+.message-item__icon--REPLY_COMMENT {
+  background: linear-gradient(135deg, #ca8d00 0%, #a96f05 100%);
+}
+
+.message-item__icon--LIKE_POST {
+  background: linear-gradient(135deg, #ef7660 0%, #dd5f4a 100%);
+}
+
+.message-item__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.message-item__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10rpx;
+}
+
+.message-item__title {
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.message-item__dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 999rpx;
+  background: #ff5a5a;
+  flex-shrink: 0;
+}
+
+.message-item__summary {
+  font-size: 22rpx;
+  color: var(--pc-text-secondary);
+  line-height: 1.45;
+}
+
+.message-item__time {
+  font-size: 20rpx;
+  color: var(--pc-text-muted);
+}
+
+.message-hint {
+  margin-top: 22rpx;
+  padding: 24rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(180deg, #ffffff 0%, #fffaf2 100%);
+  border: 1rpx solid var(--pc-line);
+}
+
+.message-hint__title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.message-hint__summary {
+  display: block;
+  font-size: 22rpx;
+  color: var(--pc-text-secondary);
+  line-height: 1.5;
+}

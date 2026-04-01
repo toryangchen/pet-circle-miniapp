@@ -1,10 +1,132 @@
-/**app.wxss**/
-.container {
-  height: 100%;
+:root {
+  --pc-bg: #f7f3ec;
+  --pc-surface: #ffffff;
+  --pc-surface-alt: #f0ebe2;
+  --pc-line: #e6ddd0;
+  --pc-text-primary: #2f2a26;
+  --pc-text-secondary: #7a6f66;
+  --pc-text-muted: #a2968a;
+  --pc-accent: #40a200;
+  --pc-accent-soft: #e5eedf;
+  --pc-warm: #ca8d00;
+  --pc-warm-soft: #f9e8d6;
+}
+
+page {
+  min-height: 100%;
+  background: var(--pc-bg);
+  color: var(--pc-text-primary);
+  font-family: "Geist", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+image {
+  display: block;
+}
+
+.pc-screen {
+  min-height: 100vh;
+  background: var(--pc-bg);
+  color: var(--pc-text-primary);
+}
+
+.pc-topbar {
+  padding-top: env(safe-area-inset-top);
+  background: var(--pc-surface);
+  border-bottom: 1rpx solid var(--pc-line);
+}
+
+.pc-topbar__status {
+  height: 88rpx;
+  padding: 0 28rpx;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 200rpx 0;
   box-sizing: border-box;
-} 
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.pc-topbar__nav {
+  height: 80rpx;
+  padding: 0 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.pc-topbar__location {
+  padding: 10rpx 16rpx;
+  border-radius: 999rpx;
+  background: var(--pc-warm-soft);
+  color: var(--pc-warm);
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.pc-topbar__title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--pc-text-primary);
+  letter-spacing: 1rpx;
+}
+
+.pc-topbar__ghost {
+  width: 104rpx;
+}
+
+.pc-topbar__detail-avatar {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 999rpx;
+  background: var(--pc-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-topbar__detail-avatar-icon {
+  width: 24rpx;
+  height: 24rpx;
+}
+
+.pc-page-body {
+  padding: 16rpx 16rpx 176rpx;
+  box-sizing: border-box;
+}
+
+.pc-card {
+  background: var(--pc-surface);
+  border: 1rpx solid var(--pc-line);
+  border-radius: 32rpx;
+  box-shadow: 0 18rpx 40rpx rgba(47, 42, 38, 0.06);
+}
+
+.pc-card--soft {
+  background: linear-gradient(180deg, #fffaf2 0%, #fff 100%);
+}
+
+.pc-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+  padding: 8rpx 16rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.pc-chip--warm {
+  background: var(--pc-warm-soft);
+  color: var(--pc-warm);
+}
+
+.pc-chip--soft {
+  background: var(--pc-surface-alt);
+  color: var(--pc-text-secondary);
+}
+
+.pc-tabbar-spacer {
+  height: 180rpx;
+}
