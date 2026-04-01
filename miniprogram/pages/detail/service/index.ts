@@ -2,6 +2,7 @@ import {
   createComment,
   loadComments,
   loadPostDetail,
+  replyComment,
   requestContactForPost,
   togglePostFavorite,
 } from '../../../utils/api';
@@ -31,6 +32,9 @@ Page({
     contactButtonLabel: '请求加好友',
     comments: [] as CommentItem[],
     commentInput: '',
+    commentPlaceholder: '补充需求或公开提问',
+    replyTargetId: '',
+    replyTargetAuthor: '',
     favorited: false,
     isLoading: false,
     isSubmittingComment: false,
@@ -118,6 +122,27 @@ Page({
     });
   },
 
+  startReply(event: WechatMiniprogram.CustomEvent<{ commentId?: string; author?: string }>) {
+    const { commentId = '', author = '宠友' } = event.currentTarget.dataset;
+    if (!commentId) {
+      return;
+    }
+
+    this.setData({
+      replyTargetId: commentId,
+      replyTargetAuthor: author,
+      commentPlaceholder: `回复 ${author}`,
+    });
+  },
+
+  cancelReply() {
+    this.setData({
+      replyTargetId: '',
+      replyTargetAuthor: '',
+      commentPlaceholder: '补充需求或公开提问',
+    });
+  },
+
   async toggleFavorite() {
     const postId = this.data.postId as string;
     const nextFavorited = !this.data.favorited;
@@ -131,6 +156,7 @@ Page({
   async submitComment() {
     const postId = this.data.postId as string;
     const content = (this.data.commentInput as string).trim();
+    const replyTargetId = this.data.replyTargetId as string;
 
     if (!content || this.data.isSubmittingComment) {
       return;
@@ -141,15 +167,23 @@ Page({
     });
 
     try {
-      await createComment(postId, content);
+      if (replyTargetId) {
+        await replyComment(replyTargetId, content);
+      } else {
+        await createComment(postId, content);
+      }
+
       const comments = await loadComments(postId);
       this.setData({
         comments: comments.items,
         commentInput: '',
+        replyTargetId: '',
+        replyTargetAuthor: '',
+        commentPlaceholder: '补充需求或公开提问',
         stats: this.updateStatsValue('评论', 1),
       });
       wx.showToast({
-        title: '评论已发送',
+        title: replyTargetId ? '回复已发送' : '评论已发送',
         icon: 'success',
       });
     } finally {

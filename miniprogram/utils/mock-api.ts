@@ -496,6 +496,44 @@ export function appendMockComment(postId: string, content: string): CommentCreat
   };
 }
 
+export function appendMockReply(commentId: string, content: string): CommentCreateResult {
+  const createdAt = new Date().toISOString();
+
+  for (const [postId, list] of Object.entries(commentLookup)) {
+    const targetComment = list.find((item) => item.id === commentId);
+    if (!targetComment) {
+      continue;
+    }
+
+    const nextReply = {
+      id: `mock-reply-${Date.now()}`,
+      content,
+      createdAt,
+      author: {
+        id: 'mock-user-1',
+        nickname: '糯米和团子的家',
+        avatarUrl: null,
+      },
+    };
+
+    targetComment.replies.push(nextReply);
+
+    const detail = postDetails[postId];
+    if (detail) {
+      detail.stats.commentCount += 1;
+      detail.updatedAt = createdAt;
+    }
+
+    return {
+      id: nextReply.id,
+    };
+  }
+
+  return {
+    id: `mock-reply-${Date.now()}`,
+  };
+}
+
 export function toggleMockLike(postId: string, liked: boolean) {
   const detail = postDetails[postId];
   if (!detail) {

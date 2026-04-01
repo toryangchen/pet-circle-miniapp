@@ -60,9 +60,13 @@
           <text class="detail-section__count">{{comments.length}} 条</text>
         </view>
         <view class="detail-comment-box">
+          <view wx:if="{{replyTargetId}}" class="detail-comment-box__replying">
+            <text>正在回复 {{replyTargetAuthor}}</text>
+            <text bindtap="cancelReply">取消</text>
+          </view>
           <input
             class="detail-comment-box__input"
-            placeholder="说点什么，让宠友看到你的想法"
+            placeholder="{{commentPlaceholder}}"
             value="{{commentInput}}"
             bindinput="onCommentInput"
           />
@@ -80,6 +84,9 @@
               </view>
             </view>
             <text class="detail-comment__content">{{item.content}}</text>
+            <view class="detail-comment__reply-trigger" data-comment-id="{{item.id}}" data-author="{{item.author.nickname || '宠友'}}" bindtap="startReply">
+              回复
+            </view>
             <view wx:if="{{item.replies.length}}" class="detail-reply-list">
               <view wx:for="{{item.replies}}" wx:key="id" class="detail-reply">
                 <text class="detail-reply__author">{{item.author.nickname || '宠友'}}：</text>

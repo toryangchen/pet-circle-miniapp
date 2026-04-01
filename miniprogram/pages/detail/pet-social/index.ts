@@ -2,6 +2,7 @@ import {
   createComment,
   loadComments,
   loadPostDetail,
+  replyComment,
   togglePostFavorite,
   togglePostLike,
 } from '../../../utils/api';
@@ -27,6 +28,9 @@ Page({
     actions: ['点赞', '评论', '收藏', '分享'],
     comments: [] as CommentItem[],
     commentInput: '',
+    commentPlaceholder: '说点什么，让宠友看到你的想法',
+    replyTargetId: '',
+    replyTargetAuthor: '',
     liked: false,
     favorited: true,
     isLoading: false,
@@ -80,6 +84,27 @@ Page({
     });
   },
 
+  startReply(event: WechatMiniprogram.CustomEvent<{ commentId?: string; author?: string }>) {
+    const { commentId = '', author = '宠友' } = event.currentTarget.dataset;
+    if (!commentId) {
+      return;
+    }
+
+    this.setData({
+      replyTargetId: commentId,
+      replyTargetAuthor: author,
+      commentPlaceholder: `回复 ${author}`,
+    });
+  },
+
+  cancelReply() {
+    this.setData({
+      replyTargetId: '',
+      replyTargetAuthor: '',
+      commentPlaceholder: '说点什么，让宠友看到你的想法',
+    });
+  },
+
   async toggleLike() {
     const postId = this.data.postId as string;
     const nextLiked = !this.data.liked;
@@ -112,6 +137,7 @@ Page({
   async submitComment() {
     const postId = this.data.postId as string;
     const content = (this.data.commentInput as string).trim();
+    const replyTargetId = this.data.replyTargetId as string;
 
     if (!content || this.data.isSubmittingComment) {
       return;
@@ -122,15 +148,23 @@ Page({
     });
 
     try {
-      await createComment(postId, content);
+      if (replyTargetId) {
+        await replyComment(replyTargetId, content);
+      } else {
+        await createComment(postId, content);
+      }
+
       const comments = await loadComments(postId);
       this.setData({
         comments: comments.items,
         commentInput: '',
+        replyTargetId: '',
+        replyTargetAuthor: '',
+        commentPlaceholder: '说点什么，让宠友看到你的想法',
         stats: this.updateStatsValue('评论', 1),
       });
       wx.showToast({
-        title: '评论已发送',
+        title: replyTargetId ? '回复已发送' : '评论已发送',
         icon: 'success',
       });
     } finally {

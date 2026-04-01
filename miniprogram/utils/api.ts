@@ -19,6 +19,7 @@ import type {
 } from './api-types';
 import {
   appendMockComment,
+  appendMockReply,
   getMockFavorites,
   getMockComments,
   getMockMyPosts,
@@ -363,6 +364,20 @@ export async function createComment(postId: string, content: string) {
         },
       }),
     appendMockComment(postId, content),
+  );
+}
+
+export async function replyComment(commentId: string, content: string) {
+  return withFallback(
+    () =>
+      request<CommentCreateResult>({
+        method: 'POST',
+        path: `/comments/${commentId}/replies`,
+        data: {
+          content,
+        },
+      }),
+    appendMockReply(commentId, content),
   );
 }
 
