@@ -1,4 +1,5 @@
 export type PostType = 'PET_SOCIAL' | 'SERVICE';
+export type PostStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'OFFLINE' | 'COMPLETED';
 export type ServiceCategory =
   | 'ADOPTION'
   | 'SECOND_HAND'
@@ -161,7 +162,7 @@ export interface MyPostCardView {
   type: PostType;
   serviceCategory: ServiceCategory | null;
   title: string;
-  status: string;
+  status: PostStatus;
   summary: string;
   route: string;
 }

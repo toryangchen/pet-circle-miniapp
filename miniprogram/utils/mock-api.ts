@@ -11,6 +11,7 @@ import type {
   CommentItem,
   FeedCardView,
   FeedItem,
+  MyPostCardView,
   NotificationCardView,
   NotificationItem,
   PostDetail,
@@ -191,7 +192,7 @@ const favorites: FeedCardView[] = [
   },
 ];
 
-const posts = [
+const posts: MyPostCardView[] = [
   {
     id: 'post-1',
     type: 'SERVICE' as const,

@@ -1,3 +1,4 @@
+import type { PostStatus } from '../../utils/api-types';
 import { completeMyPost, loadMyPageData, loadMyPosts, offlineMyPost } from '../../utils/api';
 import { PROFILE_ACTIONS } from '../../utils/mock';
 import { mockProfileState } from '../../utils/mock-api';
@@ -9,7 +10,12 @@ const POST_STATUS_TABS = [
   { key: 'REJECTED', label: '已拒绝' },
   { key: 'OFFLINE', label: '已下架' },
   { key: 'COMPLETED', label: '已完成' },
-];
+] as const;
+
+const DEFAULT_POST_PAGE_SIZE = 20;
+
+type PostStatusFilter = PostStatus | '';
+let postListRequestId = 0;
 
 function decoratePosts(
   posts: Array<{
@@ -45,7 +51,12 @@ Page({
     favorites: mockProfileState.favorites,
     posts: decoratePosts(mockProfileState.posts),
     postStatusTabs: POST_STATUS_TABS,
-    currentPostStatus: '',
+    currentPostStatus: '' as PostStatusFilter,
+    postPage: 1,
+    postPageSize: DEFAULT_POST_PAGE_SIZE,
+    postTotal: mockProfileState.posts.length,
+    postHasMore: false,
+    isPostLoadingMore: false,
     isLoading: false,
   },
 
@@ -58,7 +69,19 @@ Page({
 
     try {
       const profile = await loadMyPageData();
-      const posts = await loadMyPosts(this.data.currentPostStatus);
+      const currentStatus = this.data.currentPostStatus as PostStatusFilter;
+      const publishTotal = Number(
+        profile.stats.find((item) => item.label === '发布')?.value ?? profile.posts.length,
+      );
+      const posts =
+        currentStatus === ''
+          ? {
+              items: profile.posts,
+              total: publishTotal,
+              hasMore: publishTotal > profile.posts.length,
+            }
+          : await loadMyPosts(currentStatus, 1, DEFAULT_POST_PAGE_SIZE);
+
       this.setData({
         nickname: profile.nickname,
         avatarUrl: profile.avatarUrl,
@@ -67,6 +90,10 @@ Page({
         stats: profile.stats,
         favorites: profile.favorites,
         posts: decoratePosts(posts.items),
+        postPage: 1,
+        postPageSize: DEFAULT_POST_PAGE_SIZE,
+        postTotal: posts.total,
+        postHasMore: posts.hasMore,
       });
     } finally {
       this.setData({ isLoading: false });
@@ -74,23 +101,70 @@ Page({
   },
 
   async switchPostStatus(event: WechatMiniprogram.BaseEvent) {
-    const { status } = event.currentTarget.dataset as { status?: string };
+    const { status } = event.currentTarget.dataset as { status?: PostStatusFilter };
     if (status === undefined || status === this.data.currentPostStatus) {
       return;
     }
 
     this.setData({
       currentPostStatus: status,
-      isLoading: true,
+    });
+
+    await this.reloadPostList({
+      status,
+      page: 1,
+      append: false,
+    });
+  },
+
+  async loadMorePosts() {
+    if (this.data.isLoading || this.data.isPostLoadingMore || !this.data.postHasMore) {
+      return;
+    }
+
+    await this.reloadPostList({
+      status: this.data.currentPostStatus as PostStatusFilter,
+      page: this.data.postPage + 1,
+      append: true,
+    });
+  },
+
+  async reloadPostList(options: {
+    status: PostStatusFilter;
+    page: number;
+    append: boolean;
+  }) {
+    const requestId = Date.now();
+    postListRequestId = requestId;
+    this.setData({
+      isLoading: !options.append,
+      isPostLoadingMore: options.append,
     });
 
     try {
-      const posts = await loadMyPosts(status);
+      const result = await loadMyPosts(options.status || undefined, options.page, DEFAULT_POST_PAGE_SIZE);
+      if (postListRequestId !== requestId) {
+        return;
+      }
+
+      const nextPosts = options.append
+        ? [...this.data.posts, ...decoratePosts(result.items)]
+        : decoratePosts(result.items);
+
       this.setData({
-        posts: decoratePosts(posts.items),
+        posts: nextPosts,
+        postPage: result.page,
+        postPageSize: result.pageSize,
+        postTotal: result.total,
+        postHasMore: result.hasMore,
       });
     } finally {
-      this.setData({ isLoading: false });
+      if (postListRequestId === requestId) {
+        this.setData({
+          isLoading: false,
+          isPostLoadingMore: false,
+        });
+      }
     }
   },
 
@@ -148,4 +222,5 @@ Page({
       this.setData({ isLoading: false });
     }
   },
+
 });

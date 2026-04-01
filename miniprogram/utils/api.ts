@@ -10,6 +10,7 @@ import type {
   NotificationItem,
   PagedResult,
   PostDetail,
+  PostStatus,
   ProfileSummary,
   PublishDraft,
   PublishResult,
@@ -185,7 +186,7 @@ function toMyPostCardView(item: {
   type: FeedItem['type'];
   serviceCategory: FeedItem['serviceCategory'];
   title: string;
-  status: string;
+  status: PostStatus;
   city?: string;
   rejectReason?: string | null;
   summary?: string;
@@ -471,8 +472,13 @@ export async function loadMyFavorites() {
   );
 }
 
-export async function loadMyPosts(status?: string) {
-  const query = status ? `?status=${status}&page=1&pageSize=20` : '?page=1&pageSize=20';
+export async function loadMyPosts(status?: PostStatus, page = 1, pageSize = 20) {
+  const searchParams = [`page=${page}`, `pageSize=${pageSize}`];
+  if (status) {
+    searchParams.unshift(`status=${status}`);
+  }
+
+  const query = `?${searchParams.join('&')}`;
   return withFallback(
     async () => {
       const result = await request<PagedResult<{
@@ -480,7 +486,7 @@ export async function loadMyPosts(status?: string) {
         type: FeedItem['type'];
         serviceCategory: FeedItem['serviceCategory'];
         title: string;
-        status: string;
+        status: PostStatus;
         city?: string;
         rejectReason?: string | null;
         summary?: string;
@@ -494,23 +500,30 @@ export async function loadMyPosts(status?: string) {
         items: result.items.map((item) => toMyPostCardView(item)),
       };
     },
-    buildPagedFallback(
-      getMockMyPosts()
-        .filter((item) => !status || item.status === status)
+    (() => {
+      const filteredItems = getMockMyPosts().filter((item) => !status || item.status === status);
+      const pagedItems = filteredItems
+        .slice((page - 1) * pageSize, page * pageSize)
         .map((item) =>
-        toMyPostCardView({
-          id: item.id,
-          type: item.type,
-          serviceCategory: item.serviceCategory,
-          title: item.title,
-          status: item.status,
-          summary: item.summary,
-          route: item.route,
-        }),
-        ),
-      1,
-      20,
-    ),
+          toMyPostCardView({
+            id: item.id,
+            type: item.type,
+            serviceCategory: item.serviceCategory,
+            title: item.title,
+            status: item.status,
+            summary: item.summary,
+            route: item.route,
+          }),
+        );
+
+      return {
+        items: pagedItems,
+        page,
+        pageSize,
+        total: filteredItems.length,
+        hasMore: page * pageSize < filteredItems.length,
+      };
+    })(),
   );
 }
 

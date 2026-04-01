@@ -13,7 +13,14 @@
     </view>
   </view>
 
-  <scroll-view class="my-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+  <scroll-view
+    class="my-scroll"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    lower-threshold="120"
+    bindscrolltolower="loadMorePosts"
+  >
     <view class="pc-page-body">
       <view class="my-hero pc-card">
         <view class="my-profile">
@@ -86,7 +93,7 @@
           <view class="my-content-block">
             <view class="my-content-head">
               <text class="my-content-head__title">我的发布</text>
-              <text class="my-content-head__count">{{posts.length}} 条</text>
+              <text class="my-content-head__count">{{postTotal}} 条</text>
             </view>
             <scroll-view class="my-post-tabs" scroll-x enhanced show-scrollbar="{{false}}">
               <view class="my-post-tabs__list">
@@ -130,6 +137,16 @@
                     {{actionItem.label}}
                   </view>
                 </view>
+              </view>
+              <view wx:if="{{isPostLoadingMore}}" class="my-post-list__footer">加载更多中...</view>
+              <view
+                wx:elif="{{!postHasMore && posts.length}}"
+                class="my-post-list__footer my-post-list__footer--end"
+              >
+                已经到底了
+              </view>
+              <view wx:elif="{{!posts.length}}" class="my-post-list__footer my-post-list__footer--empty">
+                当前筛选下还没有内容
               </view>
             </view>
           </view>
