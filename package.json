@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "typecheck": "tsc --noEmit --skipLibCheck -p tsconfig.json",
+    "test": "npm run typecheck"
   },
   "keywords": [],
   "author": "",
