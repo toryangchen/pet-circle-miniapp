@@ -189,30 +189,106 @@
   line-height: 1;
 }
 
-.my-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
+.my-content-block {
+  margin-top: 18rpx;
 }
 
-.my-grid__card {
-  padding: 20rpx;
+.my-content-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.my-content-head__title {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.my-content-head__count {
+  font-size: 22rpx;
+  color: var(--pc-text-muted);
+}
+
+.my-content-list,
+.my-post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.my-content-card,
+.my-post-card {
+  padding: 18rpx;
   border-radius: 28rpx;
   background: var(--pc-surface);
   border: 1rpx solid var(--pc-line);
   box-shadow: 0 14rpx 32rpx rgba(47, 42, 38, 0.06);
 }
 
-.my-grid__title {
-  display: block;
-  font-size: 28rpx;
-  font-weight: 700;
-  margin-bottom: 8rpx;
+.my-content-card {
+  display: flex;
+  gap: 16rpx;
 }
 
-.my-grid__summary {
-  display: block;
+.my-content-card__image {
+  width: 148rpx;
+  height: 148rpx;
+  border-radius: 22rpx;
+  flex-shrink: 0;
+  background: #ebe4d8;
+}
+
+.my-content-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.my-content-card__title,
+.my-post-card__title {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.my-content-card__summary,
+.my-post-card__summary {
   font-size: 22rpx;
   color: var(--pc-text-secondary);
-  line-height: 1.45;
+  line-height: 1.5;
+}
+
+.my-content-card__meta {
+  font-size: 20rpx;
+  color: var(--pc-text-muted);
+}
+
+.my-post-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12rpx;
+  margin-bottom: 10rpx;
+}
+
+.my-post-card__status {
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #8f6110;
+  background: #f7efe3;
+  flex-shrink: 0;
+}
+
+.my-post-card__status--APPROVED {
+  color: #2f8e0c;
+  background: #eef5e8;
+}
+
+.my-post-card__status--REJECTED,
+.my-post-card__status--OFFLINE {
+  color: #bb4b37;
+  background: #fdece8;
 }

@@ -404,6 +404,38 @@ export async function loadNotifications() {
   );
 }
 
+export async function markNotificationRead(notificationId: string) {
+  return withFallback(
+    () =>
+      request<{
+        id: string;
+        isRead: boolean;
+      }>({
+        method: 'POST',
+        path: `/notifications/${notificationId}/read`,
+      }),
+    {
+      id: notificationId,
+      isRead: true,
+    },
+  );
+}
+
+export async function markAllNotificationsRead() {
+  return withFallback(
+    () =>
+      request<{
+        updatedCount: number;
+      }>({
+        method: 'POST',
+        path: '/notifications/read-all',
+      }),
+    {
+      updatedCount: mockMessageState.notifications.filter((item) => item.unread).length,
+    },
+  );
+}
+
 export async function loadMe() {
   return withFallback(
     () =>

@@ -59,14 +59,51 @@
 
         <view class="my-section">
           <text class="my-section__title">内容管理</text>
-          <view class="my-grid">
-            <view class="my-grid__card">
-              <text class="my-grid__title">我的收藏</text>
-              <text class="my-grid__summary">快速回到收藏的内容和服务信息。</text>
+          <view class="my-content-block">
+            <view class="my-content-head">
+              <text class="my-content-head__title">我的收藏</text>
+              <text class="my-content-head__count">{{favorites.length}} 条</text>
             </view>
-            <view class="my-grid__card">
-              <text class="my-grid__title">我的发布</text>
-              <text class="my-grid__summary">查看正在审核、已上线和已下架的帖子。</text>
+            <view class="my-content-list">
+              <view
+                wx:for="{{favorites}}"
+                wx:key="id"
+                class="my-content-card"
+                bindtap="openFavorite"
+                data-route="{{item.route}}"
+              >
+                <image class="my-content-card__image" src="{{item.image}}" mode="aspectFill"></image>
+                <view class="my-content-card__body">
+                  <view class="pc-chip pc-chip--soft">{{item.badge}}</view>
+                  <text class="my-content-card__title">{{item.title}}</text>
+                  <text class="my-content-card__summary">{{item.summary}}</text>
+                  <text class="my-content-card__meta">{{item.meta}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="my-content-block">
+            <view class="my-content-head">
+              <text class="my-content-head__title">我的发布</text>
+              <text class="my-content-head__count">{{posts.length}} 条</text>
+            </view>
+            <view class="my-post-list">
+              <view
+                wx:for="{{posts}}"
+                wx:key="id"
+                class="my-post-card"
+                bindtap="openPost"
+                data-route="{{item.route}}"
+              >
+                <view class="my-post-card__head">
+                  <text class="my-post-card__title">{{item.title}}</text>
+                  <view class="my-post-card__status my-post-card__status--{{item.status}}">
+                    {{item.status}}
+                  </view>
+                </view>
+                <text class="my-post-card__summary">{{item.summary}}</text>
+              </view>
             </view>
           </view>
         </view>

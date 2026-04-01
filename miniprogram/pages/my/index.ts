@@ -11,6 +11,8 @@ Page({
     phoneMask: mockProfileState.phoneMask,
     stats: mockProfileState.stats,
     actions: PROFILE_ACTIONS,
+    favorites: mockProfileState.favorites,
+    posts: mockProfileState.posts,
     isLoading: false,
   },
 
@@ -25,9 +27,33 @@ Page({
         phoneStatus: profile.phoneStatus,
         phoneMask: profile.phoneMask,
         stats: profile.stats,
+        favorites: profile.favorites,
+        posts: profile.posts,
       });
     } finally {
       this.setData({ isLoading: false });
     }
+  },
+
+  openFavorite(event: WechatMiniprogram.BaseEvent) {
+    const { route } = event.currentTarget.dataset as { route?: string };
+    if (!route) {
+      return;
+    }
+
+    wx.navigateTo({
+      url: route,
+    });
+  },
+
+  openPost(event: WechatMiniprogram.BaseEvent) {
+    const { route } = event.currentTarget.dataset as { route?: string };
+    if (!route) {
+      return;
+    }
+
+    wx.navigateTo({
+      url: route,
+    });
   },
 });

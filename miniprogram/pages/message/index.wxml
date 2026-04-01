@@ -16,7 +16,10 @@
       <view class="message-summary pc-card">
         <view class="message-summary__meta">
           <view class="pc-chip pc-chip--warm">通知中心</view>
-          <view class="message-summary__count">{{unreadCount}} 条未读</view>
+          <view class="message-summary__meta-right">
+            <view class="message-summary__count">{{unreadCount}} 条未读</view>
+            <view wx:if="{{unreadCount}}" class="message-summary__action" bindtap="markAllRead">全部已读</view>
+          </view>
         </view>
         <text class="message-summary__title">点赞、评论和联系申请会统一进这里</text>
         <text class="message-summary__summary">消息页不是自由聊天列表，点击后会进入帖子详情或受控联系会话。</text>
@@ -30,6 +33,7 @@
             wx:key="id"
             class="message-item pc-card"
             bindtap="openConversation"
+            data-id="{{item.id}}"
             data-route="{{item.route}}"
           >
             <view class="message-item__icon message-item__icon--{{item.type}}">
