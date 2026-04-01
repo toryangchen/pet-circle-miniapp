@@ -173,18 +173,30 @@ Page({
         await createComment(postId, content);
       }
 
-      const comments = await loadComments(postId);
+      const [detail, comments] = await Promise.all([
+        loadPostDetail(postId, 'SERVICE'),
+        loadComments(postId),
+      ]);
       this.setData({
         comments: comments.items,
         commentInput: '',
         replyTargetId: '',
         replyTargetAuthor: '',
         commentPlaceholder: '补充需求或公开提问',
-        stats: this.updateStatsValue('评论', 1),
+        stats: [
+          { value: detail.city, label: '城市' },
+          { value: `${detail.stats.favoriteCount} 收藏`, label: '收藏' },
+          { value: detail.status, label: '状态' },
+        ],
       });
       wx.showToast({
         title: replyTargetId ? '回复已发送' : '评论已发送',
         icon: 'success',
+      });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : '评论发送失败',
+        icon: 'none',
       });
     } finally {
       this.setData({

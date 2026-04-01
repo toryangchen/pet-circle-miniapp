@@ -74,9 +74,13 @@
             value="{{commentInput}}"
             bindinput="onCommentInput"
           />
-          <view class="detail-comment-box__button" bindtap="submitComment">
+          <button
+            class="detail-comment-box__button {{isSubmittingComment || !commentInput ? 'detail-comment-box__button--disabled' : ''}}"
+            disabled="{{isSubmittingComment || !commentInput}}"
+            bindtap="submitComment"
+          >
             {{isSubmittingComment ? '发送中' : '发送'}}
-          </view>
+          </button>
         </view>
         <view wx:if="{{comments.length}}" class="detail-comment-list">
           <view wx:for="{{comments}}" wx:key="id" class="detail-comment">

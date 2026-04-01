@@ -154,18 +154,30 @@ Page({
         await createComment(postId, content);
       }
 
-      const comments = await loadComments(postId);
+      const [detail, comments] = await Promise.all([
+        loadPostDetail(postId, 'PET_SOCIAL'),
+        loadComments(postId),
+      ]);
       this.setData({
         comments: comments.items,
         commentInput: '',
         replyTargetId: '',
         replyTargetAuthor: '',
         commentPlaceholder: '说点什么，让宠友看到你的想法',
-        stats: this.updateStatsValue('评论', 1),
+        stats: [
+          { value: String(detail.stats.likeCount), label: '点赞' },
+          { value: String(detail.stats.commentCount), label: '评论' },
+          { value: String(detail.stats.favoriteCount), label: '收藏' },
+        ],
       });
       wx.showToast({
         title: replyTargetId ? '回复已发送' : '评论已发送',
         icon: 'success',
+      });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : '评论发送失败',
+        icon: 'none',
       });
     } finally {
       this.setData({

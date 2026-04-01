@@ -501,37 +501,40 @@ export function appendMockReply(commentId: string, content: string): CommentCrea
 
   for (const [postId, list] of Object.entries(commentLookup)) {
     const targetComment = list.find((item) => item.id === commentId);
-    if (!targetComment) {
-      continue;
+    if (targetComment) {
+      const nextReply = {
+        id: `mock-reply-${Date.now()}`,
+        content,
+        createdAt,
+        author: {
+          id: 'mock-user-1',
+          nickname: '糯米和团子的家',
+          avatarUrl: null,
+        },
+      };
+
+      targetComment.replies.push(nextReply);
+
+      const detail = postDetails[postId];
+      if (detail) {
+        detail.stats.commentCount += 1;
+        detail.updatedAt = createdAt;
+      }
+
+      return {
+        id: nextReply.id,
+      };
     }
 
-    const nextReply = {
-      id: `mock-reply-${Date.now()}`,
-      content,
-      createdAt,
-      author: {
-        id: 'mock-user-1',
-        nickname: '糯米和团子的家',
-        avatarUrl: null,
-      },
-    };
-
-    targetComment.replies.push(nextReply);
-
-    const detail = postDetails[postId];
-    if (detail) {
-      detail.stats.commentCount += 1;
-      detail.updatedAt = createdAt;
+    const nestedReply = list.some((item) =>
+      item.replies.some((reply) => reply.id === commentId),
+    );
+    if (nestedReply) {
+      throw new Error('Only first-level comments can be replied to.');
     }
-
-    return {
-      id: nextReply.id,
-    };
   }
 
-  return {
-    id: `mock-reply-${Date.now()}`,
-  };
+  throw new Error('Comment not found.');
 }
 
 export function toggleMockLike(postId: string, liked: boolean) {
