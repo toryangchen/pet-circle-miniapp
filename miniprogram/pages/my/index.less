@@ -217,6 +217,35 @@
   gap: 14rpx;
 }
 
+.my-post-tabs {
+  margin-bottom: 16rpx;
+  white-space: nowrap;
+}
+
+.my-post-tabs__list {
+  display: inline-flex;
+  gap: 12rpx;
+  min-width: 100%;
+}
+
+.my-post-tabs__item {
+  padding: 14rpx 24rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1rpx solid rgba(126, 120, 111, 0.12);
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--pc-text-secondary);
+  transition: all 180ms ease;
+}
+
+.my-post-tabs__item--active {
+  background: var(--pc-text-primary);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 12rpx 24rpx rgba(47, 42, 38, 0.12);
+}
+
 .my-content-card,
 .my-post-card {
   padding: 18rpx;

@@ -88,6 +88,19 @@
               <text class="my-content-head__title">我的发布</text>
               <text class="my-content-head__count">{{posts.length}} 条</text>
             </view>
+            <scroll-view class="my-post-tabs" scroll-x enhanced show-scrollbar="{{false}}">
+              <view class="my-post-tabs__list">
+                <view
+                  wx:for="{{postStatusTabs}}"
+                  wx:key="key"
+                  class="my-post-tabs__item {{currentPostStatus === item.key ? 'my-post-tabs__item--active' : ''}}"
+                  bindtap="switchPostStatus"
+                  data-status="{{item.key}}"
+                >
+                  {{item.label}}
+                </view>
+              </view>
+            </scroll-view>
             <view class="my-post-list">
               <view
                 wx:for="{{posts}}"

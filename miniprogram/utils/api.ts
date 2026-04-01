@@ -471,7 +471,8 @@ export async function loadMyFavorites() {
   );
 }
 
-export async function loadMyPosts() {
+export async function loadMyPosts(status?: string) {
+  const query = status ? `?status=${status}&page=1&pageSize=20` : '?page=1&pageSize=20';
   return withFallback(
     async () => {
       const result = await request<PagedResult<{
@@ -485,7 +486,7 @@ export async function loadMyPosts() {
         summary?: string;
       }>>({
         method: 'GET',
-        path: '/posts/my?page=1&pageSize=20',
+        path: `/posts/my${query}`,
       });
 
       return {
@@ -494,7 +495,9 @@ export async function loadMyPosts() {
       };
     },
     buildPagedFallback(
-      getMockMyPosts().map((item) =>
+      getMockMyPosts()
+        .filter((item) => !status || item.status === status)
+        .map((item) =>
         toMyPostCardView({
           id: item.id,
           type: item.type,
@@ -504,7 +507,7 @@ export async function loadMyPosts() {
           summary: item.summary,
           route: item.route,
         }),
-      ),
+        ),
       1,
       20,
     ),
