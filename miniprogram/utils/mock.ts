@@ -1,6 +1,12 @@
 export type MainTabKey = 'home' | 'service' | 'publish' | 'message' | 'my';
 
 export type PublishTypeKey = 'PET_SOCIAL' | 'SERVICE' | 'RESALE';
+export type NotificationCardType =
+  | 'LIKE_POST'
+  | 'COMMENT_POST'
+  | 'REPLY_COMMENT'
+  | 'CONTACT_REQUEST'
+  | 'CONTACT_APPROVED';
 
 export interface MainTabItem {
   key: MainTabKey;
@@ -21,7 +27,7 @@ export interface FeedCard {
 
 export interface NotificationCard {
   id: string;
-  type: string;
+  type: NotificationCardType;
   title: string;
   summary: string;
   time: string;

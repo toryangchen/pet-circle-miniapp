@@ -1,4 +1,4 @@
-import type { PostStatus } from '../../utils/api-types';
+import type { MyPostCardView, PostStatus } from '../../utils/api-types';
 import { completeMyPost, loadMyPageData, loadMyPosts, offlineMyPost } from '../../utils/api';
 import { PROFILE_ACTIONS } from '../../utils/mock';
 import { mockProfileState } from '../../utils/mock-api';
@@ -18,14 +18,7 @@ type PostStatusFilter = PostStatus | '';
 let postListRequestId = 0;
 
 function decoratePosts(
-  posts: Array<{
-    id: string;
-    type: string;
-    status: string;
-    title: string;
-    summary: string;
-    route: string;
-  }>,
+  posts: MyPostCardView[],
 ) {
   return posts.map((post) => ({
     ...post,

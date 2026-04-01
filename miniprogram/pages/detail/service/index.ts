@@ -5,7 +5,7 @@ import {
   requestContactForPost,
   togglePostFavorite,
 } from '../../../utils/api';
-import type { CommentItem } from '../../../utils/api-types';
+import type { CommentItem, ServiceCategory } from '../../../utils/api-types';
 
 Page({
   data: {
@@ -159,7 +159,7 @@ Page({
     }
   },
 
-  resolveBadge(serviceCategory: string | null) {
+  resolveBadge(serviceCategory: ServiceCategory | null) {
     switch (serviceCategory) {
       case 'BOARDING':
         return '宠物寄养';
