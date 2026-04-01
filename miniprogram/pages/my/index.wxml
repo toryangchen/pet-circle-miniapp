@@ -91,18 +91,32 @@
             <view class="my-post-list">
               <view
                 wx:for="{{posts}}"
+                wx:for-item="post"
                 wx:key="id"
                 class="my-post-card"
                 bindtap="openPost"
-                data-route="{{item.route}}"
+                data-route="{{post.route}}"
               >
                 <view class="my-post-card__head">
-                  <text class="my-post-card__title">{{item.title}}</text>
-                  <view class="my-post-card__status my-post-card__status--{{item.status}}">
-                    {{item.status}}
+                  <text class="my-post-card__title">{{post.title}}</text>
+                  <view class="my-post-card__status my-post-card__status--{{post.status}}">
+                    {{post.status}}
                   </view>
                 </view>
-                <text class="my-post-card__summary">{{item.summary}}</text>
+                <text class="my-post-card__summary">{{post.summary}}</text>
+                <view wx:if="{{post.actions.length}}" class="my-post-card__actions">
+                  <view
+                    wx:for="{{post.actions}}"
+                    wx:for-item="actionItem"
+                    wx:key="key"
+                    class="my-post-card__action"
+                    catchtap="handlePostAction"
+                    data-action="{{actionItem.key}}"
+                    data-post-id="{{post.id}}"
+                  >
+                    {{actionItem.label}}
+                  </view>
+                </view>
               </view>
             </view>
           </view>

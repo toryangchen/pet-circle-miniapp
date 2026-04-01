@@ -553,4 +553,38 @@ export async function submitPublishDraft(draft: PublishDraft): Promise<PublishRe
   );
 }
 
+export async function offlineMyPost(postId: string) {
+  return withFallback(
+    () =>
+      request<{
+        id: string;
+        status: string;
+      }>({
+        method: 'PATCH',
+        path: `/posts/${postId}/offline`,
+      }),
+    {
+      id: postId,
+      status: 'OFFLINE',
+    },
+  );
+}
+
+export async function completeMyPost(postId: string) {
+  return withFallback(
+    () =>
+      request<{
+        id: string;
+        status: string;
+      }>({
+        method: 'PATCH',
+        path: `/posts/${postId}/complete`,
+      }),
+    {
+      id: postId,
+      status: 'COMPLETED',
+    },
+  );
+}
+
 export { buildPublishRequest };
