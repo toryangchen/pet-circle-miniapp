@@ -82,6 +82,4 @@
       </view>
     </view>
   </scroll-view>
-
-  <pet-tabbar current="publish"></pet-tabbar>
 </view>

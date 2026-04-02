@@ -16,6 +16,13 @@ Page({
     }>,
     isLoading: false,
   },
+  onShow() {
+    if (typeof this.getTabBar === "function" && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 3, // 控制哪一项是选中状态
+      });
+    }
+  },
 
   async onLoad() {
     await this.reloadNotifications();

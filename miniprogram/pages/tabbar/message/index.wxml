@@ -66,6 +66,4 @@
       </view>
     </view>
   </scroll-view>
-
-  <pet-tabbar current="message"></pet-tabbar>
 </view>

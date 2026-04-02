@@ -1,13 +1,25 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/service/index",
+    "pages/tabbar/home/index",
+    "pages/tabbar/service/index",
+    "pages/tabbar/message/index",
+    "pages/tabbar/personal/index",
     "pages/publish/index",
-    "pages/message/index",
-    "pages/my/index",
     "pages/detail/service/index",
     "pages/detail/pet-social/index"
   ],
+  "tabBar": {
+    "custom": true,
+    "list": [
+      { "pagePath": "pages/tabbar/home/index", "text": "首页" },
+      { "pagePath": "pages/tabbar/service/index", "text": "服务" },
+      { "pagePath": "pages/tabbar/message/index", "text": "消息" },
+      { "pagePath": "pages/tabbar/personal/index", "text": "我的" }
+    ]
+  },
+  "usingComponents": {
+    "custom-tab-bar": "custom-tab-bar/index"
+  },
   "window": {
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom"

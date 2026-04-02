@@ -163,6 +163,4 @@
       </view>
     </view>
   </scroll-view>
-
-  <pet-tabbar current="my"></pet-tabbar>
 </view>

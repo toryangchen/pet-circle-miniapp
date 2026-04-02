@@ -1,0 +1,7 @@
+<view class="top-bar" style="background-color: {{ background }};">
+  <view class="status-bar" style="height: {{statusHeight}}px;"></view>
+  <view class="nav-bar" style="height: {{navBarHeight}}px; margin: auto {{menuRight}}px">
+    <slot name="title"></slot>
+  </view>
+</view>
+<view class="holder" style="height: {{statusHeight + navBarHeight}}px; width: 100%;"></view>

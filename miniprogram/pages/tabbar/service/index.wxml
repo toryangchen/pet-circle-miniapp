@@ -64,6 +64,4 @@
       </view>
     </view>
   </scroll-view>
-
-  <pet-tabbar current="service"></pet-tabbar>
 </view>
