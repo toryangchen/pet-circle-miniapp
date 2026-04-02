@@ -6,13 +6,15 @@
     </view>
     <view class="detail-topbar__nav">
       <view class="detail-back" bindtap="goBack">‹</view>
-        <view class="detail-author">
-          <view class="detail-author__avatar">宠</view>
-          <view class="detail-author__meta">
-            <text class="detail-author__name">{{authorName}}</text>
-            <text class="detail-author__sub">{{isLoading ? '加载中...' : '服务帖 · 已审核通过'}}</text>
-          </view>
+      <view class="detail-author">
+        <view class="detail-author__avatar">宠</view>
+        <view class="detail-author__meta">
+          <text class="detail-author__name">{{authorName}}</text>
+          <text class="detail-author__sub"
+            >{{isLoading ? '加载中...' : '服务帖 · 已审核通过'}}</text
+          >
         </view>
+      </view>
     </view>
   </view>
 
@@ -64,7 +66,9 @@
         >
           {{isAuthorizingPhone ? '授权中...' : contactButtonLabel}}
         </button>
-        <view wx:else class="detail-contact__button" bindtap="requestContact">{{contactButtonLabel}}</view>
+        <view wx:else class="detail-contact__button" bindtap="requestContact"
+          >{{contactButtonLabel}}</view
+        >
       </view>
 
       <view class="pc-card detail-section">
@@ -94,14 +98,21 @@
         <view wx:if="{{comments.length}}" class="detail-comment-list">
           <view wx:for="{{comments}}" wx:key="id" class="detail-comment">
             <view class="detail-comment__head">
-              <view class="detail-comment__avatar">{{item.author.nickname ? item.author.nickname.slice(0, 1) : '宠'}}</view>
+              <view class="detail-comment__avatar"
+                >{{item.author.nickname ? item.author.nickname.slice(0, 1) : '宠'}}</view
+              >
               <view class="detail-comment__meta">
                 <text class="detail-comment__author">{{item.author.nickname || '宠友'}}</text>
                 <text class="detail-comment__time">{{item.createdAt}}</text>
               </view>
             </view>
             <text class="detail-comment__content">{{item.content}}</text>
-            <view class="detail-comment__reply-trigger" data-comment-id="{{item.id}}" data-author="{{item.author.nickname || '宠友'}}" bindtap="startReply">
+            <view
+              class="detail-comment__reply-trigger"
+              data-comment-id="{{item.id}}"
+              data-author="{{item.author.nickname || '宠友'}}"
+              bindtap="startReply"
+            >
               回复
             </view>
             <view wx:if="{{item.replies.length}}" class="detail-reply-list">
@@ -129,6 +140,11 @@
     >
       {{isAuthorizingPhone ? '授权中...' : contactButtonLabel}}
     </button>
-    <view wx:else class="detail-bottom__button detail-bottom__button--primary" bindtap="requestContact">{{contactButtonLabel}}</view>
+    <view
+      wx:else
+      class="detail-bottom__button detail-bottom__button--primary"
+      bindtap="requestContact"
+      >{{contactButtonLabel}}</view
+    >
   </view>
 </view>

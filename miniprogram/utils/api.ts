@@ -15,7 +15,7 @@ import type {
   PublishResult,
   ToggleFavoriteResult,
   ToggleLikeResult,
-} from './api-types';
+} from "./api-types";
 import {
   appendMockComment,
   appendMockReply,
@@ -25,7 +25,7 @@ import {
   mockServiceState,
   toggleMockFavorite,
   toggleMockLike,
-} from './mock-api';
+} from "./mock-api";
 import {
   bootstrapSession,
   ensureAuthenticated,
@@ -33,9 +33,9 @@ import {
   getCurrentSession,
   recoverSession,
   syncCurrentUser,
-} from './session';
+} from "./session";
 
-type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
 
 interface ApiEnvelope<T> {
   code: number;
@@ -56,15 +56,15 @@ class ApiRequestError extends Error {
 
   constructor(message: string, options?: { statusCode?: number; bodyCode?: number }) {
     super(message);
-    this.name = 'ApiRequestError';
+    this.name = "ApiRequestError";
     this.statusCode = options?.statusCode;
     this.bodyCode = options?.bodyCode;
   }
 }
 
-const DEFAULT_API_BASE_URL = 'http://127.0.0.1:3000/api';
+const DEFAULT_API_BASE_URL = "http://127.0.0.1:3000/api";
 const DEFAULT_POST_IMAGE =
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80';
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80";
 
 function getApiBaseUrl() {
   return DEFAULT_API_BASE_URL;
@@ -85,14 +85,14 @@ function getAuthHeader(token?: string | null) {
 function requestRaw<T>(options: RequestOptions, token?: string | null): Promise<T> {
   const url = `${getApiBaseUrl()}${options.path}`;
   const headers = {
-    'content-type': 'application/json',
+    "content-type": "application/json",
     ...getAuthHeader(token),
   };
 
   return new Promise<T>((resolve, reject) => {
     wx.request({
       url,
-      method: options.method as WechatMiniprogram.RequestOption['method'],
+      method: options.method as WechatMiniprogram.RequestOption["method"],
       data: options.data,
       header: headers,
       timeout: 3000,
@@ -111,7 +111,7 @@ function requestRaw<T>(options: RequestOptions, token?: string | null): Promise<
         );
       },
       fail: () => {
-        reject(new ApiRequestError('Network request failed.'));
+        reject(new ApiRequestError("Network request failed."));
       },
     });
   });
@@ -141,12 +141,12 @@ async function withFallback<T>(loader: () => Promise<T>, fallback: T | (() => T)
   try {
     return await loader();
   } catch {
-    return typeof fallback === 'function' ? (fallback as () => T)() : fallback;
+    return typeof fallback === "function" ? (fallback as () => T)() : fallback;
   }
 }
 
-function buildDetailRoute(item: { id: string; type: FeedItem['type'] }) {
-  return item.type === 'SERVICE'
+function buildDetailRoute(item: { id: string; type: FeedItem["type"] }) {
+  return item.type === "SERVICE"
     ? `/pages/detail/service/index?id=${item.id}`
     : `/pages/detail/pet-social/index?id=${item.id}`;
 }
@@ -156,20 +156,20 @@ function resolveFeedBadge(item: FeedItem) {
     return item.badge;
   }
 
-  if (item.type === 'SERVICE') {
+  if (item.type === "SERVICE") {
     switch (item.serviceCategory) {
-      case 'BOARDING':
-        return '宠物寄养';
-      case 'ADOPTION':
-        return '领养';
-      case 'SECOND_HAND':
-        return '闲置';
+      case "BOARDING":
+        return "宠物寄养";
+      case "ADOPTION":
+        return "领养";
+      case "SECOND_HAND":
+        return "闲置";
       default:
-        return '上门喂养';
+        return "上门喂养";
     }
   }
 
-  return '宠物圈';
+  return "宠物圈";
 }
 
 function resolveFeedAuthor(item: FeedItem) {
@@ -177,7 +177,7 @@ function resolveFeedAuthor(item: FeedItem) {
     return item.author;
   }
 
-  return item.type === 'SERVICE' ? '服务发布' : '宠友分享';
+  return item.type === "SERVICE" ? "服务发布" : "宠友分享";
 }
 
 function resolveFeedMeta(item: FeedItem) {
@@ -185,7 +185,7 @@ function resolveFeedMeta(item: FeedItem) {
     return item.meta;
   }
 
-  return item.type === 'SERVICE'
+  return item.type === "SERVICE"
     ? `${item.city} · ${item.stats.likeCount} 赞`
     : `${item.city} · ${item.stats.commentCount} 评论`;
 }
@@ -204,12 +204,12 @@ function toFeedCardView(item: FeedItem): FeedCardView {
 }
 
 function toNotificationCardView(item: NotificationItem): NotificationCardView {
-  const titleMap: Record<NotificationItem['type'], string> = {
-    LIKE_POST: '新增点赞',
-    COMMENT_POST: '新评论',
-    REPLY_COMMENT: '评论回复',
-    CONTACT_REQUEST: '收到联系申请',
-    CONTACT_APPROVED: '联系申请通过',
+  const titleMap: Record<NotificationItem["type"], string> = {
+    LIKE_POST: "新增点赞",
+    COMMENT_POST: "新评论",
+    REPLY_COMMENT: "评论回复",
+    CONTACT_REQUEST: "收到联系申请",
+    CONTACT_APPROVED: "联系申请通过",
   };
 
   return {
@@ -219,15 +219,15 @@ function toNotificationCardView(item: NotificationItem): NotificationCardView {
     summary: item.summary,
     time: formatRelativeTime(item.createdAt),
     unread: !item.isRead,
-    route: item.post ? buildDetailRoute(item.post) : '/pages/message/index',
+    route: item.post ? buildDetailRoute(item.post) : "/pages/message/index",
     conversationId: item.conversationId,
   };
 }
 
 function toMyPostCardView(item: {
   id: string;
-  type: FeedItem['type'];
-  serviceCategory: FeedItem['serviceCategory'];
+  type: FeedItem["type"];
+  serviceCategory: FeedItem["serviceCategory"];
   title: string;
   status: PostStatus;
   city?: string;
@@ -243,9 +243,9 @@ function toMyPostCardView(item: {
     status: item.status,
     summary:
       item.summary ??
-      (item.status === 'REJECTED' && item.rejectReason
+      (item.status === "REJECTED" && item.rejectReason
         ? `审核未通过：${item.rejectReason}`
-        : `${item.city ?? '西安'} · ${item.status}`),
+        : `${item.city ?? "西安"} · ${item.status}`),
     route: item.route ?? buildDetailRoute(item),
   };
 }
@@ -253,14 +253,14 @@ function toMyPostCardView(item: {
 function formatRelativeTime(isoString: string) {
   const diff = Date.now() - new Date(isoString).getTime();
   if (!Number.isFinite(diff) || diff <= 0) {
-    return '刚刚';
+    return "刚刚";
   }
 
   const minute = 60 * 1000;
   const hour = 60 * minute;
   const day = 24 * hour;
 
-  if (diff < minute) return '刚刚';
+  if (diff < minute) return "刚刚";
   if (diff < hour) return `${Math.max(1, Math.floor(diff / minute))}分钟前`;
   if (diff < day) return `${Math.max(1, Math.floor(diff / hour))}小时前`;
   return `${Math.max(1, Math.floor(diff / day))}天前`;
@@ -277,9 +277,9 @@ function buildPagedFallback<T>(items: T[], page = 1, pageSize = 10): PagedResult
 }
 
 function buildPublishRequest(draft: PublishDraft) {
-  if (draft.type === 'PET_SOCIAL') {
+  if (draft.type === "PET_SOCIAL") {
     return {
-      type: 'PET_SOCIAL',
+      type: "PET_SOCIAL",
       title: draft.title,
       content: draft.description,
       city: draft.city,
@@ -287,83 +287,77 @@ function buildPublishRequest(draft: PublishDraft) {
     };
   }
 
-  if (draft.type === 'RESALE') {
+  if (draft.type === "RESALE") {
     return {
-      type: 'SERVICE',
-      serviceCategory: 'SECOND_HAND',
+      type: "SERVICE",
+      serviceCategory: "SECOND_HAND",
       title: draft.title,
       content: draft.description,
       city: draft.city,
       images: [DEFAULT_POST_IMAGE],
       contact: {
-        wechatId: 'mock-wechat',
+        wechatId: "mock-wechat",
       },
       secondHandDetail: {
-        itemType: '闲置',
-        itemCondition: '良好',
-        price: '面议',
+        itemType: "闲置",
+        itemCondition: "良好",
+        price: "面议",
       },
     };
   }
 
   return {
-    type: 'SERVICE',
-    serviceCategory: 'HOME_FEEDING',
+    type: "SERVICE",
+    serviceCategory: "HOME_FEEDING",
     title: draft.title,
     content: draft.description,
     city: draft.city,
     images: [DEFAULT_POST_IMAGE],
     contact: {
-      wechatId: 'mock-wechat',
-      phone: '13800000000',
+      wechatId: "mock-wechat",
+      phone: "13800000000",
     },
     homeFeedingDetail: {
-      serviceArea: '西安市区',
-      availableTime: '工作日晚间',
-      price: '30',
+      serviceArea: "西安市区",
+      availableTime: "工作日晚间",
+      price: "30",
     },
   };
 }
 
 export async function loadHomeFeed() {
-  return withFallback(
-    async () => {
-      const result = await request<PagedResult<FeedItem>>({
-        method: 'GET',
-        path: '/posts/feed?channel=PET_SOCIAL&page=1&pageSize=10',
-      });
+  return withFallback(async () => {
+    const result = await request<PagedResult<FeedItem>>({
+      method: "GET",
+      path: "/posts/feed?channel=PET_SOCIAL&page=1&pageSize=10",
+    });
 
-      return {
-        ...result,
-        items: result.items.map(toFeedCardView),
-      };
-    },
-    buildPagedFallback(mockHomeState.featuredPosts),
-  );
+    return {
+      ...result,
+      items: result.items.map(toFeedCardView),
+    };
+  }, buildPagedFallback(mockHomeState.featuredPosts));
 }
 
 export async function loadServiceFeed() {
-  return withFallback(
-    async () => {
-      const result = await request<PagedResult<FeedItem>>({
-        method: 'GET',
-        path: '/posts/feed?channel=SERVICE&page=1&pageSize=10',
-      });
+  return withFallback(async () => {
+    const result = await request<PagedResult<FeedItem>>({
+      method: "GET",
+      path: "/posts/feed?channel=SERVICE&page=1&pageSize=10",
+    });
 
-      return {
-        ...result,
-        items: result.items.map(toFeedCardView),
-      };
-    },
-    buildPagedFallback(mockServiceState.servicePosts),
-  );
+    return {
+      ...result,
+      items: result.items.map(toFeedCardView),
+    };
+  }, buildPagedFallback(mockServiceState.servicePosts));
 }
 
-export async function loadPostDetail(postId: string, channel: 'PET_SOCIAL' | 'SERVICE') {
+export async function loadPostDetail(postId: string, channel: "PET_SOCIAL" | "SERVICE") {
   return withFallback(
     () =>
       request<PostDetail>({
-        method: 'GET',
+        method: "GET",
         path: `/posts/${postId}`,
       }),
     getMockPostDetail(postId, channel),
@@ -372,7 +366,7 @@ export async function loadPostDetail(postId: string, channel: 'PET_SOCIAL' | 'SE
 
 export async function requestContactForPost(postId: string) {
   return requestWithAuth<ContactRequestResult>({
-    method: 'POST',
+    method: "POST",
     path: `/posts/${postId}/contact-request`,
   });
 }
@@ -381,7 +375,7 @@ export async function loadComments(postId: string) {
   return withFallback(
     () =>
       request<CommentListResult>({
-        method: 'GET',
+        method: "GET",
         path: `/posts/${postId}/comments`,
       }),
     getMockComments(postId),
@@ -392,7 +386,7 @@ export async function createComment(postId: string, content: string) {
   return withFallback(
     () =>
       request<CommentCreateResult>({
-        method: 'POST',
+        method: "POST",
         path: `/posts/${postId}/comments`,
         data: {
           content,
@@ -406,7 +400,7 @@ export async function replyComment(commentId: string, content: string) {
   return withFallback(
     () =>
       request<CommentCreateResult>({
-        method: 'POST',
+        method: "POST",
         path: `/comments/${commentId}/replies`,
         data: {
           content,
@@ -420,7 +414,7 @@ export async function togglePostLike(postId: string, liked: boolean) {
   return withFallback(
     () =>
       request<ToggleLikeResult>({
-        method: liked ? 'POST' : 'DELETE',
+        method: liked ? "POST" : "DELETE",
         path: `/posts/${postId}/like`,
       }),
     toggleMockLike(postId, liked),
@@ -431,7 +425,7 @@ export async function togglePostFavorite(postId: string, favorited: boolean) {
   return withFallback(
     () =>
       request<ToggleFavoriteResult>({
-        method: favorited ? 'POST' : 'DELETE',
+        method: favorited ? "POST" : "DELETE",
         path: `/posts/${postId}/favorite`,
       }),
     toggleMockFavorite(postId, favorited),
@@ -440,8 +434,8 @@ export async function togglePostFavorite(postId: string, favorited: boolean) {
 
 export async function loadNotifications() {
   const result = await requestWithAuth<PagedResult<NotificationItem>>({
-    method: 'GET',
-    path: '/notifications?page=1&pageSize=20',
+    method: "GET",
+    path: "/notifications?page=1&pageSize=20",
   });
 
   return {
@@ -455,7 +449,7 @@ export async function markNotificationRead(notificationId: string) {
     id: string;
     isRead: boolean;
   }>({
-    method: 'POST',
+    method: "POST",
     path: `/notifications/${notificationId}/read`,
   });
 }
@@ -464,8 +458,8 @@ export async function markAllNotificationsRead() {
   return requestWithAuth<{
     updatedCount: number;
   }>({
-    method: 'POST',
-    path: '/notifications/read-all',
+    method: "POST",
+    path: "/notifications/read-all",
   });
 }
 
@@ -482,8 +476,8 @@ export async function loadMe() {
 
 export async function loadMyFavorites() {
   const result = await requestWithAuth<PagedResult<FeedItem>>({
-    method: 'GET',
-    path: '/favorites/my?page=1&pageSize=20',
+    method: "GET",
+    path: "/favorites/my?page=1&pageSize=20",
   });
 
   return {
@@ -498,12 +492,12 @@ export async function loadMyPosts(status?: PostStatus, page = 1, pageSize = 20) 
     searchParams.unshift(`status=${status}`);
   }
 
-  const query = `?${searchParams.join('&')}`;
+  const query = `?${searchParams.join("&")}`;
   const result = await requestWithAuth<
     PagedResult<{
       id: string;
-      type: FeedItem['type'];
-      serviceCategory: FeedItem['serviceCategory'];
+      type: FeedItem["type"];
+      serviceCategory: FeedItem["serviceCategory"];
       title: string;
       status: PostStatus;
       city?: string;
@@ -511,7 +505,7 @@ export async function loadMyPosts(status?: PostStatus, page = 1, pageSize = 20) 
       summary?: string;
     }>
   >({
-    method: 'GET',
+    method: "GET",
     path: `/posts/my${query}`,
   });
 
@@ -526,14 +520,14 @@ export async function loadMyPageData(): Promise<ProfileSummary> {
 
   if (!getAuthState().isAuthenticated) {
     return {
-      nickname: '未登录',
+      nickname: "未登录",
       avatarUrl: null,
-      phoneStatus: '登录不可用',
-      phoneMask: '可继续浏览公开内容',
+      phoneStatus: "登录不可用",
+      phoneMask: "可继续浏览公开内容",
       stats: [
-        { label: '收藏', value: '0' },
-        { label: '发布', value: '0' },
-        { label: '消息', value: '0' },
+        { label: "收藏", value: "0" },
+        { label: "发布", value: "0" },
+        { label: "消息", value: "0" },
       ],
       favorites: [],
       posts: [],
@@ -551,14 +545,14 @@ export async function loadMyPageData(): Promise<ProfileSummary> {
   const currentUser = me ?? getAuthState().user;
 
   return {
-    nickname: currentUser?.nickname ?? '宠友圈用户',
+    nickname: currentUser?.nickname ?? "宠友圈用户",
     avatarUrl: currentUser?.avatarUrl ?? null,
-    phoneStatus: currentUser?.phoneAuthorized ? '已绑定手机号' : '未绑定手机号',
-    phoneMask: currentUser?.phoneMasked ?? '发布或联系前需先授权',
+    phoneStatus: currentUser?.phoneAuthorized ? "已绑定手机号" : "未绑定手机号",
+    phoneMask: currentUser?.phoneMasked ?? "发布或联系前需先授权",
     stats: [
-      { label: '收藏', value: String(favorites.total) },
-      { label: '发布', value: String(posts.total) },
-      { label: '消息', value: String(unreadCount) },
+      { label: "收藏", value: String(favorites.total) },
+      { label: "发布", value: String(posts.total) },
+      { label: "消息", value: String(unreadCount) },
     ],
     favorites: favorites.items,
     posts: posts.items,
@@ -567,8 +561,8 @@ export async function loadMyPageData(): Promise<ProfileSummary> {
 
 export async function submitPublishDraft(draft: PublishDraft): Promise<PublishResult> {
   return requestWithAuth<PublishResult>({
-    method: 'POST',
-    path: '/posts',
+    method: "POST",
+    path: "/posts",
     data: buildPublishRequest(draft),
   });
 }
@@ -578,7 +572,7 @@ export async function offlineMyPost(postId: string) {
     id: string;
     status: PostStatus;
   }>({
-    method: 'PATCH',
+    method: "PATCH",
     path: `/posts/${postId}/offline`,
   });
 }
@@ -588,7 +582,7 @@ export async function completeMyPost(postId: string) {
     id: string;
     status: PostStatus;
   }>({
-    method: 'PATCH',
+    method: "PATCH",
     path: `/posts/${postId}/complete`,
   });
 }

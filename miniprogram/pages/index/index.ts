@@ -1,5 +1,5 @@
-import { loadHomeFeed } from '../../utils/api';
-import { mockHomeState } from '../../utils/mock-api';
+import { loadHomeFeed } from "@utils/api";
+import { mockHomeState } from "@utils/mock-api";
 
 Page({
   data: {
@@ -43,7 +43,7 @@ Page({
 
   goService() {
     wx.reLaunch({
-      url: '/pages/service/index',
+      url: "/pages/service/index",
     });
   },
 });

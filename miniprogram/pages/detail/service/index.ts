@@ -5,37 +5,43 @@ import {
   replyComment,
   requestContactForPost,
   togglePostFavorite,
-} from '../../../utils/api';
-import type { CommentItem, ServiceCategory } from '../../../utils/api-types';
-import { bootstrapSession, ensurePhoneAuthorized, getAuthState, syncCurrentUser } from '../../../utils/session';
+} from "@utils/api";
+import type { CommentItem, ServiceCategory } from "@utils/api-types";
+import {
+  bootstrapSession,
+  ensurePhoneAuthorized,
+  getAuthState,
+  syncCurrentUser,
+} from "@utils/session";
 
 Page({
   data: {
-    title: '详情',
-    authorName: '糯米和团子的家',
-    postId: 'service-1',
-    badge: '上门喂养',
-    postTitle: '未央区可上门喂养，拍照反馈很及时',
-    summary: '上门喂食、换水、清理猫砂，工作日晚间和周末都可约。',
-    image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=1080&q=80',
+    title: "详情",
+    authorName: "糯米和团子的家",
+    postId: "service-1",
+    badge: "上门喂养",
+    postTitle: "未央区可上门喂养，拍照反馈很及时",
+    summary: "上门喂食、换水、清理猫砂，工作日晚间和周末都可约。",
+    image:
+      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=1080&q=80",
     stats: [
-      { value: '3.8km', label: '距离' },
-      { value: '30元起', label: '费用' },
-      { value: '服务中', label: '状态' },
+      { value: "3.8km", label: "距离" },
+      { value: "30元起", label: "费用" },
+      { value: "服务中", label: "状态" },
     ],
     serviceFields: [
-      { label: '服务区域', value: '未央区 / 雁塔区' },
-      { label: '可约时间', value: '工作日晚间 / 周末全天' },
-      { label: '联系方式', value: '受控联系申请后展示' },
+      { label: "服务区域", value: "未央区 / 雁塔区" },
+      { label: "可约时间", value: "工作日晚间 / 周末全天" },
+      { label: "联系方式", value: "受控联系申请后展示" },
     ],
-    contactTitle: '联系发布者',
-    contactSummary: '进入受控联系会话后，系统会帮你发送申请和联系方式。',
-    contactButtonLabel: '请求加好友',
+    contactTitle: "联系发布者",
+    contactSummary: "进入受控联系会话后，系统会帮你发送申请和联系方式。",
+    contactButtonLabel: "请求加好友",
     comments: [] as CommentItem[],
-    commentInput: '',
-    commentPlaceholder: '补充需求或公开提问',
-    replyTargetId: '',
-    replyTargetAuthor: '',
+    commentInput: "",
+    commentPlaceholder: "补充需求或公开提问",
+    replyTargetId: "",
+    replyTargetAuthor: "",
     favorited: false,
     isLoading: false,
     isSubmittingComment: false,
@@ -45,7 +51,7 @@ Page({
 
   async onLoad(query: Record<string, string | undefined>) {
     await bootstrapSession();
-    const postId = query.id || 'service-1';
+    const postId = query.id || "service-1";
     this.setData({
       postId,
       isLoading: true,
@@ -53,40 +59,36 @@ Page({
 
     try {
       const [detail, comments] = await Promise.all([
-        loadPostDetail(postId, 'SERVICE'),
+        loadPostDetail(postId, "SERVICE"),
         loadComments(postId),
       ]);
       this.setData({
-        authorName: detail.author?.nickname || '服务发布',
+        authorName: detail.author?.nickname || "服务发布",
         badge: this.resolveBadge(detail.serviceCategory),
         postTitle: detail.title,
         summary: detail.content,
         image: detail.images[0] || this.data.image,
         stats: [
-          { value: detail.city, label: '城市' },
-          { value: `${detail.stats.favoriteCount} 收藏`, label: '收藏' },
-          { value: detail.status, label: '状态' },
+          { value: detail.city, label: "城市" },
+          { value: `${detail.stats.favoriteCount} 收藏`, label: "收藏" },
+          { value: detail.status, label: "状态" },
         ],
         serviceFields: [
-          { label: '服务区域', value: detail.city },
+          { label: "服务区域", value: detail.city },
           {
-            label: '联系方式',
+            label: "联系方式",
             value: detail.contact?.visible
-              ? detail.contact.wechatId || detail.contact.phone || '已授权可见'
-              : '受控联系申请后展示',
+              ? detail.contact.wechatId || detail.contact.phone || "已授权可见"
+              : "受控联系申请后展示",
           },
           {
-            label: '联系入口',
-            value: detail.viewerState.phoneAuthorized
-              ? '可发起联系申请'
-              : '需先完成手机号授权',
+            label: "联系入口",
+            value: detail.viewerState.phoneAuthorized ? "可发起联系申请" : "需先完成手机号授权",
           },
         ],
         comments: comments.items,
         favorited: detail.viewerState.favorited,
-        contactButtonLabel: detail.viewerState.phoneAuthorized
-          ? '请求加好友'
-          : '先绑定手机号',
+        contactButtonLabel: detail.viewerState.phoneAuthorized ? "请求加好友" : "先绑定手机号",
         phoneAuthorized: detail.viewerState.phoneAuthorized,
       });
     } finally {
@@ -106,7 +108,7 @@ Page({
       const nextState = getAuthState();
       this.setData({
         phoneAuthorized: nextState.phoneAuthorized,
-        contactButtonLabel: nextState.phoneAuthorized ? '请求加好友' : '先绑定手机号',
+        contactButtonLabel: nextState.phoneAuthorized ? "请求加好友" : "先绑定手机号",
       });
     } catch {
       // Preserve the last successful state when sync fails.
@@ -128,7 +130,7 @@ Page({
     const result = await requestContactForPost(postId);
     wx.showToast({
       title: `申请已发送：${result.status}`,
-      icon: 'success',
+      icon: "success",
     });
   },
 
@@ -138,8 +140,13 @@ Page({
     });
   },
 
-  startReply(event: WechatMiniprogram.CustomEvent<{ commentId?: string; author?: string }>) {
-    const { commentId = '', author = '宠友' } = event.currentTarget.dataset;
+  startReply(
+    event: WechatMiniprogram.CustomEvent<{
+      commentId?: string;
+      author?: string;
+    }>,
+  ) {
+    const { commentId = "", author = "宠友" } = event.currentTarget.dataset;
     if (!commentId) {
       return;
     }
@@ -153,9 +160,9 @@ Page({
 
   cancelReply() {
     this.setData({
-      replyTargetId: '',
-      replyTargetAuthor: '',
-      commentPlaceholder: '补充需求或公开提问',
+      replyTargetId: "",
+      replyTargetAuthor: "",
+      commentPlaceholder: "补充需求或公开提问",
     });
   },
 
@@ -165,7 +172,7 @@ Page({
     await togglePostFavorite(postId, nextFavorited);
     this.setData({
       favorited: nextFavorited,
-      stats: this.updateStatsValue('收藏', nextFavorited ? 1 : -1),
+      stats: this.updateStatsValue("收藏", nextFavorited ? 1 : -1),
     });
   },
 
@@ -190,29 +197,29 @@ Page({
       }
 
       const [detail, comments] = await Promise.all([
-        loadPostDetail(postId, 'SERVICE'),
+        loadPostDetail(postId, "SERVICE"),
         loadComments(postId),
       ]);
       this.setData({
         comments: comments.items,
-        commentInput: '',
-        replyTargetId: '',
-        replyTargetAuthor: '',
-        commentPlaceholder: '补充需求或公开提问',
+        commentInput: "",
+        replyTargetId: "",
+        replyTargetAuthor: "",
+        commentPlaceholder: "补充需求或公开提问",
         stats: [
-          { value: detail.city, label: '城市' },
-          { value: `${detail.stats.favoriteCount} 收藏`, label: '收藏' },
-          { value: detail.status, label: '状态' },
+          { value: detail.city, label: "城市" },
+          { value: `${detail.stats.favoriteCount} 收藏`, label: "收藏" },
+          { value: detail.status, label: "状态" },
         ],
       });
       wx.showToast({
-        title: replyTargetId ? '回复已发送' : '评论已发送',
-        icon: 'success',
+        title: replyTargetId ? "回复已发送" : "评论已发送",
+        icon: "success",
       });
     } catch (error) {
       wx.showToast({
-        title: error instanceof Error ? error.message : '评论发送失败',
-        icon: 'none',
+        title: error instanceof Error ? error.message : "评论发送失败",
+        icon: "none",
       });
     } finally {
       this.setData({
@@ -227,8 +234,8 @@ Page({
     const phoneCode = event.detail.code;
     if (!phoneCode) {
       wx.showToast({
-        title: '需要手机号授权后才能联系发布者',
-        icon: 'none',
+        title: "需要手机号授权后才能联系发布者",
+        icon: "none",
       });
       return;
     }
@@ -243,17 +250,17 @@ Page({
       const nextState = getAuthState();
       this.setData({
         phoneAuthorized: nextState.phoneAuthorized,
-        contactButtonLabel: '请求加好友',
+        contactButtonLabel: "请求加好友",
       });
       wx.showToast({
-        title: '授权成功',
-        icon: 'success',
+        title: "授权成功",
+        icon: "success",
       });
       await this.requestContact();
     } catch (error) {
       wx.showToast({
-        title: error instanceof Error ? error.message : '手机号授权失败',
-        icon: 'none',
+        title: error instanceof Error ? error.message : "手机号授权失败",
+        icon: "none",
       });
     } finally {
       this.setData({
@@ -264,14 +271,14 @@ Page({
 
   resolveBadge(serviceCategory: ServiceCategory | null) {
     switch (serviceCategory) {
-      case 'BOARDING':
-        return '宠物寄养';
-      case 'ADOPTION':
-        return '领养';
-      case 'SECOND_HAND':
-        return '闲置';
+      case "BOARDING":
+        return "宠物寄养";
+      case "ADOPTION":
+        return "领养";
+      case "SECOND_HAND":
+        return "闲置";
       default:
-        return '上门喂养';
+        return "上门喂养";
     }
   },
 
@@ -281,11 +288,11 @@ Page({
         return item;
       }
 
-      const numericValue = Number(String(item.value).replace(/[^\d]/g, ''));
+      const numericValue = Number(String(item.value).replace(/[^\d]/g, ""));
       const nextValue = Math.max(0, numericValue + delta);
       return {
         ...item,
-        value: label === '收藏' ? `${nextValue} 收藏` : String(nextValue),
+        value: label === "收藏" ? `${nextValue} 收藏` : String(nextValue),
       };
     });
   },
@@ -305,14 +312,14 @@ Page({
     if (nextState.phoneAuthorized) {
       this.setData({
         phoneAuthorized: true,
-        contactButtonLabel: '请求加好友',
+        contactButtonLabel: "请求加好友",
       });
       return true;
     }
 
     wx.showToast({
-      title: '请先完成手机号授权',
-      icon: 'none',
+      title: "请先完成手机号授权",
+      icon: "none",
     });
     return false;
   },

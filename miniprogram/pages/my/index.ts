@@ -1,31 +1,29 @@
-import type { MyPostCardView, PostStatus } from '../../utils/api-types';
-import { completeMyPost, loadMyPageData, loadMyPosts, offlineMyPost } from '../../utils/api';
-import { PROFILE_ACTIONS } from '../../utils/mock';
+import type { MyPostCardView, PostStatus } from "@utils/api-types";
+import { completeMyPost, loadMyPageData, loadMyPosts, offlineMyPost } from "@utils/api";
+import { PROFILE_ACTIONS } from "@utils/mock";
 
 const POST_STATUS_TABS = [
-  { key: '', label: '全部' },
-  { key: 'PENDING', label: '待审核' },
-  { key: 'APPROVED', label: '已通过' },
-  { key: 'REJECTED', label: '已拒绝' },
-  { key: 'OFFLINE', label: '已下架' },
-  { key: 'COMPLETED', label: '已完成' },
+  { key: "", label: "全部" },
+  { key: "PENDING", label: "待审核" },
+  { key: "APPROVED", label: "已通过" },
+  { key: "REJECTED", label: "已拒绝" },
+  { key: "OFFLINE", label: "已下架" },
+  { key: "COMPLETED", label: "已完成" },
 ] as const;
 
 const DEFAULT_POST_PAGE_SIZE = 20;
 
-type PostStatusFilter = PostStatus | '';
+type PostStatusFilter = PostStatus | "";
 let postListRequestId = 0;
 
-function decoratePosts(
-  posts: MyPostCardView[],
-) {
+function decoratePosts(posts: MyPostCardView[]) {
   return posts.map((post) => ({
     ...post,
     actions:
-      post.type === 'SERVICE' && post.status === 'APPROVED'
+      post.type === "SERVICE" && post.status === "APPROVED"
         ? [
-            { key: 'complete', label: '标记完成' },
-            { key: 'offline', label: '手动下架' },
+            { key: "complete", label: "标记完成" },
+            { key: "offline", label: "手动下架" },
           ]
         : [],
   }));
@@ -33,21 +31,29 @@ function decoratePosts(
 
 Page({
   data: {
-    title: '我的',
-    nickname: '未登录',
+    title: "我的",
+    nickname: "未登录",
     avatarUrl: null as string | null,
-    phoneStatus: '登录不可用',
-    phoneMask: '可继续浏览公开内容',
+    phoneStatus: "登录不可用",
+    phoneMask: "可继续浏览公开内容",
     stats: [
-      { label: '收藏', value: '0' },
-      { label: '发布', value: '0' },
-      { label: '消息', value: '0' },
+      { label: "收藏", value: "0" },
+      { label: "发布", value: "0" },
+      { label: "消息", value: "0" },
     ],
     actions: PROFILE_ACTIONS,
-    favorites: [] as Array<{ id: string; route: string; image: string; badge: string; title: string; summary: string; meta: string }>,
+    favorites: [] as Array<{
+      id: string;
+      route: string;
+      image: string;
+      badge: string;
+      title: string;
+      summary: string;
+      meta: string;
+    }>,
     posts: [] as ReturnType<typeof decoratePosts>,
     postStatusTabs: POST_STATUS_TABS,
-    currentPostStatus: '' as PostStatusFilter,
+    currentPostStatus: "" as PostStatusFilter,
     postPage: 1,
     postPageSize: DEFAULT_POST_PAGE_SIZE,
     postTotal: 0,
@@ -67,10 +73,10 @@ Page({
       const profile = await loadMyPageData();
       const currentStatus = this.data.currentPostStatus as PostStatusFilter;
       const publishTotal = Number(
-        profile.stats.find((item) => item.label === '发布')?.value ?? profile.posts.length,
+        profile.stats.find((item) => item.label === "发布")?.value ?? profile.posts.length,
       );
       const posts =
-        currentStatus === ''
+        currentStatus === ""
           ? {
               items: profile.posts,
               total: publishTotal,
@@ -93,8 +99,8 @@ Page({
       });
     } catch (error) {
       wx.showToast({
-        title: error instanceof Error ? error.message : '加载我的页面失败',
-        icon: 'none',
+        title: error instanceof Error ? error.message : "加载我的页面失败",
+        icon: "none",
       });
     } finally {
       this.setData({ isLoading: false });
@@ -102,7 +108,9 @@ Page({
   },
 
   async switchPostStatus(event: WechatMiniprogram.BaseEvent) {
-    const { status } = event.currentTarget.dataset as { status?: PostStatusFilter };
+    const { status } = event.currentTarget.dataset as {
+      status?: PostStatusFilter;
+    };
     if (status === undefined || status === this.data.currentPostStatus) {
       return;
     }
@@ -130,11 +138,7 @@ Page({
     });
   },
 
-  async reloadPostList(options: {
-    status: PostStatusFilter;
-    page: number;
-    append: boolean;
-  }) {
+  async reloadPostList(options: { status: PostStatusFilter; page: number; append: boolean }) {
     const requestId = Date.now();
     postListRequestId = requestId;
     this.setData({
@@ -143,7 +147,11 @@ Page({
     });
 
     try {
-      const result = await loadMyPosts(options.status || undefined, options.page, DEFAULT_POST_PAGE_SIZE);
+      const result = await loadMyPosts(
+        options.status || undefined,
+        options.page,
+        DEFAULT_POST_PAGE_SIZE,
+      );
       if (postListRequestId !== requestId) {
         return;
       }
@@ -161,8 +169,8 @@ Page({
       });
     } catch (error) {
       wx.showToast({
-        title: error instanceof Error ? error.message : '加载发布列表失败',
-        icon: 'none',
+        title: error instanceof Error ? error.message : "加载发布列表失败",
+        icon: "none",
       });
     } finally {
       if (postListRequestId === requestId) {
@@ -198,7 +206,7 @@ Page({
 
   async handlePostAction(event: WechatMiniprogram.BaseEvent) {
     const { action, postId } = event.currentTarget.dataset as {
-      action?: 'offline' | 'complete';
+      action?: "offline" | "complete";
       postId?: string;
     };
 
@@ -209,29 +217,28 @@ Page({
     this.setData({ isLoading: true });
 
     try {
-      if (action === 'offline') {
+      if (action === "offline") {
         await offlineMyPost(postId);
         wx.showToast({
-          title: '已下架',
-          icon: 'success',
+          title: "已下架",
+          icon: "success",
         });
       } else {
         await completeMyPost(postId);
         wx.showToast({
-          title: '已标记完成',
-          icon: 'success',
+          title: "已标记完成",
+          icon: "success",
         });
       }
 
       await this.reloadPageData();
     } catch (error) {
       wx.showToast({
-        title: error instanceof Error ? error.message : '操作失败',
-        icon: 'none',
+        title: error instanceof Error ? error.message : "操作失败",
+        icon: "none",
       });
     } finally {
       this.setData({ isLoading: false });
     }
   },
-
 });

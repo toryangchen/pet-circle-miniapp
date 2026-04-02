@@ -16,7 +16,9 @@
       <view class="publish-intro">
         <view class="pc-chip pc-chip--warm">统一发布入口</view>
         <text class="publish-intro__title">这次想发布什么？</text>
-        <text class="publish-intro__summary">先选择内容类型，再进入对应表单。宠物圈偏分享，服务和闲置更偏本地信息发布。</text>
+        <text class="publish-intro__summary"
+          >先选择内容类型，再进入对应表单。宠物圈偏分享，服务和闲置更偏本地信息发布。</text
+        >
       </view>
 
       <view class="publish-switch">

@@ -64,7 +64,9 @@
             <view class="home-list__dot"></view>
             <view class="home-list__copy">
               <text class="home-list__title">发布入口统一在底部中央</text>
-              <text class="home-list__summary">你可以在任意页面快速进入发布，先选类型再进入表单。</text>
+              <text class="home-list__summary"
+                >你可以在任意页面快速进入发布，先选类型再进入表单。</text
+              >
             </view>
           </view>
         </view>

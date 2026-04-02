@@ -5,32 +5,31 @@ import {
   replyComment,
   togglePostFavorite,
   togglePostLike,
-} from '../../../utils/api';
-import type { CommentItem } from '../../../utils/api-types';
+} from "@utils/api";
+import type { CommentItem } from "@utils/api-types";
 
 Page({
   data: {
-    title: '详情',
-    authorName: '雪球',
-    postId: 'home-1',
-    badge: '宠物圈',
-    postTitle: '猫咪春天第一次出门晒太阳',
-    summary:
-      '今天带家里猫咪出去晒太阳，真的很乖。社区里的宠物日常、救助故事和成长瞬间都放在这里。',
+    title: "详情",
+    authorName: "雪球",
+    postId: "home-1",
+    badge: "宠物圈",
+    postTitle: "猫咪春天第一次出门晒太阳",
+    summary: "今天带家里猫咪出去晒太阳，真的很乖。社区里的宠物日常、救助故事和成长瞬间都放在这里。",
     image:
-      'https://images.unsplash.com/photo-1571566882372-1598d88abd90?auto=format&fit=crop&w=1080&q=80',
+      "https://images.unsplash.com/photo-1571566882372-1598d88abd90?auto=format&fit=crop&w=1080&q=80",
     stats: [
-      { value: '128', label: '点赞' },
-      { value: '36', label: '评论' },
-      { value: '12', label: '收藏' },
+      { value: "128", label: "点赞" },
+      { value: "36", label: "评论" },
+      { value: "12", label: "收藏" },
     ],
-    tags: ['晒日常', '领养故事', '城市宠物'],
-    actions: ['点赞', '评论', '收藏', '分享'],
+    tags: ["晒日常", "领养故事", "城市宠物"],
+    actions: ["点赞", "评论", "收藏", "分享"],
     comments: [] as CommentItem[],
-    commentInput: '',
-    commentPlaceholder: '说点什么，让宠友看到你的想法',
-    replyTargetId: '',
-    replyTargetAuthor: '',
+    commentInput: "",
+    commentPlaceholder: "说点什么，让宠友看到你的想法",
+    replyTargetId: "",
+    replyTargetAuthor: "",
     liked: false,
     favorited: true,
     isLoading: false,
@@ -38,7 +37,7 @@ Page({
   },
 
   async onLoad(query: Record<string, string | undefined>) {
-    const postId = query.id || 'home-1';
+    const postId = query.id || "home-1";
     this.setData({
       postId,
       isLoading: true,
@@ -46,19 +45,19 @@ Page({
 
     try {
       const [detail, comments] = await Promise.all([
-        loadPostDetail(postId, 'PET_SOCIAL'),
+        loadPostDetail(postId, "PET_SOCIAL"),
         loadComments(postId),
       ]);
       this.setData({
-        authorName: detail.author?.nickname || '宠友分享',
-        badge: '宠物圈',
+        authorName: detail.author?.nickname || "宠友分享",
+        badge: "宠物圈",
         postTitle: detail.title,
         summary: detail.content,
         image: detail.images[0] || this.data.image,
         stats: [
-          { value: String(detail.stats.likeCount), label: '点赞' },
-          { value: String(detail.stats.commentCount), label: '评论' },
-          { value: String(detail.stats.favoriteCount), label: '收藏' },
+          { value: String(detail.stats.likeCount), label: "点赞" },
+          { value: String(detail.stats.commentCount), label: "评论" },
+          { value: String(detail.stats.favoriteCount), label: "收藏" },
         ],
         comments: comments.items,
         liked: detail.viewerState.liked,
@@ -84,8 +83,13 @@ Page({
     });
   },
 
-  startReply(event: WechatMiniprogram.CustomEvent<{ commentId?: string; author?: string }>) {
-    const { commentId = '', author = '宠友' } = event.currentTarget.dataset;
+  startReply(
+    event: WechatMiniprogram.CustomEvent<{
+      commentId?: string;
+      author?: string;
+    }>,
+  ) {
+    const { commentId = "", author = "宠友" } = event.currentTarget.dataset;
     if (!commentId) {
       return;
     }
@@ -99,9 +103,9 @@ Page({
 
   cancelReply() {
     this.setData({
-      replyTargetId: '',
-      replyTargetAuthor: '',
-      commentPlaceholder: '说点什么，让宠友看到你的想法',
+      replyTargetId: "",
+      replyTargetAuthor: "",
+      commentPlaceholder: "说点什么，让宠友看到你的想法",
     });
   },
 
@@ -112,7 +116,7 @@ Page({
     this.setData({
       liked: nextLiked,
       actions: this.buildActions(nextLiked, this.data.favorited),
-      stats: this.updateStatsValue('点赞', nextLiked ? 1 : -1),
+      stats: this.updateStatsValue("点赞", nextLiked ? 1 : -1),
     });
   },
 
@@ -123,7 +127,7 @@ Page({
     this.setData({
       favorited: nextFavorited,
       actions: this.buildActions(this.data.liked, nextFavorited),
-      stats: this.updateStatsValue('收藏', nextFavorited ? 1 : -1),
+      stats: this.updateStatsValue("收藏", nextFavorited ? 1 : -1),
     });
   },
 
@@ -155,29 +159,29 @@ Page({
       }
 
       const [detail, comments] = await Promise.all([
-        loadPostDetail(postId, 'PET_SOCIAL'),
+        loadPostDetail(postId, "PET_SOCIAL"),
         loadComments(postId),
       ]);
       this.setData({
         comments: comments.items,
-        commentInput: '',
-        replyTargetId: '',
-        replyTargetAuthor: '',
-        commentPlaceholder: '说点什么，让宠友看到你的想法',
+        commentInput: "",
+        replyTargetId: "",
+        replyTargetAuthor: "",
+        commentPlaceholder: "说点什么，让宠友看到你的想法",
         stats: [
-          { value: String(detail.stats.likeCount), label: '点赞' },
-          { value: String(detail.stats.commentCount), label: '评论' },
-          { value: String(detail.stats.favoriteCount), label: '收藏' },
+          { value: String(detail.stats.likeCount), label: "点赞" },
+          { value: String(detail.stats.commentCount), label: "评论" },
+          { value: String(detail.stats.favoriteCount), label: "收藏" },
         ],
       });
       wx.showToast({
-        title: replyTargetId ? '回复已发送' : '评论已发送',
-        icon: 'success',
+        title: replyTargetId ? "回复已发送" : "评论已发送",
+        icon: "success",
       });
     } catch (error) {
       wx.showToast({
-        title: error instanceof Error ? error.message : '评论发送失败',
-        icon: 'none',
+        title: error instanceof Error ? error.message : "评论发送失败",
+        icon: "none",
       });
     } finally {
       this.setData({
@@ -187,7 +191,7 @@ Page({
   },
 
   buildActions(liked: boolean, favorited: boolean) {
-    return [liked ? '已点赞' : '点赞', '评论', favorited ? '已收藏' : '收藏', '分享'];
+    return [liked ? "已点赞" : "点赞", "评论", favorited ? "已收藏" : "收藏", "分享"];
   },
 
   updateStatsValue(label: string, delta: number) {

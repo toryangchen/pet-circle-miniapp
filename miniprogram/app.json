@@ -21,6 +21,10 @@
       "sdkVersionEnd": "15.255.255"
     }
   },
+  "resolveAlias": {
+    "~/*": "/*",
+    "@utils/*": "utils/*"
+  },
   "componentFramework": "glass-easel",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"

@@ -1,9 +1,9 @@
-import type { MiniappUserSummary } from './api-types';
+import type { MiniappUserSummary } from "./api-types";
 
-const SESSION_STORAGE_KEY = 'pc_auth_session';
-const DEFAULT_API_BASE_URL = 'http://127.0.0.1:3000/api';
+const SESSION_STORAGE_KEY = "pc_auth_session";
+const DEFAULT_API_BASE_URL = "http://127.0.0.1:3000/api";
 
-type HttpMethod = 'GET' | 'POST';
+type HttpMethod = "GET" | "POST";
 
 type ApiEnvelope<T> = {
   code: number;
@@ -40,7 +40,7 @@ export class SessionRequestError extends Error {
 
   constructor(message: string, options?: { statusCode?: number; bodyCode?: number }) {
     super(message);
-    this.name = 'SessionRequestError';
+    this.name = "SessionRequestError";
     this.statusCode = options?.statusCode;
     this.bodyCode = options?.bodyCode;
   }
@@ -52,7 +52,7 @@ const DEFAULT_AUTH_STATE: AuthBootstrapState = {
   session: null,
   user: null,
   phoneAuthorized: false,
-  phoneMasked: '',
+  phoneMasked: "",
 };
 
 let authState: AuthBootstrapState = { ...DEFAULT_AUTH_STATE };
@@ -94,7 +94,7 @@ function applyAuthenticatedState(session: AuthSession, user?: MiniappUserSummary
     session,
     user: nextUser,
     phoneAuthorized: nextUser?.phoneAuthorized ?? false,
-    phoneMasked: nextUser?.phoneMasked ?? '',
+    phoneMasked: nextUser?.phoneMasked ?? "",
   });
 }
 
@@ -119,10 +119,10 @@ function requestMiniappLoginCode() {
           return;
         }
 
-        reject(new SessionRequestError('WeChat login code is missing.'));
+        reject(new SessionRequestError("WeChat login code is missing."));
       },
       fail: () => {
-        reject(new SessionRequestError('WeChat login failed.'));
+        reject(new SessionRequestError("WeChat login failed."));
       },
     });
   });
@@ -132,11 +132,11 @@ function requestApi<T>(options: RequestOptions): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     wx.request({
       url: `${getApiBaseUrl()}${options.path}`,
-      method: options.method as WechatMiniprogram.RequestOption['method'],
+      method: options.method as WechatMiniprogram.RequestOption["method"],
       data: options.data,
       timeout: 5000,
       header: {
-        'content-type': 'application/json',
+        "content-type": "application/json",
         ...(options.token
           ? {
               Authorization: `Bearer ${options.token}`,
@@ -159,7 +159,7 @@ function requestApi<T>(options: RequestOptions): Promise<T> {
         );
       },
       fail: () => {
-        reject(new SessionRequestError('Network request failed.'));
+        reject(new SessionRequestError("Network request failed."));
       },
     });
   });
@@ -175,14 +175,14 @@ async function loginWithWeChatCode() {
     token: string;
     user: MiniappUserSummary;
   }>({
-    method: 'POST',
-    path: '/auth/miniapp/login',
+    method: "POST",
+    path: "/auth/miniapp/login",
     data: { code },
   });
   const session: AuthSession = {
     userId: result.user.id,
     token: result.token,
-    nickname: result.user.nickname || '宠友圈用户',
+    nickname: result.user.nickname || "宠友圈用户",
   };
 
   saveSession(session);
@@ -234,15 +234,15 @@ export async function recoverSession() {
     session: null,
     user: null,
     phoneAuthorized: false,
-    phoneMasked: '',
+    phoneMasked: "",
   });
 
   return ensureAuthenticated();
 }
 
-export async function syncCurrentUser(
-  options?: { allowRelogin?: boolean },
-): Promise<MiniappUserSummary | null> {
+export async function syncCurrentUser(options?: {
+  allowRelogin?: boolean;
+}): Promise<MiniappUserSummary | null> {
   const session = authState.session ?? getStoredSession() ?? null;
   if (!session?.token) {
     return null;
@@ -254,8 +254,8 @@ export async function syncCurrentUser(
 
   if (!currentUserPromise) {
     currentUserPromise = requestApi<MiniappUserSummary>({
-      method: 'GET',
-      path: '/auth/me',
+      method: "GET",
+      path: "/auth/me",
       token: session.token,
     })
       .then((user) => {
@@ -322,8 +322,8 @@ export async function ensurePhoneAuthorized(phoneCode: string) {
     phoneAuthorized: boolean;
     phoneMasked: string;
   }>({
-    method: 'POST',
-    path: '/auth/miniapp/bind-phone',
+    method: "POST",
+    path: "/auth/miniapp/bind-phone",
     data: {
       code: phoneCode,
     },

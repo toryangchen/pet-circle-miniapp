@@ -1,8 +1,8 @@
-import { loadNotifications, markAllNotificationsRead, markNotificationRead } from '../../utils/api';
+import { loadNotifications, markAllNotificationsRead, markNotificationRead } from "@utils/api";
 
 Page({
   data: {
-    title: '消息',
+    title: "消息",
     unreadCount: 0,
     notifications: [] as Array<{
       id: string;
@@ -41,7 +41,10 @@ Page({
   },
 
   async openConversation(event: WechatMiniprogram.BaseEvent) {
-    const { id, route } = event.currentTarget.dataset as { id?: string; route?: string };
+    const { id, route } = event.currentTarget.dataset as {
+      id?: string;
+      route?: string;
+    };
     if (!route) {
       return;
     }
@@ -79,13 +82,13 @@ Page({
         unreadCount: 0,
       });
       wx.showToast({
-        title: '已全部标记已读',
-        icon: 'success',
+        title: "已全部标记已读",
+        icon: "success",
       });
     } catch (error) {
       wx.showToast({
-        title: error instanceof Error ? error.message : '操作失败',
-        icon: 'none',
+        title: error instanceof Error ? error.message : "操作失败",
+        icon: "none",
       });
     }
   },

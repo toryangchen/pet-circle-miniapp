@@ -1,18 +1,14 @@
-export type PostType = 'PET_SOCIAL' | 'SERVICE';
-export type PostStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'OFFLINE' | 'COMPLETED';
-export type ServiceCategory =
-  | 'ADOPTION'
-  | 'SECOND_HAND'
-  | 'HOME_FEEDING'
-  | 'BOARDING';
+export type PostType = "PET_SOCIAL" | "SERVICE";
+export type PostStatus = "PENDING" | "APPROVED" | "REJECTED" | "OFFLINE" | "COMPLETED";
+export type ServiceCategory = "ADOPTION" | "SECOND_HAND" | "HOME_FEEDING" | "BOARDING";
 export type NotificationType =
-  | 'LIKE_POST'
-  | 'COMMENT_POST'
-  | 'REPLY_COMMENT'
-  | 'CONTACT_REQUEST'
-  | 'CONTACT_APPROVED';
-export type ConversationStatus = 'INIT' | 'PENDING' | 'APPROVED' | 'IGNORED';
-export type PublishDraftType = 'PET_SOCIAL' | 'SERVICE' | 'RESALE';
+  | "LIKE_POST"
+  | "COMMENT_POST"
+  | "REPLY_COMMENT"
+  | "CONTACT_REQUEST"
+  | "CONTACT_APPROVED";
+export type ConversationStatus = "INIT" | "PENDING" | "APPROVED" | "IGNORED";
+export type PublishDraftType = "PET_SOCIAL" | "SERVICE" | "RESALE";
 
 export interface PagedResult<T> {
   items: T[];

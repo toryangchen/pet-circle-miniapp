@@ -1,12 +1,12 @@
-import { loadServiceFeed } from '../../utils/api';
-import { mockServiceState } from '../../utils/mock-api';
+import { loadServiceFeed } from "@utils/api";
+import { mockServiceState } from "@utils/mock-api";
 
-const TAB_CATEGORY_MAP: Array<'ALL' | 'ADOPTION' | 'BOARDING' | 'HOME_FEEDING' | 'SECOND_HAND'> = [
-  'ALL',
-  'ADOPTION',
-  'BOARDING',
-  'HOME_FEEDING',
-  'SECOND_HAND',
+const TAB_CATEGORY_MAP: Array<"ALL" | "ADOPTION" | "BOARDING" | "HOME_FEEDING" | "SECOND_HAND"> = [
+  "ALL",
+  "ADOPTION",
+  "BOARDING",
+  "HOME_FEEDING",
+  "SECOND_HAND",
 ];
 
 Page({
@@ -51,21 +51,21 @@ Page({
   },
 
   applyCurrentTab(tabIndex: number) {
-    const category = TAB_CATEGORY_MAP[tabIndex] ?? 'ALL';
+    const category = TAB_CATEGORY_MAP[tabIndex] ?? "ALL";
     const servicePosts =
-      category === 'ALL'
+      category === "ALL"
         ? this.data.allServicePosts
         : this.data.allServicePosts.filter((item) => {
-            if (category === 'ADOPTION') {
-              return item.badge === '领养';
+            if (category === "ADOPTION") {
+              return item.badge === "领养";
             }
-            if (category === 'BOARDING') {
-              return item.badge === '宠物寄养';
+            if (category === "BOARDING") {
+              return item.badge === "宠物寄养";
             }
-            if (category === 'SECOND_HAND') {
-              return item.badge === '闲置';
+            if (category === "SECOND_HAND") {
+              return item.badge === "闲置";
             }
-            return item.badge === '上门喂养';
+            return item.badge === "上门喂养";
           });
 
     this.setData({

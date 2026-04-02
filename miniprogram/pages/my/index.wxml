@@ -31,7 +31,9 @@
               src="{{avatarUrl}}"
               mode="aspectFill"
             ></image>
-            <view wx:else class="my-avatar__fallback">{{nickname ? nickname.slice(0, 1) : '宠'}}</view>
+            <view wx:else class="my-avatar__fallback"
+              >{{nickname ? nickname.slice(0, 1) : '宠'}}</view
+            >
           </view>
           <view class="my-profile__meta">
             <text class="my-profile__name">{{nickname}}</text>
@@ -79,7 +81,11 @@
                 bindtap="openFavorite"
                 data-route="{{item.route}}"
               >
-                <image class="my-content-card__image" src="{{item.image}}" mode="aspectFill"></image>
+                <image
+                  class="my-content-card__image"
+                  src="{{item.image}}"
+                  mode="aspectFill"
+                ></image>
                 <view class="my-content-card__body">
                   <view class="pc-chip pc-chip--soft">{{item.badge}}</view>
                   <text class="my-content-card__title">{{item.title}}</text>
@@ -145,7 +151,10 @@
               >
                 已经到底了
               </view>
-              <view wx:elif="{{!posts.length}}" class="my-post-list__footer my-post-list__footer--empty">
+              <view
+                wx:elif="{{!posts.length}}"
+                class="my-post-list__footer my-post-list__footer--empty"
+              >
                 当前筛选下还没有内容
               </view>
             </view>

@@ -1,15 +1,15 @@
-import { MAIN_TABS } from '../../utils/mock';
+import { MAIN_TABS } from "@utils/mock";
 
 Component({
   properties: {
     current: {
       type: String,
-      value: 'home',
+      value: "home",
     },
   },
   data: {
-    leftItems: MAIN_TABS.filter((item) => item.key === 'home' || item.key === 'service'),
-    rightItems: MAIN_TABS.filter((item) => item.key === 'message' || item.key === 'my'),
+    leftItems: MAIN_TABS.filter((item) => item.key === "home" || item.key === "service"),
+    rightItems: MAIN_TABS.filter((item) => item.key === "message" || item.key === "my"),
   },
   methods: {
     onTabTap(event: WechatMiniprogram.TouchEvent) {
@@ -25,9 +25,8 @@ Component({
 
     onPublishTap() {
       wx.reLaunch({
-        url: '/pages/publish/index',
+        url: "/pages/publish/index",
       });
     },
-
   },
 });
