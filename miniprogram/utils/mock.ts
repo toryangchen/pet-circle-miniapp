@@ -58,6 +58,72 @@ export const MAIN_TABS: MainTabItem[] = [
 export const HOME_FEEDS: FeedCard[] = [
   {
     id: "home-1",
+    title: "今天值的宠物日常",
+    summary: "用轻松的卡片浏览社区里的日常、故事和城市瞬间。",
+    image:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80",
+    badge: "宠物圈",
+    author: "雪球",
+    meta: "2分钟前 · 36 评论",
+    route: "/pages/detail/pet-social/index",
+  },
+  {
+    id: "home-2",
+    title: "猫咪春天第一次出门晒太阳猫咪春天第一次出门晒太阳",
+    summary: "柔软的午后、轻松的散步和刚刚好的阳光。",
+    image:
+      "https://images.unsplash.com/photo-1571566882372-1598d88abd90?auto=format&fit=crop&w=900&q=80",
+    badge: "晒日常",
+    author: "团子",
+    meta: "15分钟前 · 12 点赞",
+    route: "/pages/detail/pet-social/index",
+  },
+  {
+    id: "home-3",
+    title: "在城市里认真分享一只小狗的成长",
+    summary: "记录、成长、陪伴，是这个首页最温柔的关键词。",
+    image:
+      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80",
+    badge: "成长记录",
+    author: "糯米",
+    meta: "1小时前 · 8 收藏",
+    route: "/pages/detail/pet-social/index",
+  },
+  {
+    id: "home-1",
+    title: "今天值得被分享的宠物",
+    summary: "用轻松的卡片浏览社区里的日常、故事和城市瞬间。",
+    image:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80",
+    badge: "宠物圈",
+    author: "雪球",
+    meta: "2分钟前 · 36 评论",
+    route: "/pages/detail/pet-social/index",
+  },
+  {
+    id: "home-2",
+    title: "猫咪春天第一次出门晒太阳猫咪春天第一次出门晒太阳",
+    summary: "柔软的午后、轻松的散步和刚刚好的阳光。",
+    image:
+      "https://images.unsplash.com/photo-1571566882372-1598d88abd90?auto=format&fit=crop&w=900&q=80",
+    badge: "晒日常",
+    author: "团子",
+    meta: "15分钟前 · 12 点赞",
+    route: "/pages/detail/pet-social/index",
+  },
+  {
+    id: "home-3",
+    title: "在城市里认真分长",
+    summary: "记录、成长、陪伴，是这个首页最温柔的关键词。",
+    image:
+      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80",
+    badge: "成长记录",
+    author: "糯米",
+    meta: "1小时前 · 8 收藏",
+    route: "/pages/detail/pet-social/index",
+  },
+  {
+    id: "home-1",
     title: "今天值得被分享的宠物日常",
     summary: "用轻松的卡片浏览社区里的日常、故事和城市瞬间。",
     image:
@@ -69,7 +135,7 @@ export const HOME_FEEDS: FeedCard[] = [
   },
   {
     id: "home-2",
-    title: "猫咪春天第一次出门晒太阳",
+    title: "猫咪春天第一次出门晒太阳猫咪春天第一次出门晒太阳猫咪春天第一次出门晒太阳",
     summary: "柔软的午后、轻松的散步和刚刚好的阳光。",
     image:
       "https://images.unsplash.com/photo-1571566882372-1598d88abd90?auto=format&fit=crop&w=900&q=80",

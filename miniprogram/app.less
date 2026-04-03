@@ -1,5 +1,6 @@
-:root {
-  --pc-bg: #f7f3ec;
+page {
+  --pc-bg: #f8f4ee;
+  --pc-card-bg: #fffdfc;
   --pc-surface: #ffffff;
   --pc-surface-alt: #f0ebe2;
   --pc-line: #e6ddd0;
@@ -10,9 +11,7 @@
   --pc-accent-soft: #e5eedf;
   --pc-warm: #ca8d00;
   --pc-warm-soft: #f9e8d6;
-}
 
-page {
   min-height: 100%;
   background: var(--pc-bg);
   color: var(--pc-text-primary);
@@ -25,101 +24,30 @@ image {
 
 .pc-screen {
   min-height: 100vh;
-  background: var(--pc-bg);
-  color: var(--pc-text-primary);
-}
-
-.pc-topbar {
-  padding-top: env(safe-area-inset-top);
-  background: var(--pc-surface);
-  border-bottom: 1rpx solid var(--pc-line);
-}
-
-.pc-topbar__status {
-  height: 88rpx;
-  padding: 0 28rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  font-size: 24rpx;
-  font-weight: 600;
-}
-
-.pc-topbar__nav {
-  height: 80rpx;
-  padding: 0 24rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
-
-.pc-topbar__location {
-  padding: 10rpx 16rpx;
-  border-radius: 999rpx;
-  background: var(--pc-warm-soft);
-  color: var(--pc-warm);
-  font-size: 22rpx;
-  font-weight: 600;
-}
-
-.pc-topbar__title {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: var(--pc-text-primary);
-  letter-spacing: 1rpx;
-}
-
-.pc-topbar__ghost {
-  width: 104rpx;
-}
-
-.pc-topbar__detail-avatar {
-  width: 44rpx;
-  height: 44rpx;
-  border-radius: 999rpx;
-  background: var(--pc-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pc-topbar__detail-avatar-icon {
-  width: 24rpx;
-  height: 24rpx;
 }
 
 .pc-page-body {
-  padding: 16rpx 16rpx 176rpx;
+  padding: 8rpx;
   box-sizing: border-box;
 }
 
 .pc-card {
-  background: var(--pc-surface);
+  background: var(--pc-card-bg);
+  border-radius: 8rpx;
   border: 1rpx solid var(--pc-line);
-  border-radius: 32rpx;
-  box-shadow: 0 18rpx 40rpx rgba(47, 42, 38, 0.06);
-}
-
-.pc-card--soft {
-  background: linear-gradient(180deg, #fffaf2 0%, #fff 100%);
 }
 
 .pc-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   border-radius: 999rpx;
   padding: 8rpx 16rpx;
   font-size: 20rpx;
-  font-weight: 600;
-  box-sizing: border-box;
 }
 
 .pc-chip--warm {
   background: var(--pc-warm-soft);
   color: var(--pc-warm);
+  font-weight: 600;
 }
 
 .pc-chip--soft {

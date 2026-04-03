@@ -1,39 +1,48 @@
-<navigation-bar></navigation-bar>
-<view class="pc-screen home-screen">
-  <scroll-view class="home-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="pc-page-body">
-      <view class="pc-card home-hero">
-        <view class="pc-chip pc-chip--warm">西安社区</view>
-        <text class="home-hero__title">{{heroTitle}}</text>
-        <text class="home-hero__summary">{{heroSummary}}</text>
+<navigation-bar title="宠友圈"></navigation-bar>
+<scroll-view
+  class="home-scroll"
+  scroll-y
+  type="custom"
+  enhanced="{{true}}"
+  show-scrollbar="{{false}}"
+>
+  <view class="pc-card home-hero">
+    <view>
+      <view class="pc-chip pc-chip--warm">西安社区</view>
+    </view>
 
-        <view class="home-tags">
-          <view wx:for="{{tags}}" wx:key="*this" class="home-tag">
-            <text>{{item}}</text>
-          </view>
-        </view>
+    <text class="home-hero__title">{{heroTitle}}</text>
+    <text class="home-hero__summary">{{heroSummary}}</text>
+
+    <view class="home-tags">
+      <view wx:for="{{tags}}" wx:key="*this" class="pc-chip pc-chip--soft">
+        <text>{{item}}</text>
       </view>
+    </view>
+  </view>
 
-      <view class="home-grid">
-        <view
-          wx:for="{{featuredPosts}}"
-          wx:key="id"
-          class="home-card"
-          data-route="{{item.route}}"
-          bindtap="onTapPost"
-        >
-          <image class="home-card__image" src="{{item.image}}" mode="aspectFill"></image>
-          <view class="home-card__body">
-            <view class="home-card__badge">{{item.badge}}</view>
-            <text class="home-card__title">{{item.title}}</text>
-            <text class="home-card__summary">{{item.summary}}</text>
-            <view class="home-card__meta">
-              <text>{{item.author}}</text>
-              <text>{{item.meta}}</text>
-            </view>
-          </view>
+  <grid-view
+    type="masonry"
+    cross-axis-count="2"
+    cross-axis-gap="2"
+    main-axis-gap="4"
+    padding="{{[2,0,0,2]}}"
+  >
+    <view
+      wx:for="{{featuredPosts}}"
+      wx:key="id"
+      class="pc-card home-card"
+      data-route="{{item.route}}"
+      bindtap="onTapPost"
+    >
+      <image class="home-card__image" src="{{item.image}}" mode="aspectFill"></image>
+      <view class="home-card__body">
+        <text class="home-card__titletxt" overflow="ellipsis" max-lines="2"> {{item.title}} </text>
+        <view class="home-card__meta">
+          <text>{{item.author}}</text>
+          <text>{{item.meta}}</text>
         </view>
       </view>
     </view>
-  </scroll-view>
-</view>
+  </grid-view>
+</scroll-view>

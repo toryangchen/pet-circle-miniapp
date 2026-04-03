@@ -1,16 +1,5 @@
+<navigation-bar title="服务"></navigation-bar>
 <view class="pc-screen service-screen">
-  <view class="pc-topbar">
-    <view class="pc-topbar__status">
-      <text>9:41</text>
-      <text>5G 100%</text>
-    </view>
-    <view class="pc-topbar__nav">
-      <view class="pc-topbar__location">{{location}}</view>
-      <text class="pc-topbar__title">{{title}}</text>
-      <view class="pc-topbar__ghost"></view>
-    </view>
-  </view>
-
   <scroll-view class="service-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="pc-page-body">
       <view class="pc-card service-hero">

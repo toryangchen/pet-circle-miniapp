@@ -1,7 +1,31 @@
 .top-bar {
-  position: absolute;
+  position: fixed;
   z-index: 1;
   top: 0;
   left: 0;
   width: 100%;
+  border-bottom: 1rpx solid var(--pc-line);
+
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    .icon-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .left {
+      width: 32rpx;
+      height: 32rpx;
+    }
+
+    .tab-title {
+      flex: 1;
+      text-align: center;
+      color: #2f2a26;
+      font-weight: bold;
+      font-size: 30rpx;
+    }
+  }
 }

@@ -1,6 +1,4 @@
-<!--miniprogram/custom-tab-bar/index.wxml-->
-<view class="tab-bar">
-  <view class="tab-bar-border"></view>
+<view class="tab-bar common" style="box-sizing: content-box">
   <view
     wx:for="{{list}}"
     wx:key="index"

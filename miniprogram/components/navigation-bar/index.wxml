@@ -1,7 +1,20 @@
 <view class="top-bar" style="background-color: {{ background }};">
   <view class="status-bar" style="height: {{statusHeight}}px;"></view>
   <view class="nav-bar" style="height: {{navBarHeight}}px; margin: auto {{menuRight}}px">
-    <slot name="title"></slot>
+    <view
+      wx:if="{{back}}"
+      class="icon-content"
+      style="height: {{navBarHeight}}px; width: {{navBarHeight}}px;"
+      bindtap="goBack"
+    >
+      <image class="left" src="/assets/left-icon.png"></image>
+    </view>
+    <view class="tab-title">
+      <block wx:if="{{title}}">{{title}}</block>
+      <slot wx:else name="title"></slot>
+    </view>
+
+    <view wx:if="{{back}}" style="height: {{navBarHeight}}px; width: {{navBarHeight}}px;"> </view>
   </view>
 </view>
 <view class="holder" style="height: {{statusHeight + navBarHeight}}px; width: 100%;"></view>
