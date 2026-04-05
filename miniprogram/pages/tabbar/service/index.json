@@ -1,6 +1,5 @@
 {
-  "usingComponents": {
-    "navigation-bar": "/components/navigation-bar/index"
-  },
-  "renderer": "skyline"
+  "usingComponents": {},
+  "renderer": "skyline",
+  "componentFramework": "glass-easel"
 }

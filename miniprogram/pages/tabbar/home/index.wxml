@@ -1,4 +1,5 @@
 <navigation-bar title="宠友圈"></navigation-bar>
+
 <scroll-view
   class="home-scroll"
   scroll-y

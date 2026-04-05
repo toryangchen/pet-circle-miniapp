@@ -18,21 +18,23 @@
     ]
   },
   "usingComponents": {
-    "custom-tab-bar": "custom-tab-bar/index"
+    "navigation-bar": "components/navigation-bar/index"
   },
   "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom"
   },
   "style": "v2",
   "rendererOptions": {
     "skyline": {
+      "disableABTest": true,
       "defaultDisplayBlock": true,
       "enableScrollViewAutoSize": true,
       "tagNameStyleIsolation": "legacy"
     }
   },
-  "renderer": "skyline",
   "resolveAlias": {
     "~/*": "/*",
     "@utils/*": "utils/*"

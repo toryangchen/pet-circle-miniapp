@@ -1,18 +1,6 @@
 <view class="pc-screen my-screen">
   <view class="my-hero-bg"></view>
 
-  <view class="my-topbar">
-    <view class="my-topbar__status">
-      <text>9:41</text>
-      <text>5G 100%</text>
-    </view>
-    <view class="my-topbar__nav">
-      <view class="pc-topbar__ghost"></view>
-      <text class="pc-topbar__title">{{title}}</text>
-      <view class="pc-topbar__ghost"></view>
-    </view>
-  </view>
-
   <scroll-view
     class="my-scroll"
     scroll-y
