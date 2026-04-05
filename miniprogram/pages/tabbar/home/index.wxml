@@ -11,8 +11,8 @@
       <view class="pc-chip pc-chip--warm">西安社区</view>
     </view>
 
-    <text class="home-hero__title">{{heroTitle}}</text>
-    <text class="home-hero__summary">{{heroSummary}}</text>
+    <text class="hero__title">{{heroTitle}}</text>
+    <text class="hero__summary">{{heroSummary}}</text>
 
     <view class="home-tags">
       <view wx:for="{{tags}}" wx:key="*this" class="pc-chip pc-chip--soft">
@@ -25,8 +25,8 @@
     type="masonry"
     cross-axis-count="2"
     cross-axis-gap="2"
-    main-axis-gap="4"
-    padding="{{[2,0,0,2]}}"
+    main-axis-gap="2"
+    padding="{{[0,0,10,0]}}"
   >
     <view
       wx:for="{{featuredPosts}}"
@@ -35,9 +35,12 @@
       data-route="{{item.route}}"
       bindtap="onTapPost"
     >
-      <image class="home-card__image" src="{{item.image}}" mode="aspectFill"></image>
+      <view class="home-card__img-content">
+        <image class="home-card__image" src="{{item.image}}"></image>
+      </view>
+
       <view class="home-card__body">
-        <text class="home-card__titletxt" overflow="ellipsis" max-lines="2"> {{item.title}} </text>
+        <text class="home-card__title" overflow="ellipsis" max-lines="2"> {{item.title}} </text>
         <view class="home-card__meta">
           <text>{{item.author}}</text>
           <text>{{item.meta}}</text>

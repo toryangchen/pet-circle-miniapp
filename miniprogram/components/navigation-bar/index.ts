@@ -30,14 +30,14 @@ Component({
   lifetimes: {
     attached() {
       // 获取系统信息
-      const systemInfo = wx.getSystemInfoSync();
+      const windowInfo = wx.getWindowInfo();
       // 胶囊按钮位置信息
       const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
 
       this.setData({
-        statusHeight: systemInfo.statusBarHeight,
-        navBarHeight: (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height,
-        menuRight: systemInfo.screenWidth - menuButtonInfo.right,
+        statusHeight: windowInfo.statusBarHeight,
+        navBarHeight: (menuButtonInfo.top - windowInfo.statusBarHeight) * 2 + menuButtonInfo.height,
+        menuRight: windowInfo.screenWidth - menuButtonInfo.right,
         menuTop: menuButtonInfo.top,
         menuHeight: menuButtonInfo.height,
       });

@@ -1,56 +1,66 @@
 <navigation-bar title="服务"></navigation-bar>
-<view class="pc-screen service-screen">
-  <scroll-view class="service-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="pc-page-body">
-      <view class="pc-card service-hero">
-        <text class="service-hero__title">{{highlightTitle}}</text>
-        <text class="service-hero__summary">{{highlightSummary}}</text>
-        <view class="service-tag-row">
-          <view wx:for="{{tags}}" wx:key="*this" class="service-tag">
-            <text>{{item}}</text>
-          </view>
-        </view>
-      </view>
 
-      <view class="service-tabs">
-        <view
-          wx:for="{{tabs}}"
-          wx:key="*this"
-          class="service-tab {{index === currentTab ? 'service-tab--active' : ''}}"
-          data-index="{{index}}"
-          bindtap="switchTab"
-        >
-          <text>{{item}}</text>
-        </view>
-      </view>
+<view class="service-tabs">
+  <view
+    wx:for="{{tabs}}"
+    wx:key="*this"
+    class="service-tab {{index === currentTab ? 'service-tab--active' : ''}}"
+    data-index="{{index}}"
+    bindtap="switchTab"
+  >
+    <text>{{item}}</text>
+  </view>
+</view>
 
-      <view class="service-list">
-        <view
-          wx:for="{{servicePosts}}"
-          wx:key="id"
-          class="service-list__card"
-          data-route="{{item.route}}"
-          bindtap="openDetail"
-        >
-          <image class="service-list__image" src="{{item.image}}" mode="aspectFill"></image>
-          <view class="service-list__body">
-            <view class="service-list__badge">{{item.badge}}</view>
-            <text class="service-list__title">{{item.title}}</text>
-            <text class="service-list__summary">{{item.summary}}</text>
-            <view class="service-list__meta">
-              <text>{{item.author}}</text>
-              <text>{{item.meta}}</text>
-            </view>
-          </view>
-        </view>
-      </view>
+<scroll-view
+  class="service-scroll"
+  scroll-y
+  type="custom"
+  enhanced="{{true}}"
+  show-scrollbar="{{false}}"
+>
+  <view class="pc-card service-hero">
+    <text class="hero__title">{{highlightTitle}}</text>
+    <text class="hero__summary">{{highlightSummary}}</text>
 
-      <view class="service-note">
-        <text class="service-note__title">结构化信息更重要</text>
-        <text class="service-note__summary"
-          >服务帖会在后续接入真实表单时展示城市、价格、联系方式和具体服务字段。</text
-        >
+    <view class="service-tag-row">
+      <view wx:for="{{tags}}" wx:key="*this" class="pc-chip pc-chip--soft">
+        <text>{{item}}</text>
       </view>
     </view>
-  </scroll-view>
-</view>
+  </view>
+
+  <grid-view
+    type="masonry"
+    cross-axis-count="2"
+    cross-axis-gap="2"
+    main-axis-gap="2"
+    padding="{{[0,0,10,0]}}"
+  >
+    <view
+      wx:for="{{servicePosts}}"
+      wx:key="id"
+      class="pc-card service-card"
+      data-route="{{item.route}}"
+      bindtap="onTapPost"
+    >
+      <view class="service-card__img-content">
+        <image class="service-card__image" src="{{item.image}}"></image>
+      </view>
+
+      <view class="service-card__body">
+        <view>
+          <view class="pc-chip pc-chip--warm">
+            <text>{{item.badge}}</text>
+          </view>
+        </view>
+
+        <text class="service-card__title" overflow="ellipsis" max-lines="2"> {{item.title}} </text>
+        <view class="service-card__meta">
+          <text>{{item.author}}</text>
+          <text>{{item.meta}}</text>
+        </view>
+      </view>
+    </view>
+  </grid-view>
+</scroll-view>

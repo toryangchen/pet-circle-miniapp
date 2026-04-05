@@ -11,7 +11,7 @@ Component({
   },
   attached() {},
   methods: {
-    switchTab(e) {
+    switchTab(e: WechatMiniprogram.BaseEvent) {
       const { path: url } = e.currentTarget.dataset;
       if (!url) {
         return;
