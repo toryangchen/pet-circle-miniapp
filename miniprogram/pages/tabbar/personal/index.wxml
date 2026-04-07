@@ -1,154 +1,76 @@
-<view class="pc-screen my-screen">
-  <view class="my-hero-bg"></view>
+<view class="personal-hero">
+  <image class="personal-hero__bg" src="/assets/main-bg-02.png" mode="aspectFill"></image>
+  <view class="personal-hero__frost">
+    <view class="top-clear"></view>
+    <view class="blur-layer"></view>
+  </view>
+</view>
 
-  <scroll-view
-    class="my-scroll"
-    scroll-y
-    enhanced
-    show-scrollbar="{{false}}"
-    lower-threshold="120"
-    bindscrolltolower="loadMorePosts"
-  >
-    <view class="pc-page-body">
-      <view class="my-hero pc-card">
-        <view class="my-profile">
-          <view class="my-avatar">
-            <image
-              wx:if="{{avatarUrl}}"
-              class="my-avatar__image"
-              src="{{avatarUrl}}"
-              mode="aspectFill"
-            ></image>
-            <view wx:else class="my-avatar__fallback"
-              >{{nickname ? nickname.slice(0, 1) : '宠'}}</view
-            >
-          </view>
-          <view class="my-profile__meta">
-            <text class="my-profile__name">{{nickname}}</text>
-            <view class="my-profile__row">
-              <view class="pc-chip pc-chip--soft">{{phoneStatus}}</view>
-              <text class="my-profile__phone">{{phoneMask}}</text>
-            </view>
-          </view>
-        </view>
+<scroll-view class="personal-scroll" scroll-y enhanced="{{true}}" show-scrollbar="{{false}}">
+  <view class="holder" style="height: {{topHeight}}px; width: 100%;"></view>
+  <view class="personal-page">
+    <view class="personal-profile">
+      <view class="personal-user">
+        <image
+          class="personal-avatar"
+          src="/assets/profile-pawpets-avatar.png"
+          mode="aspectFit"
+        ></image>
 
-        <view class="my-stats">
-          <view wx:for="{{stats}}" wx:key="label" class="my-stat">
-            <text class="my-stat__value">{{item.value}}</text>
-            <text class="my-stat__label">{{item.label}}</text>
+        <view class="personal-meta">
+          <text class="personal-name">{{profile.name}}</text>
+          <view class="personal-meta__row">
+            <view class="personal-status">{{profile.status}}</view>
+            <text class="personal-subtitle">{{profile.subtitle}}</text>
           </view>
         </view>
       </view>
 
-      <view class="my-body">
-        <view class="my-section">
-          <text class="my-section__title">常用入口</text>
-          <view class="my-action-list">
-            <view wx:for="{{actions}}" wx:key="id" class="my-action pc-card">
-              <view class="my-action__copy">
-                <text class="my-action__title">{{item.title}}</text>
-                <text class="my-action__summary">{{item.summary}}</text>
-              </view>
-              <text class="my-action__arrow">›</text>
+      <view class="personal-actions">
+        <view class="personal-stats">
+          <view wx:for="{{stats}}" wx:key="label" class="personal-stat">
+            <text class="personal-stat__value">{{item.value}}</text>
+            <text class="personal-stat__label">{{item.label}}</text>
+          </view>
+        </view>
+
+        <view class="personal-edit" bindtap="editProfile">编辑资料</view>
+      </view>
+    </view>
+
+    <view class="personal-body">
+      <view class="personal-shortcuts">
+        <view wx:for="{{shortcuts}}" wx:key="title" class="personal-shortcut">
+          <text class="personal-shortcut__title">{{item.title}}</text>
+          <text class="personal-shortcut__summary">{{item.summary}}</text>
+        </view>
+      </view>
+
+      <view class="personal-panel">
+        <view class="personal-tabs">
+          <view wx:for="{{tabs}}" wx:key="*this" class="personal-tab-wrap">
+            <view
+              class="personal-tab {{activeTab === item ? 'personal-tab--active' : ''}}"
+              data-tab="{{item}}"
+              bindtap="switchTab"
+            >
+              <text>{{item}}</text>
+              <view class="personal-tab__line"></view>
             </view>
           </view>
         </view>
 
-        <view class="my-section">
-          <text class="my-section__title">内容管理</text>
-          <view class="my-content-block">
-            <view class="my-content-head">
-              <text class="my-content-head__title">我的收藏</text>
-              <text class="my-content-head__count">{{favorites.length}} 条</text>
-            </view>
-            <view class="my-content-list">
-              <view
-                wx:for="{{favorites}}"
-                wx:key="id"
-                class="my-content-card"
-                bindtap="openFavorite"
-                data-route="{{item.route}}"
-              >
-                <image
-                  class="my-content-card__image"
-                  src="{{item.image}}"
-                  mode="aspectFill"
-                ></image>
-                <view class="my-content-card__body">
-                  <view class="pc-chip pc-chip--soft">{{item.badge}}</view>
-                  <text class="my-content-card__title">{{item.title}}</text>
-                  <text class="my-content-card__summary">{{item.summary}}</text>
-                  <text class="my-content-card__meta">{{item.meta}}</text>
-                </view>
-              </view>
-            </view>
-          </view>
+        <view class="personal-divider"></view>
 
-          <view class="my-content-block">
-            <view class="my-content-head">
-              <text class="my-content-head__title">我的发布</text>
-              <text class="my-content-head__count">{{postTotal}} 条</text>
-            </view>
-            <scroll-view class="my-post-tabs" scroll-x enhanced show-scrollbar="{{false}}">
-              <view class="my-post-tabs__list">
-                <view
-                  wx:for="{{postStatusTabs}}"
-                  wx:key="key"
-                  class="my-post-tabs__item {{currentPostStatus === item.key ? 'my-post-tabs__item--active' : ''}}"
-                  bindtap="switchPostStatus"
-                  data-status="{{item.key}}"
-                >
-                  {{item.label}}
-                </view>
-              </view>
-            </scroll-view>
-            <view class="my-post-list">
-              <view
-                wx:for="{{posts}}"
-                wx:for-item="post"
-                wx:key="id"
-                class="my-post-card"
-                bindtap="openPost"
-                data-route="{{post.route}}"
-              >
-                <view class="my-post-card__head">
-                  <text class="my-post-card__title">{{post.title}}</text>
-                  <view class="my-post-card__status my-post-card__status--{{post.status}}">
-                    {{post.status}}
-                  </view>
-                </view>
-                <text class="my-post-card__summary">{{post.summary}}</text>
-                <view wx:if="{{post.actions.length}}" class="my-post-card__actions">
-                  <view
-                    wx:for="{{post.actions}}"
-                    wx:for-item="actionItem"
-                    wx:key="key"
-                    class="my-post-card__action"
-                    catchtap="handlePostAction"
-                    data-action="{{actionItem.key}}"
-                    data-post-id="{{post.id}}"
-                  >
-                    {{actionItem.label}}
-                  </view>
-                </view>
-              </view>
-              <view wx:if="{{isPostLoadingMore}}" class="my-post-list__footer">加载更多中...</view>
-              <view
-                wx:elif="{{!postHasMore && posts.length}}"
-                class="my-post-list__footer my-post-list__footer--end"
-              >
-                已经到底了
-              </view>
-              <view
-                wx:elif="{{!posts.length}}"
-                class="my-post-list__footer my-post-list__footer--empty"
-              >
-                当前筛选下还没有内容
-              </view>
-            </view>
+        <view class="personal-empty">
+          <view class="personal-empty__icon-wrap">
+            <image class="personal-empty__icon" src="/assets/logo-paw.png" mode="aspectFit"></image>
           </view>
+          <text class="personal-empty__title">{{emptyState.title}}</text>
+          <text class="personal-empty__summary">{{emptyState.summary}}</text>
+          <view class="personal-empty__button" bindtap="goCreate">{{emptyState.cta}}</view>
         </view>
       </view>
     </view>
-  </scroll-view>
-</view>
+  </view>
+</scroll-view>

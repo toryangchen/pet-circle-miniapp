@@ -17,3 +17,18 @@ const formatNumber = (n: number) => {
   const s = n.toString();
   return s[1] ? s : "0" + s;
 };
+
+export const getNavbarHeight = () => {
+  // 获取系统信息
+  const windowInfo = wx.getWindowInfo();
+  // 胶囊按钮位置信息
+  const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
+
+  return {
+    statusHeight: windowInfo.statusBarHeight,
+    navBarHeight: (menuButtonInfo.top - windowInfo.statusBarHeight) * 2 + menuButtonInfo.height,
+    menuRight: windowInfo.screenWidth - menuButtonInfo.right,
+    menuTop: menuButtonInfo.top,
+    menuHeight: menuButtonInfo.height,
+  }
+}
