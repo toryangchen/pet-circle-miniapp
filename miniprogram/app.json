@@ -4,6 +4,7 @@
     "pages/tabbar/service/index",
     "pages/tabbar/message/index",
     "pages/tabbar/personal/index",
+    "pages/profileEdit/index",
     "pages/publish/index",
     "pages/detail/service/index",
     "pages/detail/pet-social/index"

@@ -1,0 +1,144 @@
+.profile-edit-scroll {
+  height: 100vh;
+  background: #f7f4ee;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.profile-edit-page {
+  min-height: 100%;
+  padding: 28rpx 24rpx 118rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+  box-sizing: border-box;
+}
+
+.profile-edit-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.profile-edit-avatar__wrap {
+  position: relative;
+  width: 164rpx;
+  height: 164rpx;
+}
+
+.profile-edit-avatar__surface {
+  width: 148rpx;
+  height: 148rpx;
+  margin: 8rpx;
+  border-radius: 999rpx;
+  background: #40a200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-edit-avatar__image {
+  width: 84rpx;
+  height: 78rpx;
+}
+
+.profile-edit-avatar__camera {
+  position: absolute;
+  right: 8rpx;
+  bottom: 8rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 999rpx;
+  border: 3rpx solid #fffdfc;
+  background: rgba(243, 224, 187, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.profile-edit-avatar__camera-icon {
+  width: 20rpx;
+  height: 20rpx;
+}
+
+.profile-edit-avatar__hint {
+  color: #a2978c;
+  font-size: 22rpx;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.profile-edit-card {
+  overflow: hidden;
+  border: 1rpx solid #e6ded2;
+  border-radius: 24rpx;
+  background: #fffdfc;
+}
+
+.profile-edit-row {
+  min-height: 92rpx;
+  padding: 0 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  border-bottom: 1rpx solid #e6ded2;
+}
+
+.profile-edit-card .profile-edit-row:last-child {
+  border-bottom: none;
+}
+
+.profile-edit-row:last-child {
+  min-height: 120rpx;
+}
+
+.profile-edit-card:last-of-type .profile-edit-row:last-child {
+  min-height: 92rpx;
+}
+
+.profile-edit-row__label {
+  color: #7a6f66;
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.profile-edit-row__value-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14rpx;
+  min-width: 420rpx;
+}
+
+.profile-edit-row__value {
+  color: #2f2a26;
+  font-size: 26rpx;
+  font-weight: 600;
+  text-align: right;
+}
+
+.profile-edit-row__value--placeholder {
+  color: #a2978c;
+  font-weight: 500;
+}
+
+.profile-edit-row__preview {
+  width: 98rpx;
+  height: 72rpx;
+  border-radius: 14rpx;
+  flex-shrink: 0;
+}
+
+.profile-edit-row__arrow {
+  color: #a2978c;
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+.profile-edit-tip {
+  color: #a2978c;
+  font-size: 22rpx;
+  line-height: 1.45;
+}

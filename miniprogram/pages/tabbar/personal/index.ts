@@ -60,9 +60,8 @@ Page({
   },
 
   editProfile() {
-    wx.showToast({
-      title: "资料编辑能力开发中",
-      icon: "none",
+    wx.navigateTo({
+      url: "/pages/profileEdit/index",
     });
   },
 

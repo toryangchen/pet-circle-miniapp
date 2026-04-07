@@ -1,0 +1,65 @@
+<navigation-bar title="编辑资料" background="#fffdfc" back></navigation-bar>
+
+<scroll-view
+  class="profile-edit-scroll"
+  scroll-y
+  type="custom"
+  enhanced="{{true}}"
+  show-scrollbar="{{false}}"
+>
+  <view class="profile-edit-page">
+    <view class="profile-edit-avatar" bindtap="handleAvatarTap">
+      <view class="profile-edit-avatar__wrap">
+        <view class="profile-edit-avatar__surface">
+          <image class="profile-edit-avatar__image" src="{{avatar}}" mode="aspectFit"></image>
+        </view>
+        <view class="profile-edit-avatar__camera">
+          <image
+            class="profile-edit-avatar__camera-icon"
+            src="/assets/profile-edit-camera.png"
+            mode="aspectFit"
+          ></image>
+        </view>
+      </view>
+      <text class="profile-edit-avatar__hint">{{avatarHint}}</text>
+    </view>
+
+    <view class="profile-edit-card">
+      <view
+        wx:for="{{basicFields}}"
+        wx:key="label"
+        class="profile-edit-row"
+        data-label="{{item.label}}"
+        bindtap="handleFieldTap"
+      >
+        <text class="profile-edit-row__label">{{item.label}}</text>
+        <view class="profile-edit-row__value-group">
+          <view wx:if="{{item.preview}}" class="profile-edit-row__preview" style="background: {{item.preview}};"></view>
+          <text class="profile-edit-row__value">{{item.value}}</text>
+          <text class="profile-edit-row__arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="profile-edit-card">
+      <view
+        wx:for="{{extraFields}}"
+        wx:key="label"
+        class="profile-edit-row"
+        data-label="{{item.label}}"
+        bindtap="handleFieldTap"
+      >
+        <text class="profile-edit-row__label">{{item.label}}</text>
+        <view class="profile-edit-row__value-group">
+          <text
+            class="profile-edit-row__value {{item.placeholder ? 'profile-edit-row__value--placeholder' : ''}}"
+            >{{item.value}}</text
+          >
+          <text class="profile-edit-row__arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <text class="profile-edit-tip">{{footerTip}}</text>
+  </view>
+</scroll-view>
