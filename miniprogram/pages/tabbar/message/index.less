@@ -1,4 +1,75 @@
 .message-scroll {
   height: 100vh;
+  background: #f7f4ee;
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+.message-list {
+  padding-bottom: 118rpx;
+  background: #f7f4ee;
+}
+
+.message-item {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 22rpx 28rpx;
+  background: #fffdfc;
+  border-bottom: 1rpx solid #e6ded2;
+}
+
+.message-icon {
+  width: 52rpx;
+  height: 52rpx;
+  flex-shrink: 0;
+}
+
+.message-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.message-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.message-title {
+  flex: 1;
+  min-width: 0;
+  color: #2f2a26;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+
+.message-time {
+  color: #8a8179;
+  font-size: 20rpx;
+  line-height: 1.2;
+}
+
+.message-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #ff5a5a;
+}
+
+.message-summary {
+  color: #7a6f66;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.4;
 }

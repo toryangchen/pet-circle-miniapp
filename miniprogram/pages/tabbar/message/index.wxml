@@ -6,5 +6,27 @@
   enhanced="{{true}}"
   show-scrollbar="{{false}}"
 >
-  <view class="pc-page-body"> </view>
+  <view class="message-list">
+    <view
+      wx:for="{{notifications}}"
+      wx:key="id"
+      class="message-item"
+      data-id="{{item.id}}"
+      data-route="{{item.route}}"
+      bindtap="openConversation"
+    >
+      <image class="message-icon" src="{{item.icon}}" mode="aspectFit"></image>
+
+      <view class="message-copy">
+        <view class="message-head">
+          <text class="message-title">{{item.title}}</text>
+          <view class="message-meta">
+            <text class="message-time">{{item.time}}</text>
+            <view wx:if="{{item.unread}}" class="message-dot"></view>
+          </view>
+        </view>
+        <text class="message-summary">{{item.summary}}</text>
+      </view>
+    </view>
+  </view>
 </scroll-view>
