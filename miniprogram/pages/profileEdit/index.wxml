@@ -1,4 +1,4 @@
-<navigation-bar title="编辑资料" background="#fffdfc" back></navigation-bar>
+<navigation-bar title="编辑资料" back></navigation-bar>
 
 <scroll-view
   class="profile-edit-scroll"
@@ -34,9 +34,13 @@
       >
         <text class="profile-edit-row__label">{{item.label}}</text>
         <view class="profile-edit-row__value-group">
-          <view wx:if="{{item.preview}}" class="profile-edit-row__preview" style="background: {{item.preview}};"></view>
+          <view
+            wx:if="{{item.preview}}"
+            class="profile-edit-row__preview"
+            style="background: {{item.preview}};"
+          ></view>
           <text class="profile-edit-row__value">{{item.value}}</text>
-          <text class="profile-edit-row__arrow">›</text>
+          <image class="icon-right" src="/assets/icon-arrow-right.png"></image>
         </view>
       </view>
     </view>
@@ -55,7 +59,7 @@
             class="profile-edit-row__value {{item.placeholder ? 'profile-edit-row__value--placeholder' : ''}}"
             >{{item.value}}</text
           >
-          <text class="profile-edit-row__arrow">›</text>
+          <image class="icon-right" src="/assets/icon-arrow-right.png"></image>
         </view>
       </view>
     </view>

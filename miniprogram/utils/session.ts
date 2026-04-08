@@ -1,6 +1,5 @@
 import type { MiniappUserSummary } from "./api-types";
 
-const SESSION_STORAGE_KEY = "pc_auth_session";
 const DEFAULT_API_BASE_URL = "http://127.0.0.1:3000/api";
 
 type HttpMethod = "GET" | "POST";
@@ -72,14 +71,6 @@ function cloneSession(session: AuthSession | null) {
   return session ? { ...session } : null;
 }
 
-function getStoredSession() {
-  return wx.getStorageSync(SESSION_STORAGE_KEY) as AuthSession | undefined;
-}
-
-function saveSession(session: AuthSession) {
-  wx.setStorageSync(SESSION_STORAGE_KEY, session);
-}
-
 function setAuthState(nextState: Partial<AuthBootstrapState>) {
   authState = {
     ...authState,
@@ -98,12 +89,7 @@ function applyAuthenticatedState(session: AuthSession, user?: MiniappUserSummary
   });
 }
 
-function clearPersistedSession() {
-  wx.removeStorageSync(SESSION_STORAGE_KEY);
-}
-
 function resetAuthState() {
-  clearPersistedSession();
   authState = {
     ...DEFAULT_AUTH_STATE,
     isBootstrapping: authState.isBootstrapping,
@@ -185,7 +171,6 @@ async function loginWithWeChatCode() {
     nickname: result.user.nickname || "宠友圈用户",
   };
 
-  saveSession(session);
   applyAuthenticatedState(session, result.user);
 
   return session;
@@ -212,12 +197,6 @@ export async function ensureAuthenticated(): Promise<AuthSession> {
     return cloneSession(authState.session) as AuthSession;
   }
 
-  const storedSession = getStoredSession();
-  if (storedSession?.token) {
-    applyAuthenticatedState(storedSession);
-    return storedSession;
-  }
-
   if (!loginPromise) {
     loginPromise = loginWithWeChatCode().finally(() => {
       loginPromise = null;
@@ -228,7 +207,6 @@ export async function ensureAuthenticated(): Promise<AuthSession> {
 }
 
 export async function recoverSession() {
-  clearPersistedSession();
   setAuthState({
     isAuthenticated: false,
     session: null,
@@ -243,7 +221,7 @@ export async function recoverSession() {
 export async function syncCurrentUser(options?: {
   allowRelogin?: boolean;
 }): Promise<MiniappUserSummary | null> {
-  const session = authState.session ?? getStoredSession() ?? null;
+  const session = authState.session ?? null;
   if (!session?.token) {
     return null;
   }
@@ -288,17 +266,6 @@ export async function bootstrapSession() {
       setAuthState({ isBootstrapping: true });
 
       try {
-        const storedSession = getStoredSession();
-        if (storedSession?.token) {
-          applyAuthenticatedState(storedSession);
-          try {
-            await syncCurrentUser({ allowRelogin: true });
-            return;
-          } catch {
-            resetAuthState();
-          }
-        }
-
         try {
           await ensureAuthenticated();
           await syncCurrentUser();

@@ -47,10 +47,4 @@ Page({
       url: route,
     });
   },
-
-  goService() {
-    wx.reLaunch({
-      url: "/pages/service/index",
-    });
-  },
 });
