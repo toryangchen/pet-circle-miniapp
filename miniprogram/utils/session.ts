@@ -1,6 +1,6 @@
 import type { MiniappUserSummary } from "./api-types";
 
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:3000/api";
+const DEFAULT_API_BASE_URL = "https://pet.toryang.cc/api";
 
 type HttpMethod = "GET" | "POST";
 

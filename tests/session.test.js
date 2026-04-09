@@ -27,12 +27,14 @@ function loadSessionModule() {
 
 test("bootstrapSession does not read or write local storage before logging in", async () => {
   const storageCalls = [];
+  const requestUrls = [];
 
   global.wx = {
     login({ success }) {
       success({ code: "wx-login-code" });
     },
     request({ url, success }) {
+      requestUrls.push(url);
       if (url.endsWith("/auth/miniapp/login")) {
         success({
           statusCode: 200,
@@ -91,6 +93,7 @@ test("bootstrapSession does not read or write local storage before logging in", 
   await bootstrapSession();
 
   assert.deepEqual(storageCalls, []);
+  assert.equal(requestUrls[0], "https://pet.toryang.cc/api/auth/miniapp/login");
   assert.equal(getAuthState().session?.token, "server-token");
 
   delete global.wx;
