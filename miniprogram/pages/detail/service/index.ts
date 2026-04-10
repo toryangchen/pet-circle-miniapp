@@ -1,18 +1,102 @@
+import type {
+  CommentCreateResult,
+  CommentItem,
+  CommentListResult,
+  ContactRequestResult,
+  PostDetail,
+  ServiceCategory,
+  ToggleFavoriteResult,
+} from "@utils/api-types";
 import {
-  createComment,
-  loadComments,
-  loadPostDetail,
-  replyComment,
-  requestContactForPost,
-  togglePostFavorite,
-} from "@utils/api";
-import type { CommentItem, ServiceCategory } from "@utils/api-types";
+  appendMockComment,
+  appendMockReply,
+  getMockComments,
+  getMockPostDetail,
+  toggleMockFavorite,
+} from "@utils/mock-api";
+import { request, requestWithAuth } from "@utils/request";
 import {
   bootstrapSession,
   ensurePhoneAuthorized,
   getAuthState,
   syncCurrentUser,
 } from "@utils/session";
+
+async function withFallback<T>(loader: () => Promise<T>, fallback: T | (() => T)) {
+  try {
+    return await loader();
+  } catch {
+    return typeof fallback === "function" ? (fallback as () => T)() : fallback;
+  }
+}
+
+async function fetchServiceDetail(postId: string) {
+  return withFallback(
+    () =>
+      request<PostDetail>({
+        method: "GET",
+        path: `/posts/${postId}`,
+      }),
+    getMockPostDetail(postId, "SERVICE"),
+  );
+}
+
+async function fetchComments(postId: string) {
+  return withFallback(
+    () =>
+      request<CommentListResult>({
+        method: "GET",
+        path: `/posts/${postId}/comments`,
+      }),
+    getMockComments(postId),
+  );
+}
+
+async function createPostComment(postId: string, content: string) {
+  return withFallback(
+    () =>
+      request<CommentCreateResult>({
+        method: "POST",
+        path: `/posts/${postId}/comments`,
+        data: {
+          content,
+        },
+      }),
+    appendMockComment(postId, content),
+  );
+}
+
+async function createReplyComment(commentId: string, content: string) {
+  return withFallback(
+    () =>
+      request<CommentCreateResult>({
+        method: "POST",
+        path: `/comments/${commentId}/replies`,
+        data: {
+          content,
+        },
+      }),
+    appendMockReply(commentId, content),
+  );
+}
+
+async function requestPostContact(postId: string) {
+  return requestWithAuth<ContactRequestResult>({
+    method: "POST",
+    path: `/posts/${postId}/contact-request`,
+  });
+}
+
+async function updatePostFavorite(postId: string, favorited: boolean) {
+  return withFallback(
+    () =>
+      request<ToggleFavoriteResult>({
+        method: favorited ? "POST" : "DELETE",
+        path: `/posts/${postId}/favorite`,
+      }),
+    toggleMockFavorite(postId, favorited),
+  );
+}
 
 Page({
   data: {
@@ -59,8 +143,8 @@ Page({
 
     try {
       const [detail, comments] = await Promise.all([
-        loadPostDetail(postId, "SERVICE"),
-        loadComments(postId),
+        fetchServiceDetail(postId),
+        fetchComments(postId),
       ]);
       this.setData({
         authorName: detail.author?.nickname || "服务发布",
@@ -127,7 +211,7 @@ Page({
       return;
     }
 
-    const result = await requestContactForPost(postId);
+    const result = await requestPostContact(postId);
     wx.showToast({
       title: `申请已发送：${result.status}`,
       icon: "success",
@@ -169,7 +253,7 @@ Page({
   async toggleFavorite() {
     const postId = this.data.postId as string;
     const nextFavorited = !this.data.favorited;
-    await togglePostFavorite(postId, nextFavorited);
+    await updatePostFavorite(postId, nextFavorited);
     this.setData({
       favorited: nextFavorited,
       stats: this.updateStatsValue("收藏", nextFavorited ? 1 : -1),
@@ -191,14 +275,14 @@ Page({
 
     try {
       if (replyTargetId) {
-        await replyComment(replyTargetId, content);
+        await createReplyComment(replyTargetId, content);
       } else {
-        await createComment(postId, content);
+        await createPostComment(postId, content);
       }
 
       const [detail, comments] = await Promise.all([
-        loadPostDetail(postId, "SERVICE"),
-        loadComments(postId),
+        fetchServiceDetail(postId),
+        fetchComments(postId),
       ]);
       this.setData({
         comments: comments.items,

@@ -1,12 +1,100 @@
+import type {
+  CommentCreateResult,
+  CommentItem,
+  CommentListResult,
+  PostDetail,
+  ToggleFavoriteResult,
+  ToggleLikeResult,
+} from "@utils/api-types";
 import {
-  createComment,
-  loadComments,
-  loadPostDetail,
-  replyComment,
-  togglePostFavorite,
-  togglePostLike,
-} from "@utils/api";
-import type { CommentItem } from "@utils/api-types";
+  appendMockComment,
+  appendMockReply,
+  getMockComments,
+  getMockPostDetail,
+  toggleMockFavorite,
+  toggleMockLike,
+} from "@utils/mock-api";
+import { request } from "@utils/request";
+
+async function withFallback<T>(loader: () => Promise<T>, fallback: T | (() => T)) {
+  try {
+    return await loader();
+  } catch {
+    return typeof fallback === "function" ? (fallback as () => T)() : fallback;
+  }
+}
+
+async function fetchPetSocialDetail(postId: string) {
+  return withFallback(
+    () =>
+      request<PostDetail>({
+        method: "GET",
+        path: `/posts/${postId}`,
+      }),
+    getMockPostDetail(postId, "PET_SOCIAL"),
+  );
+}
+
+async function fetchComments(postId: string) {
+  return withFallback(
+    () =>
+      request<CommentListResult>({
+        method: "GET",
+        path: `/posts/${postId}/comments`,
+      }),
+    getMockComments(postId),
+  );
+}
+
+async function createPostComment(postId: string, content: string) {
+  return withFallback(
+    () =>
+      request<CommentCreateResult>({
+        method: "POST",
+        path: `/posts/${postId}/comments`,
+        data: {
+          content,
+        },
+      }),
+    appendMockComment(postId, content),
+  );
+}
+
+async function createReplyComment(commentId: string, content: string) {
+  return withFallback(
+    () =>
+      request<CommentCreateResult>({
+        method: "POST",
+        path: `/comments/${commentId}/replies`,
+        data: {
+          content,
+        },
+      }),
+    appendMockReply(commentId, content),
+  );
+}
+
+async function updatePostLike(postId: string, liked: boolean) {
+  return withFallback(
+    () =>
+      request<ToggleLikeResult>({
+        method: liked ? "POST" : "DELETE",
+        path: `/posts/${postId}/like`,
+      }),
+    toggleMockLike(postId, liked),
+  );
+}
+
+async function updatePostFavorite(postId: string, favorited: boolean) {
+  return withFallback(
+    () =>
+      request<ToggleFavoriteResult>({
+        method: favorited ? "POST" : "DELETE",
+        path: `/posts/${postId}/favorite`,
+      }),
+    toggleMockFavorite(postId, favorited),
+  );
+}
 
 Page({
   data: {
@@ -45,8 +133,8 @@ Page({
 
     try {
       const [detail, comments] = await Promise.all([
-        loadPostDetail(postId, "PET_SOCIAL"),
-        loadComments(postId),
+        fetchPetSocialDetail(postId),
+        fetchComments(postId),
       ]);
       this.setData({
         authorName: detail.author?.nickname || "宠友分享",
@@ -112,7 +200,7 @@ Page({
   async toggleLike() {
     const postId = this.data.postId as string;
     const nextLiked = !this.data.liked;
-    await togglePostLike(postId, nextLiked);
+    await updatePostLike(postId, nextLiked);
     this.setData({
       liked: nextLiked,
       actions: this.buildActions(nextLiked, this.data.favorited),
@@ -123,7 +211,7 @@ Page({
   async toggleFavorite() {
     const postId = this.data.postId as string;
     const nextFavorited = !this.data.favorited;
-    await togglePostFavorite(postId, nextFavorited);
+    await updatePostFavorite(postId, nextFavorited);
     this.setData({
       favorited: nextFavorited,
       actions: this.buildActions(this.data.liked, nextFavorited),
@@ -153,14 +241,14 @@ Page({
 
     try {
       if (replyTargetId) {
-        await replyComment(replyTargetId, content);
+        await createReplyComment(replyTargetId, content);
       } else {
-        await createComment(postId, content);
+        await createPostComment(postId, content);
       }
 
       const [detail, comments] = await Promise.all([
-        loadPostDetail(postId, "PET_SOCIAL"),
-        loadComments(postId),
+        fetchPetSocialDetail(postId),
+        fetchComments(postId),
       ]);
       this.setData({
         comments: comments.items,

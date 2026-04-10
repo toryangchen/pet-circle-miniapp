@@ -1,5 +1,6 @@
-import { loadServiceFeed } from "@utils/api";
+import type { FeedCardView, FeedItem, PagedResult } from "@utils/api-types";
 import { mockServiceState } from "@utils/mock-api";
+import { request } from "@utils/request";
 
 const TAB_CATEGORY_MAP: Array<"ALL" | "ADOPTION" | "BOARDING" | "HOME_FEEDING" | "SECOND_HAND"> = [
   "ALL",
@@ -8,6 +9,45 @@ const TAB_CATEGORY_MAP: Array<"ALL" | "ADOPTION" | "BOARDING" | "HOME_FEEDING" |
   "HOME_FEEDING",
   "SECOND_HAND",
 ];
+
+function resolveFeedBadge(item: FeedItem) {
+  if (item.badge) {
+    return item.badge;
+  }
+
+  switch (item.serviceCategory) {
+    case "BOARDING":
+      return "宠物寄养";
+    case "ADOPTION":
+      return "领养";
+    case "SECOND_HAND":
+      return "闲置";
+    default:
+      return "上门喂养";
+  }
+}
+
+function toFeedCardView(item: FeedItem): FeedCardView {
+  return {
+    id: item.id,
+    title: item.title,
+    summary: item.summary,
+    image: item.coverImage,
+    badge: resolveFeedBadge(item),
+    author: item.author ?? "服务发布",
+    meta: item.meta ?? `${item.city} · ${item.stats.likeCount} 赞`,
+    route: item.route ?? `/pages/detail/service/index?id=${item.id}`,
+  };
+}
+
+async function fetchServiceFeed() {
+  const result = await request<PagedResult<FeedItem>>({
+    method: "GET",
+    path: "/posts/feed?channel=SERVICE&page=1&pageSize=10",
+  });
+
+  return result.items.map(toFeedCardView);
+}
 
 Page({
   data: {
@@ -34,9 +74,9 @@ Page({
     this.setData({ isLoading: true });
 
     try {
-      const result = await loadServiceFeed();
+      const allServicePosts = await fetchServiceFeed();
       this.setData({
-        allServicePosts: result.items,
+        allServicePosts,
       });
       this.applyCurrentTab(this.data.currentTab);
     } finally {

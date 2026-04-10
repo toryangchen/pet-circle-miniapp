@@ -1,6 +1,6 @@
-import type { PublishDraftType } from "@utils/api-types";
-import { submitPublishDraft } from "@utils/api";
+import type { PublishDraftType, PublishResult } from "@utils/api-types";
 import { mockPublishTypes } from "@utils/mock-api";
+import { requestWithAuth } from "@utils/request";
 import {
   bootstrapSession,
   ensurePhoneAuthorized,
@@ -12,6 +12,9 @@ type DraftField = {
   label: string;
   value: string;
 };
+
+const DEFAULT_POST_IMAGE =
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80";
 
 const draftMap: Record<
   PublishDraftType,
@@ -51,6 +54,63 @@ const draftMap: Record<
     ],
   },
 };
+
+function buildPublishRequest(currentType: PublishDraftType, draft: { fields: DraftField[]; description: string }) {
+  if (currentType === "PET_SOCIAL") {
+    return {
+      type: "PET_SOCIAL",
+      title: draft.fields[0].value,
+      content: draft.description,
+      city: draft.fields[1].value,
+      images: [DEFAULT_POST_IMAGE],
+    };
+  }
+
+  if (currentType === "RESALE") {
+    return {
+      type: "SERVICE",
+      serviceCategory: "SECOND_HAND",
+      title: draft.fields[0].value,
+      content: draft.description,
+      city: draft.fields[1].value,
+      images: [DEFAULT_POST_IMAGE],
+      contact: {
+        wechatId: "mock-wechat",
+      },
+      secondHandDetail: {
+        itemType: "闲置",
+        itemCondition: "良好",
+        price: "面议",
+      },
+    };
+  }
+
+  return {
+    type: "SERVICE",
+    serviceCategory: "HOME_FEEDING",
+    title: draft.fields[0].value,
+    content: draft.description,
+    city: draft.fields[1].value,
+    images: [DEFAULT_POST_IMAGE],
+    contact: {
+      wechatId: "mock-wechat",
+      phone: "13800000000",
+    },
+    homeFeedingDetail: {
+      serviceArea: "西安市区",
+      availableTime: "工作日晚间",
+      price: "30",
+    },
+  };
+}
+
+async function submitPublishDraft(currentType: PublishDraftType, draft: { fields: DraftField[]; description: string }) {
+  return requestWithAuth<PublishResult>({
+    method: "POST",
+    path: "/posts",
+    data: buildPublishRequest(currentType, draft),
+  });
+}
 
 Page({
   data: {
@@ -112,13 +172,7 @@ Page({
     });
 
     try {
-      const result = await submitPublishDraft({
-        type: currentType,
-        title: draft.fields[0].value,
-        city: draft.fields[1].value,
-        description: draft.description,
-        routeHint: `/pages/publish/index?type=${currentType}`,
-      });
+      const result = await submitPublishDraft(currentType, draft);
 
       this.setData({
         submitState: `已提交，当前状态：${result.status}`,
