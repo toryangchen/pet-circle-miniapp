@@ -381,6 +381,9 @@ export const mockHomeState = {
         commentCount: 0,
         favoriteCount: 0,
       },
+      viewerState: {
+        favorited: false,
+      },
       createdAt: new Date().toISOString(),
     }),
   ),
@@ -409,6 +412,9 @@ export const mockServiceState = {
         likeCount: 0,
         commentCount: 0,
         favoriteCount: 0,
+      },
+      viewerState: {
+        favorited: false,
       },
       createdAt: new Date().toISOString(),
     }),

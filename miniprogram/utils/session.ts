@@ -268,7 +268,6 @@ export async function bootstrapSession() {
       try {
         try {
           await ensureAuthenticated();
-          await syncCurrentUser();
         } catch {
           resetAuthState();
         }
@@ -301,6 +300,7 @@ export async function ensurePhoneAuthorized(phoneCode: string) {
     id: session.userId,
     nickname: session.nickname,
     avatarUrl: null,
+    bgType: "main-bg-01",
     phoneAuthorized: false,
     profileAuthorized: false,
   };

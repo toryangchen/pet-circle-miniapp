@@ -35,6 +35,7 @@ function toFeedCardView(item: FeedItem): FeedCardView {
     image: item.coverImage,
     badge: resolveFeedBadge(item),
     author: item.author ?? "服务发布",
+    authorAvatarUrl: item.authorAvatarUrl ?? null,
     meta: item.meta ?? `${item.city} · ${item.stats.likeCount} 赞`,
     route: item.route ?? `/pages/detail/service/index?id=${item.id}`,
   };

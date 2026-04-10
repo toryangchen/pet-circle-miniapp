@@ -14,6 +14,19 @@ test("home tab reads feed directly from the page source", () => {
   const pagePath = path.join(__dirname, "../miniprogram/pages/tabbar/home/index.ts");
   const source = fs.readFileSync(pagePath, "utf8");
 
-  assert.equal(source.includes('/posts/feed?channel=PET_SOCIAL&page=1&pageSize=10'), true);
+  assert.equal(source.includes('path: `/posts/feed?channel=PET_SOCIAL&page=${page}&pageSize=${pageSize}`'), true);
   assert.equal(source.includes("withFallback"), false);
+});
+
+test("home tab manages paged loading state in the page source", () => {
+  const pagePath = path.join(__dirname, "../miniprogram/pages/tabbar/home/index.ts");
+  const source = fs.readFileSync(pagePath, "utf8");
+
+  assert.equal(source.includes("page: 1"), true);
+  assert.equal(source.includes("pageSize: 10"), true);
+  assert.equal(source.includes("hasMore: true"), true);
+  assert.equal(source.includes("isLoadingMore: false"), true);
+  assert.equal(source.includes("async onReachBottom()"), true);
+  assert.equal(source.includes("const nextPage = (this.data.page as number) + 1"), true);
+  assert.equal(source.includes("bindscrolltolower"), false);
 });

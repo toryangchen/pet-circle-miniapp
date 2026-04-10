@@ -47,27 +47,10 @@ test("bootstrapSession does not read or write local storage before logging in", 
                 id: "user-1",
                 nickname: "宠友圈用户",
                 avatarUrl: null,
+                bgType: "main-bg-01",
                 phoneAuthorized: false,
                 profileAuthorized: false,
               },
-            },
-          },
-        });
-        return;
-      }
-
-      if (url.endsWith("/auth/me")) {
-        success({
-          statusCode: 200,
-          data: {
-            code: 0,
-            message: "ok",
-            data: {
-              id: "user-1",
-              nickname: "宠友圈用户",
-              avatarUrl: null,
-              phoneAuthorized: false,
-              profileAuthorized: false,
             },
           },
         });
@@ -94,6 +77,7 @@ test("bootstrapSession does not read or write local storage before logging in", 
 
   assert.deepEqual(storageCalls, []);
   assert.equal(requestUrls[0], "https://pet.toryang.cc/api/auth/miniapp/login");
+  assert.equal(requestUrls.length, 1);
   assert.equal(getAuthState().session?.token, "server-token");
 
   delete global.wx;

@@ -26,6 +26,21 @@ test("tab pages show feed request urls inline", () => {
   const homeSource = readPageSource("pages/tabbar/home/index.ts");
   const serviceSource = readPageSource("pages/tabbar/service/index.ts");
 
-  assert.equal(homeSource.includes('/posts/feed?channel=PET_SOCIAL&page=1&pageSize=10'), true);
-  assert.equal(serviceSource.includes('/posts/feed?channel=SERVICE&page=1&pageSize=10'), true);
+  assert.equal(
+    homeSource.includes('path: `/posts/feed?channel=PET_SOCIAL&page=${page}&pageSize=${pageSize}`'),
+    true,
+  );
+  assert.equal(
+    serviceSource.includes('/posts/feed?channel=SERVICE&page=1&pageSize=10'),
+    true,
+  );
+});
+
+test("base request helper requires login before sending page requests", () => {
+  const requestSource = readPageSource("utils/request.ts");
+
+  assert.equal(
+    requestSource.includes("return requestWithAuth<T>(options);"),
+    true,
+  );
 });

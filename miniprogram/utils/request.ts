@@ -1,6 +1,5 @@
 import {
   ensureAuthenticated,
-  getCurrentSession,
   recoverSession,
 } from "./session";
 
@@ -85,8 +84,7 @@ function requestRaw<T>(options: RequestOptions, token?: string | null): Promise<
 }
 
 export async function request<T>(options: RequestOptions): Promise<T> {
-  const session = getCurrentSession();
-  return requestRaw(options, session?.token);
+  return requestWithAuth<T>(options);
 }
 
 export async function requestWithAuth<T>(options: RequestOptions): Promise<T> {

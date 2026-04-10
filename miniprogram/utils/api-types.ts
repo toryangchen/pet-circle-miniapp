@@ -26,7 +26,8 @@ export interface FeedItem {
   summary: string;
   coverImage: string;
   city: string;
-  author?: string;
+  author?: string | null;
+  authorAvatarUrl?: string | null;
   badge?: string;
   meta?: string;
   route?: string;
@@ -34,6 +35,9 @@ export interface FeedItem {
     likeCount: number;
     commentCount: number;
     favoriteCount: number;
+  };
+  viewerState: {
+    favorited: boolean;
   };
   createdAt: string;
 }
@@ -45,6 +49,7 @@ export interface FeedCardView {
   image: string;
   badge: string;
   author: string;
+  authorAvatarUrl?: string | null;
   meta: string;
   route: string;
 }
@@ -148,6 +153,7 @@ export interface MiniappUserSummary {
   id: string;
   nickname: string | null;
   avatarUrl: string | null;
+  bgType: string;
   phoneAuthorized: boolean;
   profileAuthorized: boolean;
   phoneMasked?: string;

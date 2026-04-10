@@ -31,9 +31,7 @@
   "rendererOptions": {
     "skyline": {
       "disableABTest": true,
-      "defaultDisplayBlock": true,
-      "enableScrollViewAutoSize": true,
-      "tagNameStyleIsolation": "legacy"
+      "defaultDisplayBlock": true
     }
   },
   "resolveAlias": {

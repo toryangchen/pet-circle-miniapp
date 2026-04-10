@@ -19,18 +19,22 @@ function toFeedCardView(item: FeedItem): FeedCardView {
     image: item.coverImage,
     badge: "宠物圈",
     author: item.author ?? "宠友分享",
+    authorAvatarUrl: item.authorAvatarUrl ?? null,
     meta: item.meta ?? `${item.city} · ${item.stats.commentCount} 评论`,
     route: item.route ?? `/pages/detail/pet-social/index?id=${item.id}`,
   };
 }
 
-async function fetchHomeFeed() {
+async function fetchHomeFeed(page: number, pageSize: number) {
   const result = await request<PagedResult<FeedItem>>({
     method: "GET",
-    path: "/posts/feed?channel=PET_SOCIAL&page=1&pageSize=10",
+    path: `/posts/feed?channel=PET_SOCIAL&page=${page}&pageSize=${pageSize}`,
   });
 
-  return result.items.map(toFeedCardView);
+  return {
+    ...result,
+    items: result.items.map(toFeedCardView),
+  };
 }
 
 Page({
@@ -41,7 +45,11 @@ Page({
     heroSummary: HOME_PAGE_COPY.heroSummary,
     tags: HOME_PAGE_COPY.tags,
     featuredPosts: INITIAL_HOME_FEED,
+    page: 1,
+    pageSize: 10,
+    hasMore: true,
     isLoading: false,
+    isLoadingMore: false,
   },
   onShow() {
     if (typeof this.getTabBar === "function" && this.getTabBar()) {
@@ -52,20 +60,62 @@ Page({
   },
 
   async onLoad() {
+    await this.reloadHomeFeed();
+  },
+
+  async onReachBottom() {
+    await this.loadNextPage();
+  },
+
+  async onScrollToLower() {
+    await this.loadNextPage();
+  },
+
+  async reloadHomeFeed() {
     this.setData({ isLoading: true });
 
     try {
-      const featuredPosts = await fetchHomeFeed();
+      const page = 1;
+      const pageSize = this.data.pageSize as number;
+      const result = await fetchHomeFeed(page, pageSize);
       this.setData({
         location: HOME_PAGE_COPY.location,
         title: HOME_PAGE_COPY.title,
         heroTitle: HOME_PAGE_COPY.heroTitle,
         heroSummary: HOME_PAGE_COPY.heroSummary,
         tags: HOME_PAGE_COPY.tags,
-        featuredPosts,
+        featuredPosts: result.items,
+        page,
+        hasMore: result.hasMore,
       });
     } finally {
       this.setData({ isLoading: false });
+    }
+  },
+
+  async loadNextPage() {
+    if (this.data.isLoading || this.data.isLoadingMore || !this.data.hasMore) {
+      return;
+    }
+
+    const nextPage = (this.data.page as number) + 1;
+    const pageSize = this.data.pageSize as number;
+
+    this.setData({
+      isLoadingMore: true,
+    });
+
+    try {
+      const result = await fetchHomeFeed(nextPage, pageSize);
+      this.setData({
+        featuredPosts: [...(this.data.featuredPosts as FeedCardView[]), ...result.items],
+        page: nextPage,
+        hasMore: result.hasMore,
+      });
+    } finally {
+      this.setData({
+        isLoadingMore: false,
+      });
     }
   },
 

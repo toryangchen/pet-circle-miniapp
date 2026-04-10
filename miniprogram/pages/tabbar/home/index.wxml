@@ -6,6 +6,8 @@
   type="custom"
   enhanced="{{true}}"
   show-scrollbar="{{false}}"
+  lower-threshold="120"
+  bindscrolltolower="onScrollToLower"
 >
   <view class="pc-card home-hero">
     <view>
@@ -49,4 +51,12 @@
       </view>
     </view>
   </grid-view>
+
+  <view wx:if="{{isLoadingMore}}" class="pc-card">
+    <text>正在加载更多宠友圈内容...</text>
+  </view>
+
+  <view wx:elif="{{!hasMore && featuredPosts.length > 0}}" class="pc-card">
+    <text>已经到底啦，先逛逛这些内容。</text>
+  </view>
 </scroll-view>
