@@ -8,7 +8,12 @@
   show-scrollbar="{{false}}"
 >
   <view class="profile-edit-page">
-    <view class="profile-edit-avatar" bindtap="handleAvatarTap">
+    <button
+      class="profile-edit-avatar"
+      hover-class="none"
+      open-type="chooseAvatar"
+      bind:chooseavatar="onChooseAvatar"
+    >
       <view class="profile-edit-avatar__wrap">
         <view class="profile-edit-avatar__surface">
           <image class="profile-edit-avatar__image" src="{{avatar}}" mode="aspectFit"></image>
@@ -22,24 +27,35 @@
         </view>
       </view>
       <text class="profile-edit-avatar__hint">{{avatarHint}}</text>
-    </view>
+    </button>
 
     <view class="profile-edit-card">
       <view
         wx:for="{{basicFields}}"
         wx:key="label"
         class="profile-edit-row"
-        data-label="{{item.label}}"
+        data-type="{{item.type}}"
         bindtap="handleFieldTap"
       >
         <text class="profile-edit-row__label">{{item.label}}</text>
         <view class="profile-edit-row__value-group">
+          <input
+            wx:if="{{item.type === 'nickname'}}"
+            class="profile-edit-row__value"
+            placeholder-style="color: #a2978c;font-weight: 500;font-size: 26rpx;"
+            type="nickname"
+            value="{{item.value}}"
+            bindblur="bindNickNameInput"
+            placeholder="请输入昵称"
+          />
           <view
-            wx:if="{{item.preview}}"
+            wx:if="{{item.type === 'bgType'}}"
             class="profile-edit-row__preview"
-            style="background: {{item.preview}};"
+            style="background: url({{item.preview}})"
           ></view>
-          <text class="profile-edit-row__value">{{item.value}}</text>
+          <text wx:if="{{item.type === 'phoneMasked'}}" class="profile-edit-row__value"
+            >{{item.value}}</text
+          >
           <image class="icon-right" src="/assets/icon-arrow-right.png"></image>
         </view>
       </view>

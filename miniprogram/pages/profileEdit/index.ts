@@ -1,9 +1,10 @@
-import type { MiniappUserSummary } from "@utils/api-types";
+import type { MiniappUserSummary, UpdateMyProfilePayload } from "@utils/api-types";
 import { uploadImageToCos } from "@utils/cos-upload";
 import { request } from "@utils/request";
 import { getAuthState, syncCurrentUser } from "@utils/session";
 
 type EditField = {
+  type: String;
   label: string;
   value: string;
   placeholder?: boolean;
@@ -12,35 +13,27 @@ type EditField = {
 
 const DEFAULT_AVATAR = "/assets/logo-paw.png";
 
-const BG_TYPE_PREVIEW_MAP: Record<string, string> = {
-  "main-bg-01": "linear-gradient(145deg, #35574f 0%, #7fa293 100%)",
-  "main-bg-02": "linear-gradient(145deg, #67483d 0%, #d19a74 100%)",
-  "main-bg-03": "linear-gradient(145deg, #41506d 0%, #8fb2d9 100%)",
-};
-
 function resolveBgPreview(bgType?: string | null) {
-  return BG_TYPE_PREVIEW_MAP[bgType || "main-bg-01"] || BG_TYPE_PREVIEW_MAP["main-bg-01"];
+  return bgType ? `/assets/${bgType}.png` : "/assets/main-bg-01.png";
 }
 
 function formatRegion(user: MiniappUserSummary | null) {
-  const parts = [
-    user?.region.province,
-    user?.region.city,
-    user?.region.district,
-  ].filter(Boolean);
+  const parts = [user?.region.province, user?.region.city, user?.region.district].filter(Boolean);
 
   return parts.length > 0 ? parts.join(" · ") : "选择地区";
 }
 
 function buildBasicFields(user: MiniappUserSummary | null): EditField[] {
   return [
-    { label: "昵称", value: user?.nickname || "宠友圈用户" },
+    { type: "nickname", label: "昵称", value: user?.nickname || "" },
     {
+      type: "phoneMasked",
       label: "手机号",
       value: user?.phoneMasked || "未绑定",
       placeholder: !user?.phoneMasked,
     },
     {
+      type: "bgType",
       label: "背景图",
       value: user?.bgType || "main-bg-01",
       preview: resolveBgPreview(user?.bgType),
@@ -50,13 +43,15 @@ function buildBasicFields(user: MiniappUserSummary | null): EditField[] {
 
 function buildExtraFields(user: MiniappUserSummary | null): EditField[] {
   return [
-    { label: "性别", value: user?.gender || "保密" },
+    { type: "gender", label: "性别", value: user?.gender || "保密" },
     {
+      type: "birthday",
       label: "生日",
       value: user?.birthday || "选择生日",
       placeholder: !user?.birthday,
     },
     {
+      type: "area",
       label: "地区",
       value: formatRegion(user),
       placeholder: !user?.region.province && !user?.region.city && !user?.region.district,
@@ -70,8 +65,7 @@ Page({
     avatarHint: "点击更换头像",
     basicFields: buildBasicFields(null),
     extraFields: buildExtraFields(null),
-    footerTip:
-      "资料会影响你在服务信息中的展示方式，建议优先完善头像、昵称和地区。",
+    footerTip: "资料会影响你在服务信息中的展示方式，建议优先完善头像、昵称和地区。",
     isLoading: false,
     isUploadingAvatar: false,
   },
@@ -105,6 +99,25 @@ Page({
     }
   },
 
+  async updateUserProfile(payload: UpdateMyProfilePayload) {
+    return request({
+      method: "PATCH",
+      path: "/users/me/profile",
+      data: payload,
+    });
+  },
+
+  onChooseAvatar(event: WechatMiniprogram.BaseEvent) {
+    console.log(event);
+  },
+
+  async bindNickNameInput(event: WechatMiniprogram.InputConfirm) {
+    const { value } = event.detail;
+    if (!value) return;
+    await this.updateUserProfile({ nickname: value });
+    void this.loadUserProfile();
+  },
+
   async handleAvatarTap() {
     if (this.data.isUploadingAvatar) {
       return;
@@ -124,12 +137,8 @@ Page({
         filename: image.name,
       });
 
-      await request({
-        method: "PATCH",
-        path: "/users/me/profile",
-        data: {
-          avatarUrl: uploadResult.url,
-        },
+      await this.updateUserProfile({
+        avatarUrl: uploadResult.url,
       });
 
       this.setData({ avatar: uploadResult.url });
@@ -180,14 +189,9 @@ Page({
   },
 
   handleFieldTap(event: WechatMiniprogram.BaseEvent) {
-    const { label } = event.currentTarget.dataset as { label?: string };
-    if (!label) {
+    const { type } = event.currentTarget.dataset as { type?: string };
+    if (!type) {
       return;
     }
-
-    wx.showToast({
-      title: `${label}编辑能力开发中`,
-      icon: "none",
-    });
   },
 });

@@ -166,6 +166,18 @@ export interface MiniappUserSummary {
   phoneMasked?: string;
 }
 
+export interface UpdateMyProfilePayload {
+  nickname?: string;
+  avatarUrl?: string;
+  bgType?: string;
+  profileAuthorized?: boolean;
+  gender?: string;
+  birthday?: string;
+  regionProvince?: string;
+  regionCity?: string;
+  regionDistrict?: string;
+}
+
 export interface MyPostCardView {
   id: string;
   type: PostType;
