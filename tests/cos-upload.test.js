@@ -27,7 +27,7 @@ function loadCosUploadModule({ requestMock, cosFactoryMock }) {
       return { request: requestMock };
     }
 
-    if (request === "cos-wx-sdk-v5") {
+    if (request === "./cos-wx-sdk-v5") {
       return cosFactoryMock;
     }
 

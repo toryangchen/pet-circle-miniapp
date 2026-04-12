@@ -1,6 +1,6 @@
 import { request } from "./request";
 
-const COS = require("cos-wx-sdk-v5");
+const COS = require("./cos-wx-sdk-v5");
 
 type UploadKind = "avatar" | "post-image";
 
