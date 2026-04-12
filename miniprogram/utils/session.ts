@@ -301,6 +301,13 @@ export async function ensurePhoneAuthorized(phoneCode: string) {
     nickname: session.nickname,
     avatarUrl: null,
     bgType: "main-bg-01",
+    gender: null,
+    birthday: null,
+    region: {
+      province: null,
+      city: null,
+      district: null,
+    },
     phoneAuthorized: false,
     profileAuthorized: false,
   };

@@ -16,3 +16,36 @@ declare namespace WechatMiniprogram {
 
   interface TouchEvent extends Event {}
 }
+
+declare module "cos-wx-sdk-v5" {
+  type AuthorizationResult = {
+    TmpSecretId: string;
+    TmpSecretKey: string;
+    SecurityToken: string;
+    StartTime: number;
+    ExpiredTime: number;
+  };
+
+  type CosInstanceOptions = {
+    SimpleUploadMethod?: "putObject" | "postObject";
+    getAuthorization?: (
+      options: unknown,
+      callback: (payload: AuthorizationResult) => void,
+    ) => void;
+  };
+
+  type PutObjectOptions = {
+    Bucket: string;
+    Region: string;
+    Key: string;
+    FilePath: string;
+  };
+
+  export default class COS {
+    constructor(options?: CosInstanceOptions);
+    putObject(
+      options: PutObjectOptions,
+      callback: (error: unknown, data?: unknown) => void,
+    ): void;
+  }
+}
