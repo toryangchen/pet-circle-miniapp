@@ -2,16 +2,23 @@ import type { MiniappUserSummary, UpdateMyProfilePayload } from "@utils/api-type
 import { uploadImageToCos } from "@utils/cos-upload";
 import { request } from "@utils/request";
 import { getAuthState, syncCurrentUser } from "@utils/session";
+import { resolveUploadableFilePath } from "@utils/util";
 
 type EditField = {
-  type: String;
+  type: string;
   label: string;
   value: string;
   placeholder?: boolean;
   preview?: string;
 };
 
-const DEFAULT_AVATAR = "/assets/logo-paw.png";
+function getFileNameWithoutExt(url: string): string {
+  const fileName = url.split("/").pop() || "";
+  const index = fileName.lastIndexOf(".");
+  return index !== -1 ? fileName.slice(0, index) : fileName;
+}
+
+const DEFAULT_AVATAR = "/assets/profile-pawpets-avatar.png";
 
 function resolveBgPreview(bgType?: string | null) {
   return bgType ? `/assets/${bgType}.png` : "/assets/main-bg-01.png";
@@ -29,7 +36,7 @@ function buildBasicFields(user: MiniappUserSummary | null): EditField[] {
     {
       type: "phoneMasked",
       label: "手机号",
-      value: user?.phoneMasked || "未绑定",
+      value: user?.phoneMasked || "",
       placeholder: !user?.phoneMasked,
     },
     {
@@ -107,40 +114,22 @@ Page({
     });
   },
 
-  onChooseAvatar(event: WechatMiniprogram.BaseEvent) {
-    console.log(event);
-  },
-
-  async bindNickNameInput(event: WechatMiniprogram.InputConfirm) {
-    const { value } = event.detail;
-    if (!value) return;
-    await this.updateUserProfile({ nickname: value });
-    void this.loadUserProfile();
-  },
-
-  async handleAvatarTap() {
-    if (this.data.isUploadingAvatar) {
+  async onChooseAvatar(event: WechatMiniprogram.CustomEvent) {
+    const { avatarUrl } = event.detail as { avatarUrl?: string };
+    if (!avatarUrl || this.data.isUploadingAvatar) {
       return;
     }
-
     try {
-      const image = await this.pickAvatarImage();
-      if (!image) {
-        return;
-      }
-
       this.setData({ isUploadingAvatar: true });
-
+      const filePath = await resolveUploadableFilePath(avatarUrl);
       const uploadResult = await uploadImageToCos({
         kind: "avatar",
-        filePath: image.path,
-        filename: image.name,
+        filePath,
+        filename: `${getFileNameWithoutExt(avatarUrl) || "avatar"}.png`,
       });
-
       await this.updateUserProfile({
         avatarUrl: uploadResult.url,
       });
-
       this.setData({ avatar: uploadResult.url });
       await this.loadUserProfile();
       wx.showToast({
@@ -157,35 +146,11 @@ Page({
     }
   },
 
-  pickAvatarImage(): Promise<{ path: string; name?: string } | null> {
-    return new Promise((resolve, reject) => {
-      wx.chooseImage({
-        count: 1,
-        sizeType: ["compressed"],
-        sourceType: ["album", "camera"],
-        success: (result) => {
-          const selectedFile = result.tempFiles?.[0];
-          if (!selectedFile?.path) {
-            resolve(null);
-            return;
-          }
-
-          resolve({
-            path: selectedFile.path,
-            name: selectedFile.path.split("/").pop(),
-          });
-        },
-        fail: (error) => {
-          const errMsg = (error as { errMsg?: string }).errMsg || "";
-          if (errMsg.includes("cancel")) {
-            resolve(null);
-            return;
-          }
-
-          reject(error);
-        },
-      });
-    });
+  async bindNickNameInput(event: WechatMiniprogram.InputConfirm) {
+    const { value } = event.detail;
+    if (!value) return;
+    await this.updateUserProfile({ nickname: value });
+    void this.loadUserProfile();
   },
 
   handleFieldTap(event: WechatMiniprogram.BaseEvent) {
