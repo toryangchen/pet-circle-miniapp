@@ -7,7 +7,12 @@ const profileEditPath = path.join(
   __dirname,
   "../miniprogram/pages/profileEdit/index.ts",
 );
+const profileEditWxmlPath = path.join(
+  __dirname,
+  "../miniprogram/pages/profileEdit/index.wxml",
+);
 const source = fs.readFileSync(profileEditPath, "utf8");
+const wxmlSource = fs.readFileSync(profileEditWxmlPath, "utf8");
 
 test("profile edit page exposes a shared updateUserProfile helper", () => {
   assert.match(
@@ -27,4 +32,11 @@ test("profile avatar upload reuses updateUserProfile helper", () => {
 test("profile phone authorization reuses ensurePhoneAuthorized helper", () => {
   assert.match(source, /import \{ ensurePhoneAuthorized, getAuthState, syncCurrentUser \} from "@utils\/session"/);
   assert.match(source, /await ensurePhoneAuthorized\(code\)/);
+});
+
+test("profile edit page opens a background sheet and patches bgType", () => {
+  assert.match(source, /isBgTypeSheetVisible: false/);
+  assert.match(source, /if \(type === "bgType"\)/);
+  assert.match(wxmlSource, /<bg-type-sheet/);
+  assert.match(source, /await this\.updateUserProfile\(\{\s*bgType: nextBgType,\s*\}\)/);
 });

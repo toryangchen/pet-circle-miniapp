@@ -1,0 +1,38 @@
+<view wx:if="{{visible}}" class="bg-type-sheet">
+  <view class="bg-type-sheet__mask" bindtap="handleMaskTap"></view>
+  <view class="bg-type-sheet__panel" catchtap="stopPropagation">
+    <view class="bg-type-sheet__grab"></view>
+    <view class="bg-type-sheet__header">
+      <text class="bg-type-sheet__title">选择背景图</text>
+      <text class="bg-type-sheet__subtitle">会同步更新你的个人主页背景</text>
+    </view>
+
+    <view class="bg-type-sheet__list">
+      <view
+        wx:for="{{options}}"
+        wx:key="value"
+        class="bg-type-sheet__item {{item.value === value ? 'bg-type-sheet__item--active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="handleOptionTap"
+      >
+        <image class="bg-type-sheet__preview" src="{{item.preview}}" mode="aspectFill"></image>
+        <view class="bg-type-sheet__meta">
+          <text class="bg-type-sheet__name">{{item.label}}</text>
+          <text class="bg-type-sheet__desc">{{item.description}}</text>
+        </view>
+        <view class="bg-type-sheet__check {{item.value === value ? 'bg-type-sheet__check--active' : ''}}">
+          <view class="bg-type-sheet__check-dot"></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="bg-type-sheet__actions">
+      <button class="bg-type-sheet__btn bg-type-sheet__btn--ghost" hover-class="none" bindtap="handleCancelTap">
+        取消
+      </button>
+      <button class="bg-type-sheet__btn bg-type-sheet__btn--primary" hover-class="none" bindtap="handleConfirmTap">
+        确认
+      </button>
+    </view>
+  </view>
+</view>

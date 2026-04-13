@@ -12,6 +12,13 @@ type EditField = {
   preview?: string;
 };
 
+type BgTypeOption = {
+  value: string;
+  label: string;
+  description: string;
+  preview: string;
+};
+
 function getFileNameWithoutExt(url: string): string {
   const fileName = url.split("/").pop() || "";
   const index = fileName.lastIndexOf(".");
@@ -19,6 +26,26 @@ function getFileNameWithoutExt(url: string): string {
 }
 
 const DEFAULT_AVATAR = "/assets/profile-pawpets-avatar.png";
+const BG_TYPE_OPTIONS: BgTypeOption[] = [
+  {
+    value: "main-bg-01",
+    label: "森林薄雾",
+    description: "偏自然的绿色层次，适合宠物日常分享。",
+    preview: "/assets/main-bg-01.png",
+  },
+  {
+    value: "main-bg-02",
+    label: "暖阳琥珀",
+    description: "暖棕和金色过渡，更有陪伴感。",
+    preview: "/assets/main-bg-02.png",
+  },
+  {
+    value: "main-bg-03",
+    label: "晴空海盐",
+    description: "偏清爽的蓝色氛围，画面更轻盈。",
+    preview: "/assets/main-bg-03.png",
+  },
+];
 
 function resolveBgPreview(bgType?: string | null) {
   return bgType ? `/assets/${bgType}.png` : "/assets/main-bg-01.png";
@@ -76,6 +103,9 @@ Page({
     isLoading: false,
     isUploadingAvatar: false,
     isAuthorizingPhone: false,
+    isBgTypeSheetVisible: false,
+    pendingBgType: "main-bg-01",
+    bgTypeOptions: BG_TYPE_OPTIONS,
   },
 
   onLoad() {
@@ -88,6 +118,7 @@ Page({
       avatar: user?.avatarUrl || DEFAULT_AVATAR,
       basicFields: buildBasicFields(user),
       extraFields: buildExtraFields(user),
+      pendingBgType: user?.bgType || "main-bg-01",
     });
   },
 
@@ -188,6 +219,62 @@ Page({
     const { type } = event.currentTarget.dataset as { type?: string };
     if (!type) {
       return;
+    }
+
+     if (type === "bgType") {
+      const currentBgType = (getAuthState().user?.bgType || this.data.pendingBgType || "main-bg-01") as string;
+      this.setData({
+        isBgTypeSheetVisible: true,
+        pendingBgType: currentBgType,
+      });
+    }
+  },
+
+  handleBgTypeSheetClose() {
+    this.setData({
+      isBgTypeSheetVisible: false,
+    });
+  },
+
+  handleBgTypeChange(event: WechatMiniprogram.CustomEvent<{ value?: string }>) {
+    const { value } = event.detail;
+    if (!value) {
+      return;
+    }
+
+    this.setData({
+      pendingBgType: value,
+    });
+  },
+
+  async handleBgTypeConfirm() {
+    const nextBgType = this.data.pendingBgType as string;
+    const currentBgType = getAuthState().user?.bgType || "main-bg-01";
+
+    if (nextBgType === currentBgType) {
+      this.setData({
+        isBgTypeSheetVisible: false,
+      });
+      return;
+    }
+
+    try {
+      await this.updateUserProfile({
+        bgType: nextBgType,
+      });
+      this.setData({
+        isBgTypeSheetVisible: false,
+      });
+      await this.loadUserProfile();
+      wx.showToast({
+        title: "背景图已更新",
+        icon: "success",
+      });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : "背景图更新失败",
+        icon: "none",
+      });
     }
   },
 });

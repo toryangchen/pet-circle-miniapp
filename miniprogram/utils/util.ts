@@ -30,5 +30,26 @@ export const getNavbarHeight = () => {
     menuRight: windowInfo.screenWidth - menuButtonInfo.right,
     menuTop: menuButtonInfo.top,
     menuHeight: menuButtonInfo.height,
+  };
+};
+
+export const resolveUploadableFilePath = (src: string): Promise<string> => {
+  if (!src.startsWith("http://tmp/") && !src.startsWith("https://tmp/")) {
+    return Promise.resolve(src);
   }
-}
+  return new Promise((resolve, reject) => {
+    wx.getImageInfo({
+      src,
+      success: (result) => {
+        if (result.path) {
+          resolve(result.path);
+          return;
+        }
+        reject(new Error("Avatar temp path is missing."));
+      },
+      fail: (error) => {
+        reject(error);
+      },
+    });
+  });
+};

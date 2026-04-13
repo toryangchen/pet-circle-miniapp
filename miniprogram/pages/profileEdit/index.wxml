@@ -15,9 +15,8 @@
       bind:chooseavatar="onChooseAvatar"
     >
       <view class="profile-edit-avatar__wrap">
-        <view class="profile-edit-avatar__surface">
-          <image class="profile-edit-avatar__image" src="{{avatar}}" mode="aspectFit"></image>
-        </view>
+        <image class="profile-edit-avatar__image" src="{{avatar}}" mode="aspectFit"></image>
+
         <view class="profile-edit-avatar__camera">
           <image
             class="profile-edit-avatar__camera-icon"
@@ -48,14 +47,25 @@
             bindblur="bindNickNameInput"
             placeholder="请输入昵称"
           />
-          <view
-            wx:if="{{item.type === 'bgType'}}"
-            class="profile-edit-row__preview"
-            style="background: url({{item.preview}})"
-          ></view>
-          <text wx:if="{{item.type === 'phoneMasked'}}" class="profile-edit-row__value"
-            >{{item.value}}</text
+
+          <button
+            class="btn-phone"
+            wx:if="{{item.type === 'phoneMasked'}}"
+            open-type="getPhoneNumber"
+            hover-class="none"
+            bindgetphonenumber="getPhoneNumber"
           >
+            <text
+              class="profile-edit-row__value {{!item.value ? 'profile-edit-row__value--placeholder' : '' }} "
+              >{{item.value || '未绑定'}}</text
+            >
+          </button>
+
+          <view wx:if="{{item.type === 'bgType'}}" class="profile-edit-row__preview">
+            <image src="{{item.preview}}" />
+            <view class="bg"></view>
+          </view>
+
           <image class="icon-right" src="/assets/icon-arrow-right.png"></image>
         </view>
       </view>
@@ -83,3 +93,12 @@
     <text class="profile-edit-tip">{{footerTip}}</text>
   </view>
 </scroll-view>
+
+<bg-type-sheet
+  visible="{{isBgTypeSheetVisible}}"
+  value="{{pendingBgType}}"
+  options="{{bgTypeOptions}}"
+  bind:close="handleBgTypeSheetClose"
+  bind:change="handleBgTypeChange"
+  bind:confirm="handleBgTypeConfirm"
+></bg-type-sheet>
