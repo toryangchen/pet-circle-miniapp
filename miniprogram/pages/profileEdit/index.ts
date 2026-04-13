@@ -1,7 +1,7 @@
 import type { MiniappUserSummary, UpdateMyProfilePayload } from "@utils/api-types";
 import { uploadImageToCos } from "@utils/cos-upload";
 import { request } from "@utils/request";
-import { getAuthState, syncCurrentUser } from "@utils/session";
+import { ensurePhoneAuthorized, getAuthState, syncCurrentUser } from "@utils/session";
 import { resolveUploadableFilePath } from "@utils/util";
 
 type EditField = {
@@ -75,6 +75,7 @@ Page({
     footerTip: "资料会影响你在服务信息中的展示方式，建议优先完善头像、昵称和地区。",
     isLoading: false,
     isUploadingAvatar: false,
+    isAuthorizingPhone: false,
   },
 
   onLoad() {
@@ -151,6 +152,36 @@ Page({
     if (!value) return;
     await this.updateUserProfile({ nickname: value });
     void this.loadUserProfile();
+  },
+
+  async getPhoneNumber(event: WechatMiniprogram.CustomEvent) {
+    const { code, errMsg } = event.detail as { code?: string; errMsg?: string };
+    if (!code || this.data.isAuthorizingPhone) {
+      if (errMsg && !errMsg.includes("cancel")) {
+        wx.showToast({
+          title: "手机号授权失败",
+          icon: "none",
+        });
+      }
+      return;
+    }
+
+    try {
+      this.setData({ isAuthorizingPhone: true });
+      await ensurePhoneAuthorized(code);
+      await this.loadUserProfile();
+      wx.showToast({
+        title: "手机号已绑定",
+        icon: "success",
+      });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : "手机号授权失败",
+        icon: "none",
+      });
+    } finally {
+      this.setData({ isAuthorizingPhone: false });
+    }
   },
 
   handleFieldTap(event: WechatMiniprogram.BaseEvent) {

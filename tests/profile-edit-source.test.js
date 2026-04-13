@@ -23,3 +23,8 @@ test("profile edit page exposes a shared updateUserProfile helper", () => {
 test("profile avatar upload reuses updateUserProfile helper", () => {
   assert.match(source, /await this\.updateUserProfile\(\{\s*avatarUrl: uploadResult\.url,\s*\}\)/);
 });
+
+test("profile phone authorization reuses ensurePhoneAuthorized helper", () => {
+  assert.match(source, /import \{ ensurePhoneAuthorized, getAuthState, syncCurrentUser \} from "@utils\/session"/);
+  assert.match(source, /await ensurePhoneAuthorized\(code\)/);
+});
