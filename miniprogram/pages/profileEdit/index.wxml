@@ -69,12 +69,38 @@
       wx:for="{{extraFields}}"
       wx:key="label"
       class="profile-edit-row"
-      data-label="{{item.label}}"
+      data-type="{{item.type}}"
       bindtap="handleFieldTap"
     >
       <text class="profile-edit-row__label">{{item.label}}</text>
       <view class="profile-edit-row__value-group">
+        <picker
+          wx:if="{{item.type === 'birthday'}}"
+          mode="date"
+          value="{{item.placeholder ? '' : item.value}}"
+          end="{{maxBirthday}}"
+          bindchange="handleBirthdayChange"
+        >
+          <text
+            class="profile-edit-row__value {{item.placeholder ? 'profile-edit-row__value--placeholder' : ''}}"
+            >{{item.value}}</text
+          >
+        </picker>
+
+        <picker
+          wx:elif="{{item.type === 'area'}}"
+          mode="region"
+          value="{{regionPickerValue}}"
+          bindchange="handleRegionChange"
+        >
+          <text
+            class="profile-edit-row__value {{item.placeholder ? 'profile-edit-row__value--placeholder' : ''}}"
+            >{{item.value}}</text
+          >
+        </picker>
+
         <text
+          wx:else
           class="profile-edit-row__value {{item.placeholder ? 'profile-edit-row__value--placeholder' : ''}}"
           >{{item.value}}</text
         >

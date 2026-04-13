@@ -40,3 +40,20 @@ test("profile edit page opens a background sheet and patches bgType", () => {
   assert.match(wxmlSource, /<bg-type-sheet/);
   assert.match(source, /await this\.updateUserProfile\(\{\s*bgType: nextBgType,\s*\}\)/);
 });
+
+test("profile edit page opens a gender sheet and updates gender", () => {
+  assert.match(source, /wx\.showActionSheet\(/);
+  assert.match(source, /if \(type === "gender"\)/);
+  assert.doesNotMatch(wxmlSource, /<option-sheet/);
+  assert.match(source, /await this\.updateUserProfile\(\{\s*gender: nextGender,\s*\}\)/);
+});
+
+test("profile edit page updates birthday and region via native pickers", () => {
+  assert.match(wxmlSource, /picker[\s\S]*mode="date"[\s\S]*end="\{\{maxBirthday\}\}"[\s\S]*bindchange="handleBirthdayChange"/);
+  assert.match(wxmlSource, /picker[\s\S]*mode="region"[\s\S]*bindchange="handleRegionChange"/);
+  assert.match(source, /await this\.updateUserProfile\(\{\s*birthday: value,\s*\}\)/);
+  assert.match(
+    source,
+    /await this\.updateUserProfile\(\{[\s\S]*regionProvince: province,[\s\S]*regionCity: city,[\s\S]*regionDistrict: district,[\s\S]*\}\)/,
+  );
+});

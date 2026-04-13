@@ -46,15 +46,30 @@ const BG_TYPE_OPTIONS: BgTypeOption[] = [
     preview: "/assets/main-bg-03.png",
   },
 ];
+const GENDER_OPTIONS = ["保密", "男", "女"] as const;
 
 function resolveBgPreview(bgType?: string | null) {
   return bgType ? `/assets/${bgType}.png` : "/assets/main-bg-01.png";
 }
 
 function formatRegion(user: MiniappUserSummary | null) {
-  const parts = [user?.region.province, user?.region.city, user?.region.district].filter(Boolean);
+  return user?.region.city || "选择地区";
+}
 
-  return parts.length > 0 ? parts.join(" · ") : "选择地区";
+function resolveGenderValue(user: MiniappUserSummary | null) {
+  return user?.gender || "保密";
+}
+
+function resolveRegionPickerValue(user: MiniappUserSummary | null) {
+  return [user?.region.province || "", user?.region.city || "", user?.region.district || ""];
+}
+
+function formatPickerDate(date: Date) {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 function buildBasicFields(user: MiniappUserSummary | null): EditField[] {
@@ -106,6 +121,8 @@ Page({
     isBgTypeSheetVisible: false,
     pendingBgType: "main-bg-01",
     bgTypeOptions: BG_TYPE_OPTIONS,
+    regionPickerValue: ["", "", ""],
+    maxBirthday: formatPickerDate(new Date()),
   },
 
   onLoad() {
@@ -119,6 +136,7 @@ Page({
       basicFields: buildBasicFields(user),
       extraFields: buildExtraFields(user),
       pendingBgType: user?.bgType || "main-bg-01",
+      regionPickerValue: resolveRegionPickerValue(user),
     });
   },
 
@@ -221,12 +239,17 @@ Page({
       return;
     }
 
-     if (type === "bgType") {
+    if (type === "bgType") {
       const currentBgType = (getAuthState().user?.bgType || this.data.pendingBgType || "main-bg-01") as string;
       this.setData({
         isBgTypeSheetVisible: true,
         pendingBgType: currentBgType,
       });
+      return;
+    }
+
+    if (type === "gender") {
+      void this.handleGenderTap();
     }
   },
 
@@ -273,6 +296,89 @@ Page({
     } catch (error) {
       wx.showToast({
         title: error instanceof Error ? error.message : "背景图更新失败",
+        icon: "none",
+      });
+    }
+  },
+
+  async handleGenderTap() {
+    const currentGender = resolveGenderValue(getAuthState().user || null);
+
+    try {
+      const { tapIndex } = await wx.showActionSheet({
+        itemList: [...GENDER_OPTIONS],
+      });
+      const nextGender = GENDER_OPTIONS[tapIndex] || currentGender;
+
+      if (nextGender === currentGender) {
+        return;
+      }
+
+      await this.updateUserProfile({
+        gender: nextGender,
+      });
+      await this.loadUserProfile();
+      wx.showToast({
+        title: "性别已更新",
+        icon: "success",
+      });
+    } catch (error) {
+      const errMsg =
+        typeof error === "object" && error && "errMsg" in error ? String(error.errMsg) : "";
+      if (errMsg.includes("cancel")) {
+        return;
+      }
+
+      wx.showToast({
+        title: error instanceof Error ? error.message : "性别更新失败",
+        icon: "none",
+      });
+    }
+  },
+
+  async handleBirthdayChange(event: WechatMiniprogram.CustomEvent<{ value?: string }>) {
+    const { value } = event.detail;
+    if (!value) {
+      return;
+    }
+
+    try {
+      await this.updateUserProfile({
+        birthday: value,
+      });
+      await this.loadUserProfile();
+      wx.showToast({
+        title: "生日已更新",
+        icon: "success",
+      });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : "生日更新失败",
+        icon: "none",
+      });
+    }
+  },
+
+  async handleRegionChange(event: WechatMiniprogram.CustomEvent<{ value?: string[] }>) {
+    const [province = "", city = "", district = ""] = event.detail.value || [];
+    if (!province && !city && !district) {
+      return;
+    }
+
+    try {
+      await this.updateUserProfile({
+        regionProvince: province,
+        regionCity: city,
+        regionDistrict: district,
+      });
+      await this.loadUserProfile();
+      wx.showToast({
+        title: "地区已更新",
+        icon: "success",
+      });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : "地区更新失败",
         icon: "none",
       });
     }
