@@ -76,6 +76,7 @@ export async function uploadImageToCos(options: UploadImageOptions) {
       },
       (error: unknown) => {
         if (error) {
+          console.log("error", error);
           reject(error);
           return;
         }

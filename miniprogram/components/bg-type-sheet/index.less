@@ -8,6 +8,12 @@
   position: absolute;
   inset: 0;
   background: rgba(47, 42, 38, 0.42);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.bg-type-sheet__mask--active {
+  opacity: 1;
 }
 
 .bg-type-sheet__panel {
@@ -19,6 +25,16 @@
   border-radius: 32rpx 32rpx 0 0;
   background: #fffaf5;
   box-shadow: 0 -16rpx 48rpx rgba(53, 39, 23, 0.16);
+  transform: translateY(100%);
+  opacity: 0.98;
+  transition:
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease;
+}
+
+.bg-type-sheet__panel--active {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .bg-type-sheet__grab {

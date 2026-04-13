@@ -1,6 +1,6 @@
-<view wx:if="{{visible}}" class="bg-type-sheet">
-  <view class="bg-type-sheet__mask" bindtap="handleMaskTap"></view>
-  <view class="bg-type-sheet__panel" catchtap="stopPropagation">
+<view wx:if="{{rendered}}" class="bg-type-sheet">
+  <view class="bg-type-sheet__mask {{active ? 'bg-type-sheet__mask--active' : ''}}" bindtap="handleMaskTap"></view>
+  <view class="bg-type-sheet__panel {{active ? 'bg-type-sheet__panel--active' : ''}}" catchtap="stopPropagation">
     <view class="bg-type-sheet__grab"></view>
     <view class="bg-type-sheet__header">
       <text class="bg-type-sheet__title">选择背景图</text>

@@ -3,6 +3,9 @@ Component({
     visible: {
       type: Boolean,
       value: false,
+      observer(nextValue: boolean) {
+        this.syncVisibility(nextValue);
+      },
     },
     value: {
       type: String,
@@ -14,7 +17,47 @@ Component({
     },
   },
 
+  data: {
+    rendered: false,
+    active: false,
+  },
+
+  lifetimes: {
+    attached() {
+      this.syncVisibility(this.properties.visible);
+    },
+  },
+
   methods: {
+    syncVisibility(visible: boolean) {
+      if (visible) {
+        this.setData({
+          rendered: true,
+        });
+
+        setTimeout(() => {
+          this.setData({
+            active: true,
+          });
+        }, 16);
+        return;
+      }
+
+      this.setData({
+        active: false,
+      });
+
+      setTimeout(() => {
+        if (this.properties.visible) {
+          return;
+        }
+
+        this.setData({
+          rendered: false,
+        });
+      }, 220);
+    },
+
     handleMaskTap() {
       this.triggerEvent("close");
     },

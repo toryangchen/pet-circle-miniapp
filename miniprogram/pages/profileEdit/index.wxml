@@ -1,98 +1,90 @@
 <navigation-bar title="编辑资料" back></navigation-bar>
 
-<scroll-view
-  class="profile-edit-scroll"
-  scroll-y
-  type="custom"
-  enhanced="{{true}}"
-  show-scrollbar="{{false}}"
->
-  <view class="profile-edit-page">
-    <button
-      class="profile-edit-avatar"
-      hover-class="none"
-      open-type="chooseAvatar"
-      bind:chooseavatar="onChooseAvatar"
+<view class="profile-edit-page">
+  <button
+    class="profile-edit-avatar"
+    hover-class="none"
+    open-type="chooseAvatar"
+    bind:chooseavatar="onChooseAvatar"
+  >
+    <view class="profile-edit-avatar__wrap">
+      <image class="profile-edit-avatar__image" src="{{avatar}}" mode="aspectFit"></image>
+
+      <view class="profile-edit-avatar__camera">
+        <image
+          class="profile-edit-avatar__camera-icon"
+          src="/assets/profile-edit-camera.png"
+          mode="aspectFit"
+        ></image>
+      </view>
+    </view>
+    <text class="profile-edit-avatar__hint">{{avatarHint}}</text>
+  </button>
+
+  <view class="profile-edit-card">
+    <view
+      wx:for="{{basicFields}}"
+      wx:key="label"
+      class="profile-edit-row"
+      data-type="{{item.type}}"
+      bindtap="handleFieldTap"
     >
-      <view class="profile-edit-avatar__wrap">
-        <image class="profile-edit-avatar__image" src="{{avatar}}" mode="aspectFit"></image>
+      <text class="profile-edit-row__label">{{item.label}}</text>
+      <view class="profile-edit-row__value-group">
+        <input
+          wx:if="{{item.type === 'nickname'}}"
+          class="profile-edit-row__value"
+          placeholder-style="color: #a2978c;font-weight: 500;font-size: 26rpx;"
+          type="nickname"
+          value="{{item.value}}"
+          bindblur="bindNickNameInput"
+          placeholder="请输入昵称"
+        />
 
-        <view class="profile-edit-avatar__camera">
-          <image
-            class="profile-edit-avatar__camera-icon"
-            src="/assets/profile-edit-camera.png"
-            mode="aspectFit"
-          ></image>
-        </view>
-      </view>
-      <text class="profile-edit-avatar__hint">{{avatarHint}}</text>
-    </button>
-
-    <view class="profile-edit-card">
-      <view
-        wx:for="{{basicFields}}"
-        wx:key="label"
-        class="profile-edit-row"
-        data-type="{{item.type}}"
-        bindtap="handleFieldTap"
-      >
-        <text class="profile-edit-row__label">{{item.label}}</text>
-        <view class="profile-edit-row__value-group">
-          <input
-            wx:if="{{item.type === 'nickname'}}"
-            class="profile-edit-row__value"
-            placeholder-style="color: #a2978c;font-weight: 500;font-size: 26rpx;"
-            type="nickname"
-            value="{{item.value}}"
-            bindblur="bindNickNameInput"
-            placeholder="请输入昵称"
-          />
-
-          <button
-            class="btn-phone"
-            wx:if="{{item.type === 'phoneMasked'}}"
-            open-type="getPhoneNumber"
-            hover-class="none"
-            bindgetphonenumber="getPhoneNumber"
-          >
-            <text
-              class="profile-edit-row__value {{!item.value ? 'profile-edit-row__value--placeholder' : '' }} "
-              >{{item.value || '未绑定'}}</text
-            >
-          </button>
-
-          <view wx:if="{{item.type === 'bgType'}}" class="profile-edit-row__preview">
-            <image src="{{item.preview}}" />
-            <view class="bg"></view>
-          </view>
-
-          <image class="icon-right" src="/assets/icon-arrow-right.png"></image>
-        </view>
-      </view>
-    </view>
-
-    <view class="profile-edit-card">
-      <view
-        wx:for="{{extraFields}}"
-        wx:key="label"
-        class="profile-edit-row"
-        data-label="{{item.label}}"
-        bindtap="handleFieldTap"
-      >
-        <text class="profile-edit-row__label">{{item.label}}</text>
-        <view class="profile-edit-row__value-group">
+        <button
+          class="btn-phone"
+          wx:if="{{item.type === 'phoneMasked'}}"
+          open-type="getPhoneNumber"
+          hover-class="none"
+          bindgetphonenumber="getPhoneNumber"
+        >
           <text
-            class="profile-edit-row__value {{item.placeholder ? 'profile-edit-row__value--placeholder' : ''}}"
-            >{{item.value}}</text
+            class="profile-edit-row__value {{!item.value ? 'profile-edit-row__value--placeholder' : '' }} "
+            >{{item.value || '未绑定'}}</text
           >
-          <image class="icon-right" src="/assets/icon-arrow-right.png"></image>
+        </button>
+
+        <view wx:if="{{item.type === 'bgType'}}" class="profile-edit-row__preview">
+          <image src="{{item.preview}}" />
+          <view class="bg"></view>
         </view>
+
+        <image class="icon-right" src="/assets/icon-arrow-right.png"></image>
       </view>
     </view>
-
-    <text class="profile-edit-tip">{{footerTip}}</text>
   </view>
-</scroll-view>
+
+  <view class="profile-edit-card">
+    <view
+      wx:for="{{extraFields}}"
+      wx:key="label"
+      class="profile-edit-row"
+      data-label="{{item.label}}"
+      bindtap="handleFieldTap"
+    >
+      <text class="profile-edit-row__label">{{item.label}}</text>
+      <view class="profile-edit-row__value-group">
+        <text
+          class="profile-edit-row__value {{item.placeholder ? 'profile-edit-row__value--placeholder' : ''}}"
+          >{{item.value}}</text
+        >
+        <image class="icon-right" src="/assets/icon-arrow-right.png"></image>
+      </view>
+    </view>
+  </view>
+
+  <text class="profile-edit-tip">{{footerTip}}</text>
+</view>
 
 <bg-type-sheet
   visible="{{isBgTypeSheetVisible}}"
