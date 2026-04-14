@@ -1,21 +1,13 @@
 <view class="personal-hero">
-  <image class="personal-hero__bg" src="/assets/main-bg-02.png" mode="aspectFill"></image>
-  <view class="personal-hero__frost">
-    <view class="top-clear"></view>
-    <view class="blur-layer"></view>
-  </view>
+  <image class="personal-hero__bg" src="{{profile.background}}" mode="aspectFill"></image>
 </view>
 
-<scroll-view class="personal-scroll" scroll-y enhanced="{{true}}" show-scrollbar="{{false}}">
-  <view class="holder" style="height: {{topHeight}}px; width: 100%;"></view>
+<view class="personal-scroll">
+  <view class="holder" style="height: {{topHeight}}rpx; width: 100%;"></view>
   <view class="personal-page">
     <view class="personal-profile">
       <view class="personal-user">
-        <image
-          class="personal-avatar"
-          src="/assets/profile-pawpets-avatar.png"
-          mode="aspectFit"
-        ></image>
+        <image class="personal-avatar" src="{{profile.avatar}}" mode="aspectFill"></image>
 
         <view class="personal-meta">
           <text class="personal-name">{{profile.name}}</text>
@@ -46,7 +38,19 @@
         </view>
       </view>
 
-      <view class="personal-panel">
+      <view class="personal-panel-anchor">
+        <view wx:if="{{isPanelSticky}}" class="personal-panel-placeholder" style="height: {{panelHeightPx}}px;"></view>
+        <scroll-view
+          class="personal-panel {{isPanelSticky ? 'personal-panel--sticky' : ''}}"
+          scroll-y="{{isPanelSticky}}"
+          scroll-top="{{panelScrollTop}}"
+          enhanced="{{true}}"
+          show-scrollbar="{{false}}"
+          upper-threshold="24"
+          bindscroll="handleInnerScroll"
+          bindscrolltoupper="handleInnerScrollToUpper"
+          style="{{isPanelSticky ? 'top:' + topHeightPx + 'px;height:' + panelHeightPx + 'px;' : ''}}"
+        >
         <view class="personal-tabs">
           <view wx:for="{{tabs}}" wx:key="*this" class="personal-tab-wrap">
             <view
@@ -70,7 +74,8 @@
           <text class="personal-empty__summary">{{emptyState.summary}}</text>
           <view class="personal-empty__button" bindtap="goCreate">{{emptyState.cta}}</view>
         </view>
+        </scroll-view>
       </view>
     </view>
   </view>
-</scroll-view>
+</view>

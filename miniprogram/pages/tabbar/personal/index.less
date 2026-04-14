@@ -23,28 +23,19 @@
   height: 100%;
 }
 
-.personal-hero__frost {
+.personal-hero__bg::after {
+  content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-
-  .top-clear {
-    width: 100%;
-    height: 31%;
-    background: rgba(255, 255, 255, 0.35);
-  }
-
-  .blur-layer {
-    width: 100%;
-    height: 71%;
-    background: rgba(255, 255, 255, 0.35);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-  }
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05) 5%,
+    rgba(255, 255, 255, 0.15) 30%,
+    rgba(255, 255, 255, 0.3) 60%,
+    rgba(255, 255, 255, 0.45) 90%
+  );
+  backdrop-filter: saturate(120%) blur(10rpx);
+  -webkit-backdrop-filter: saturate(120%) blur(10rpx);
 }
 
 .personal-profile {
@@ -65,6 +56,8 @@
 .personal-avatar {
   width: 120rpx;
   height: 120rpx;
+  border-radius: 50%;
+  border-color: 1rpx solid white;
   flex-shrink: 0;
 }
 
@@ -202,10 +195,28 @@
   background: #fffdfc;
 }
 
+.personal-panel-anchor {
+  position: relative;
+}
+
+.personal-panel-placeholder {
+  width: 100%;
+}
+
+.personal-panel--sticky {
+  position: fixed;
+  left: 8rpx;
+  right: 8rpx;
+  bottom: 0;
+  z-index: 12;
+  box-sizing: border-box;
+  border-radius: 24rpx 24rpx 0 0;
+}
+
 .personal-tabs {
   display: flex;
   align-items: center;
-  padding: 16rpx 16rpx 0;
+  padding: 20rpx 20rpx 0;
 }
 
 .personal-tab-wrap {
@@ -213,13 +224,13 @@
 }
 
 .personal-tab {
-  height: 48rpx;
+  height: 60rpx;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   color: #9a9088;
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 500;
 }
 
@@ -229,7 +240,7 @@
 }
 
 .personal-tab__line {
-  width: 36rpx;
+  width: 48rpx;
   height: 4rpx;
   border-radius: 999rpx;
   background: transparent;

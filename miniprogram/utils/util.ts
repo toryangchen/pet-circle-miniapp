@@ -33,6 +33,12 @@ export const getNavbarHeight = () => {
   };
 };
 
+export const px2rpx = (px: number) => {
+  const windowInfo = wx.getWindowInfo();
+
+  return (px * 750) / windowInfo.screenWidth;
+};
+
 export const resolveUploadableFilePath = (src: string): Promise<string> => {
   if (!src.startsWith("http://tmp/") && !src.startsWith("https://tmp/")) {
     return Promise.resolve(src);
