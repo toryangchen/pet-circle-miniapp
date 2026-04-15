@@ -1,9 +1,25 @@
 <view class="personal-hero">
   <image class="personal-hero__bg" src="{{profile.background}}" mode="aspectFill"></image>
+  <view class="personal-hero__frost">
+    <view class="top-clear" style="height: {{pageDistance.topHeight}}px;"></view>
+    <view class="blur-layer"></view>
+  </view>
 </view>
 
 <view class="personal-scroll">
-  <view class="holder" style="height: {{topHeight}}rpx; width: 100%;"></view>
+  <view
+    class="navbar-holder"
+    style="height: {{pageDistance.topHeight}}px; opacity: {{pageDistance.opacityRate}};"
+  >
+    <image
+      class="top-avatar"
+      style="height: {{pageDistance.menuHeight}}px; width: {{pageDistance.menuHeight}}px; margin-top: {{pageDistance.menuTop * pageDistance.opacityRate}}px;"
+      src="{{profile.avatar}}"
+      mode="aspectFill"
+    ></image>
+  </view>
+
+  <view class="holder" style="height: {{pageDistance.topHeight}}px; width: 100%;"></view>
   <view class="personal-page">
     <view class="personal-profile">
       <view class="personal-user">
@@ -39,9 +55,8 @@
       </view>
 
       <view class="personal-panel-anchor">
-        <view wx:if="{{isPanelSticky}}" class="personal-panel-placeholder" style="height: {{panelHeightPx}}px;"></view>
         <scroll-view
-          class="personal-panel {{isPanelSticky ? 'personal-panel--sticky' : ''}}"
+          class="personal-panel"
           scroll-y="{{isPanelSticky}}"
           scroll-top="{{panelScrollTop}}"
           enhanced="{{true}}"
@@ -49,31 +64,35 @@
           upper-threshold="24"
           bindscroll="handleInnerScroll"
           bindscrolltoupper="handleInnerScrollToUpper"
-          style="{{isPanelSticky ? 'top:' + topHeightPx + 'px;height:' + panelHeightPx + 'px;' : ''}}"
+          style="height: calc(100vh - 130rpx - {{topHeight}}px);"
         >
-        <view class="personal-tabs">
-          <view wx:for="{{tabs}}" wx:key="*this" class="personal-tab-wrap">
-            <view
-              class="personal-tab {{activeTab === item ? 'personal-tab--active' : ''}}"
-              data-tab="{{item}}"
-              bindtap="switchTab"
-            >
-              <text>{{item}}</text>
-              <view class="personal-tab__line"></view>
+          <view class="personal-tabs">
+            <view wx:for="{{tabs}}" wx:key="*this" class="personal-tab-wrap">
+              <view
+                class="personal-tab {{activeTab === item ? 'personal-tab--active' : ''}}"
+                data-tab="{{item}}"
+                bindtap="switchTab"
+              >
+                <text>{{item}}</text>
+                <view class="personal-tab__line"></view>
+              </view>
             </view>
           </view>
-        </view>
 
-        <view class="personal-divider"></view>
+          <view class="personal-divider"></view>
 
-        <view class="personal-empty">
-          <view class="personal-empty__icon-wrap">
-            <image class="personal-empty__icon" src="/assets/logo-paw.png" mode="aspectFit"></image>
+          <view class="personal-empty">
+            <view class="personal-empty__icon-wrap">
+              <image
+                class="personal-empty__icon"
+                src="/assets/logo-paw.png"
+                mode="aspectFit"
+              ></image>
+            </view>
+            <text class="personal-empty__title">{{emptyState.title}}</text>
+            <text class="personal-empty__summary">{{emptyState.summary}}</text>
+            <view class="personal-empty__button" bindtap="goCreate">{{emptyState.cta}}</view>
           </view>
-          <text class="personal-empty__title">{{emptyState.title}}</text>
-          <text class="personal-empty__summary">{{emptyState.summary}}</text>
-          <view class="personal-empty__button" bindtap="goCreate">{{emptyState.cta}}</view>
-        </view>
         </scroll-view>
       </view>
     </view>

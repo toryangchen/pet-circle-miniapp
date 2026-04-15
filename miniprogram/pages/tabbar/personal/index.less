@@ -5,13 +5,30 @@
   position: relative;
 }
 
+.navbar-holder {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  display: flex;
+  justify-content: center;
+
+  .top-avatar {
+    border-radius: 50%;
+  }
+}
+
 .personal-page {
   min-height: calc(100vh - 146rpx);
   padding-bottom: 118rpx;
 }
 
 .personal-hero {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   height: 588rpx;
@@ -23,19 +40,27 @@
   height: 100%;
 }
 
-.personal-hero__bg::after {
-  content: "";
+.personal-hero__frost {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.05) 5%,
-    rgba(255, 255, 255, 0.15) 30%,
-    rgba(255, 255, 255, 0.3) 60%,
-    rgba(255, 255, 255, 0.45) 90%
-  );
-  backdrop-filter: saturate(120%) blur(10rpx);
-  -webkit-backdrop-filter: saturate(120%) blur(10rpx);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .top-clear {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  .blur-layer {
+    width: 100%;
+    flex: 1;
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(8rpx);
+    -webkit-backdrop-filter: blur(8rpx);
+  }
 }
 
 .personal-profile {
@@ -207,16 +232,22 @@
   position: fixed;
   left: 8rpx;
   right: 8rpx;
-  bottom: 0;
   z-index: 12;
   box-sizing: border-box;
   border-radius: 24rpx 24rpx 0 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .personal-tabs {
   display: flex;
   align-items: center;
   padding: 20rpx 20rpx 0;
+  flex-shrink: 0;
+}
+
+.personal-tabs--sticky {
+  background: #fffdfc;
 }
 
 .personal-tab-wrap {
@@ -254,10 +285,20 @@
   width: 100%;
   height: 1rpx;
   background: #efe8de;
+  flex-shrink: 0;
+}
+
+.personal-panel__content {
+  min-height: 0;
+}
+
+.personal-panel__content--scroll {
+  flex: 1;
 }
 
 .personal-empty {
-  min-height: 760rpx;
+  // min-height: 760rpx;
+  height: 10000rpx;
   padding: 120rpx 32rpx 32rpx;
   display: flex;
   flex-direction: column;

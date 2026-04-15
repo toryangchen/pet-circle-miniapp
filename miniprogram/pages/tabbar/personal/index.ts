@@ -1,6 +1,6 @@
 import type { MiniappUserSummary } from "@utils/api-types";
 import { getAuthState, syncCurrentUser } from "@utils/session";
-import { getNavbarHeight, px2rpx } from "@utils/util";
+import { getNavbarHeight } from "@utils/util";
 
 type ProfileStat = {
   label: string;
@@ -29,14 +29,6 @@ function resolveBackground(bgType?: string | null) {
 
 function formatPhoneStatus(user: MiniappUserSummary | null) {
   return user?.phoneAuthorized ? "已绑定手机号" : "未绑定手机号";
-}
-
-function formatBirthday(user: MiniappUserSummary | null) {
-  return user?.birthday || "未设置生日";
-}
-
-function formatCity(user: MiniappUserSummary | null) {
-  return user?.region.city || "未设置城市";
 }
 
 function formatSubtitle(user: MiniappUserSummary | null) {
@@ -76,22 +68,27 @@ Page({
       summary: "分享宠物日常、记录救助故事，或者发布一条本地服务信息，让更多宠友看见你。",
       cta: "去记录",
     },
-    topHeight: 0,
-    topHeightPx: 0,
-    panelHeightPx: 0,
-    panelStickyStartPx: 0,
-    panelScrollTop: 0,
-    isPanelSticky: false,
+
+    pageDistance: {
+      topHeight: 0,
+      panelStickyStartPx: 0,
+      panelScrollTop: 0,
+      menuTop: 0,
+      menuHeight: 0,
+      isPanelSticky: false,
+      opacityRate: 0,
+    },
   },
   onLoad() {
-    const { statusHeight, navBarHeight } = getNavbarHeight();
-    const windowInfo = wx.getWindowInfo();
-    const topHeightPx = statusHeight + navBarHeight;
-
+    const { statusHeight, navBarHeight, menuTop, menuHeight } = getNavbarHeight();
+    const topHeight = statusHeight + navBarHeight;
+    Object.assign(this.data.pageDistance, {
+      topHeight,
+      menuTop,
+      menuHeight,
+    });
     this.setData({
-      topHeight: px2rpx(topHeightPx),
-      topHeightPx,
-      panelHeightPx: Math.max(windowInfo.windowHeight - topHeightPx, 0),
+      pageDistance: this.data.pageDistance,
     });
     this.applyUserProfile(getAuthState().user);
     void this.loadProfile();
@@ -112,18 +109,34 @@ Page({
 
   onPageScroll(event: { scrollTop: number }) {
     const scrollTop = event.scrollTop;
+    const { isPanelSticky, panelStickyStartPx, topHeight } = this.data.pageDistance;
 
-    if (!this.data.isPanelSticky && scrollTop >= this.data.panelStickyStartPx) {
+    const rate = scrollTop / topHeight;
+    const opacityRate = rate >= 1 ? 1 : rate;
+    this.setData({
+      pageDistance: {
+        ...this.data.pageDistance,
+        opacityRate,
+      },
+    });
+
+    if (!isPanelSticky && scrollTop >= panelStickyStartPx) {
       this.setData({
-        isPanelSticky: true,
+        pageDistance: {
+          ...this.data.pageDistance,
+          isPanelSticky: true,
+        },
       });
       return;
     }
 
-    if (this.data.isPanelSticky && scrollTop < this.data.panelStickyStartPx) {
+    if (isPanelSticky && scrollTop < panelStickyStartPx) {
       this.setData({
-        isPanelSticky: false,
-        panelScrollTop: 0,
+        pageDistance: {
+          ...this.data.pageDistance,
+          isPanelSticky: false,
+          panelScrollTop: 0,
+        },
       });
     }
   },
@@ -157,26 +170,33 @@ Page({
       if (!rect) {
         return;
       }
-
-      const topHeightPx = this.data.topHeightPx as number;
+      const topHeightPx = this.data.pageDistance.topHeight as number;
       const scrollTop = viewport?.scrollTop || 0;
-
       this.setData({
-        panelStickyStartPx: Math.max(rect.top + scrollTop - topHeightPx, 0),
+        pageDistance: {
+          ...this.data.pageDistance,
+          panelStickyStartPx: Math.max(rect.top + scrollTop - topHeightPx, 0),
+        },
       });
     });
   },
 
   handleInnerScroll(event: WechatMiniprogram.ScrollViewScroll) {
     this.setData({
-      panelScrollTop: event.detail.scrollTop,
+      pageDistance: {
+        ...this.data.pageDistance,
+        panelScrollTop: event.detail.scrollTop,
+      },
     });
   },
 
   handleInnerScrollToUpper() {
     this.setData({
-      isPanelSticky: false,
-      panelScrollTop: 0,
+      pageDistance: {
+        ...this.data.pageDistance,
+        isPanelSticky: false,
+        panelScrollTop: 0,
+      },
     });
   },
 
@@ -188,7 +208,10 @@ Page({
 
     this.setData({
       activeTab: tab,
-      panelScrollTop: 0,
+      pageDistance: {
+        ...this.data.pageDistance,
+        panelScrollTop: 0,
+      },
     });
   },
 
