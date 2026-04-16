@@ -1,65 +1,49 @@
-.personal-scroll {
-  height: 100vh;
-  background: transparent;
-  padding-bottom: env(safe-area-inset-bottom);
+.personal-hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 588rpx;
+  width: 100%;
+  z-index: 0;
+  pointer-events: none;
+
+  .personal-hero__bg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .personal-hero__frost {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10rpx);
+    -webkit-backdrop-filter: blur(10rpx);
+    z-index: 1;
+  }
+}
+
+.scroll-view {
+  width: 100%;
+  height: 100%;
   position: relative;
+  padding-bottom: 140rpx;
+  z-index: 2;
 }
 
 .navbar-holder {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 99;
   width: 100%;
   background: rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
   display: flex;
   justify-content: center;
+  opacity: 0;
 
   .top-avatar {
     border-radius: 50%;
-  }
-}
-
-.personal-page {
-  min-height: calc(100vh - 146rpx);
-  padding-bottom: 118rpx;
-}
-
-.personal-hero {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 588rpx;
-  width: 100%;
-}
-
-.personal-hero__bg {
-  width: 100%;
-  height: 100%;
-}
-
-.personal-hero__frost {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-
-  .top-clear {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.35);
-  }
-
-  .blur-layer {
-    width: 100%;
-    flex: 1;
-    background: rgba(255, 255, 255, 0.35);
-    backdrop-filter: blur(8rpx);
-    -webkit-backdrop-filter: blur(8rpx);
   }
 }
 
@@ -175,19 +159,11 @@
   flex-shrink: 0;
 }
 
-.personal-body {
-  position: relative;
-  z-index: 1;
-  margin-top: 12rpx;
-  padding: 0 8rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-}
-
 .personal-shortcuts {
   display: flex;
   gap: 8rpx;
+  margin-top: 20rpx;
+  padding: 0 8rpx;
 }
 
 .personal-shortcut {
@@ -215,28 +191,9 @@
 
 .personal-panel {
   overflow: hidden;
-  border-radius: 24rpx;
   border: 1rpx solid #e6ded2;
   background: #fffdfc;
-}
-
-.personal-panel-anchor {
-  position: relative;
-}
-
-.personal-panel-placeholder {
-  width: 100%;
-}
-
-.personal-panel--sticky {
-  position: fixed;
-  left: 8rpx;
-  right: 8rpx;
-  z-index: 12;
-  box-sizing: border-box;
-  border-radius: 24rpx 24rpx 0 0;
-  display: flex;
-  flex-direction: column;
+  margin: 0 8rpx;
 }
 
 .personal-tabs {
@@ -244,6 +201,10 @@
   align-items: center;
   padding: 20rpx 20rpx 0;
   flex-shrink: 0;
+  background: #fffdfc;
+  margin: 0 8rpx;
+  margin-top: 20rpx;
+  border-radius: 24rpx 24rpx 0 0;
 }
 
 .personal-tabs--sticky {
@@ -286,6 +247,7 @@
   height: 1rpx;
   background: #efe8de;
   flex-shrink: 0;
+  margin: 0 8rpx;
 }
 
 .personal-panel__content {

@@ -106,17 +106,27 @@ Page({
     }
     this.applyUserProfile(getAuthState().user);
   },
+  onScroll(event: WechatMiniprogram.ScrollViewScroll) {
+    const { scrollTop } = event.detail;
+    const { topHeight } = this.data.pageDistance;
+    const rate = scrollTop / topHeight;
+    console.log("rate", rate);
+    this.setData({
+      pageDistance: {
+        ...this.data.pageDistance,
+        opacityRate: rate >= 1 ? 1 : rate,
+      },
+    });
+  },
 
   onPageScroll(event: { scrollTop: number }) {
     const scrollTop = event.scrollTop;
     const { isPanelSticky, panelStickyStartPx, topHeight } = this.data.pageDistance;
-
     const rate = scrollTop / topHeight;
-    const opacityRate = rate >= 1 ? 1 : rate;
     this.setData({
       pageDistance: {
         ...this.data.pageDistance,
-        opacityRate,
+        opacityRate: rate >= 1 ? 1 : rate,
       },
     });
 

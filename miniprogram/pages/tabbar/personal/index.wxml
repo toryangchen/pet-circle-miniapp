@@ -1,86 +1,84 @@
 <view class="personal-hero">
   <image class="personal-hero__bg" src="{{profile.background}}" mode="aspectFill"></image>
-  <view class="personal-hero__frost">
-    <view class="top-clear" style="height: {{pageDistance.topHeight}}px;"></view>
-    <view class="blur-layer"></view>
-  </view>
+  <view class="personal-hero__frost"> </view>
 </view>
 
-<view class="personal-scroll">
-  <view
-    class="navbar-holder"
-    style="height: {{pageDistance.topHeight}}px; opacity: {{pageDistance.opacityRate}};"
-  >
-    <image
-      class="top-avatar"
-      style="height: {{pageDistance.menuHeight}}px; width: {{pageDistance.menuHeight}}px; margin-top: {{pageDistance.menuTop * pageDistance.opacityRate}}px;"
-      src="{{profile.avatar}}"
-      mode="aspectFill"
-    ></image>
-  </view>
+<scroll-view
+  class="scroll-view"
+  scroll-y
+  enhanced="{{true}}"
+  show-scrollbar="{{false}}"
+  type="custom"
+  bindscroll="onScroll"
+>
+  <sticky-section push-pinned-header="{{false}}">
+    <sticky-header>
+      <view
+        class="navbar-holder"
+        style="height: {{pageDistance.topHeight}}px; opacity: {{pageDistance.opacityRate}}; visibility: {{ pageDistance.opacityRate <= 0 ? 'hidden': 'visible'  }};"
+      >
+        <image
+          class="top-avatar"
+          style="height: {{pageDistance.menuHeight}}px; width: {{pageDistance.menuHeight}}px; margin-top: {{pageDistance.menuTop * pageDistance.opacityRate}}px;"
+          src="{{profile.avatar}}"
+          mode="aspectFill"
+        ></image>
+      </view>
+    </sticky-header>
 
-  <view class="holder" style="height: {{pageDistance.topHeight}}px; width: 100%;"></view>
-  <view class="personal-page">
-    <view class="personal-profile">
-      <view class="personal-user">
-        <image class="personal-avatar" src="{{profile.avatar}}" mode="aspectFill"></image>
+    <list-view>
+      <view class="personal-profile">
+        <view class="personal-user">
+          <image class="personal-avatar" src="{{profile.avatar}}" mode="aspectFill"></image>
 
-        <view class="personal-meta">
-          <text class="personal-name">{{profile.name}}</text>
-          <view class="personal-meta__row">
-            <view class="personal-status">{{profile.status}}</view>
-            <text class="personal-subtitle">{{profile.subtitle}}</text>
+          <view class="personal-meta">
+            <text class="personal-name">{{profile.name}}</text>
+            <view class="personal-meta__row">
+              <view class="personal-status">{{profile.status}}</view>
+              <text class="personal-subtitle">{{profile.subtitle}}</text>
+            </view>
           </view>
+        </view>
+
+        <view class="personal-actions">
+          <view class="personal-stats">
+            <view wx:for="{{stats}}" wx:key="label" class="personal-stat">
+              <text class="personal-stat__value">{{item.value}}</text>
+              <text class="personal-stat__label">{{item.label}}</text>
+            </view>
+          </view>
+
+          <view class="personal-edit" bindtap="editProfile">编辑资料</view>
         </view>
       </view>
 
-      <view class="personal-actions">
-        <view class="personal-stats">
-          <view wx:for="{{stats}}" wx:key="label" class="personal-stat">
-            <text class="personal-stat__value">{{item.value}}</text>
-            <text class="personal-stat__label">{{item.label}}</text>
-          </view>
-        </view>
-
-        <view class="personal-edit" bindtap="editProfile">编辑资料</view>
-      </view>
-    </view>
-
-    <view class="personal-body">
       <view class="personal-shortcuts">
         <view wx:for="{{shortcuts}}" wx:key="title" class="personal-shortcut">
           <text class="personal-shortcut__title">{{item.title}}</text>
           <text class="personal-shortcut__summary">{{item.summary}}</text>
         </view>
       </view>
+    </list-view>
+  </sticky-section>
 
-      <view class="personal-panel-anchor">
-        <scroll-view
-          class="personal-panel"
-          scroll-y="{{isPanelSticky}}"
-          scroll-top="{{panelScrollTop}}"
-          enhanced="{{true}}"
-          show-scrollbar="{{false}}"
-          upper-threshold="24"
-          bindscroll="handleInnerScroll"
-          bindscrolltoupper="handleInnerScrollToUpper"
-          style="height: calc(100vh - 130rpx - {{topHeight}}px);"
-        >
-          <view class="personal-tabs">
-            <view wx:for="{{tabs}}" wx:key="*this" class="personal-tab-wrap">
-              <view
-                class="personal-tab {{activeTab === item ? 'personal-tab--active' : ''}}"
-                data-tab="{{item}}"
-                bindtap="switchTab"
-              >
-                <text>{{item}}</text>
-                <view class="personal-tab__line"></view>
-              </view>
-            </view>
+  <sticky-section class="section">
+    <sticky-header>
+      <view class="personal-tabs">
+        <view wx:for="{{tabs}}" wx:key="*this" class="personal-tab-wrap">
+          <view
+            class="personal-tab {{activeTab === item ? 'personal-tab--active' : ''}}"
+            data-tab="{{item}}"
+            bindtap="switchTab"
+          >
+            <text>{{item}}</text>
+            <view class="personal-tab__line"></view>
           </view>
+        </view>
+      </view>
+      <view class="personal-divider"></view>
 
-          <view class="personal-divider"></view>
-
+      <scroll-view style="height: calc(100vh - {{pageDistance.topHeight}}px - 100rpx);">
+        <view class="personal-panel">
           <view class="personal-empty">
             <view class="personal-empty__icon-wrap">
               <image
@@ -93,8 +91,9 @@
             <text class="personal-empty__summary">{{emptyState.summary}}</text>
             <view class="personal-empty__button" bindtap="goCreate">{{emptyState.cta}}</view>
           </view>
-        </scroll-view>
-      </view>
-    </view>
-  </view>
-</view>
+        </view>
+      </scroll-view>
+    </sticky-header>
+    <list-view> </list-view>
+  </sticky-section>
+</scroll-view>
