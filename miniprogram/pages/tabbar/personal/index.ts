@@ -71,13 +71,8 @@ Page({
 
     pageDistance: {
       topHeight: 0,
-      bgTop: 0,
-
-      panelStickyStartPx: 0,
-      panelScrollTop: 0,
       menuTop: 0,
       menuHeight: 0,
-      isPanelSticky: false,
       opacityRate: 0,
       stickyHeight: 0,
     },
@@ -110,47 +105,13 @@ Page({
     const { scrollTop } = event.detail;
     const { topHeight } = this.data.pageDistance;
     const rate = scrollTop / topHeight;
-    const maxBgScroll = rpx2px(588) - topHeight;
 
-    this.setData({
-      pageDistance: {
-        ...this.data.pageDistance,
-        opacityRate: rate >= 1 ? 1 : rate,
-        bgTop: scrollTop > maxBgScroll ? maxBgScroll : scrollTop,
-      },
-    });
-  },
-
-  onPageScroll(event: { scrollTop: number }) {
-    const scrollTop = event.scrollTop;
-    const { isPanelSticky, panelStickyStartPx, topHeight } = this.data.pageDistance;
-    const rate = scrollTop / topHeight;
     this.setData({
       pageDistance: {
         ...this.data.pageDistance,
         opacityRate: rate >= 1 ? 1 : rate,
       },
     });
-
-    if (!isPanelSticky && scrollTop >= panelStickyStartPx) {
-      this.setData({
-        pageDistance: {
-          ...this.data.pageDistance,
-          isPanelSticky: true,
-        },
-      });
-      return;
-    }
-
-    if (isPanelSticky && scrollTop < panelStickyStartPx) {
-      this.setData({
-        pageDistance: {
-          ...this.data.pageDistance,
-          isPanelSticky: false,
-          panelScrollTop: 0,
-        },
-      });
-    }
   },
 
   applyUserProfile(user: MiniappUserSummary | null) {
@@ -171,16 +132,6 @@ Page({
     }
   },
 
-  handleInnerScrollToUpper() {
-    this.setData({
-      pageDistance: {
-        ...this.data.pageDistance,
-        isPanelSticky: false,
-        panelScrollTop: 0,
-      },
-    });
-  },
-
   switchTab(event: WechatMiniprogram.BaseEvent) {
     const { tab } = event.currentTarget.dataset as { tab?: string };
     if (!tab || tab === this.data.activeTab) {
@@ -189,10 +140,6 @@ Page({
 
     this.setData({
       activeTab: tab,
-      pageDistance: {
-        ...this.data.pageDistance,
-        panelScrollTop: 0,
-      },
     });
   },
 

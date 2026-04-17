@@ -30,16 +30,13 @@ test("personal page binds avatar and background to real profile data", () => {
 test("personal page shows basic user summaries from real fields", () => {
   assert.match(source, /status: formatPhoneStatus\(user\)/);
   assert.match(source, /subtitle: formatSubtitle\(user\)/);
-  assert.match(source, /title: "生日", summary: formatBirthday\(user\)/);
-  assert.match(source, /title: "城市", summary: formatCity\(user\)/);
+  assert.match(source, /title: "我的收藏", summary: "还没有收藏内容"/);
+  assert.match(source, /title: "我的发布", summary: "还没有发布记录"/);
 });
 
-test("personal panel becomes sticky and scrolls internally after reaching top height", () => {
-  assert.match(source, /isPanelSticky: false/);
-  assert.match(source, /onPageScroll\(event: \{ scrollTop: number \}\)/);
-  assert.match(source, /handleInnerScrollToUpper\(\)/);
-  assert.match(source, /panelStickyStartPx/);
-  assert.doesNotMatch(wxmlSource, /<scroll-view[\s\S]*class="personal-scroll"/);
-  assert.match(wxmlSource, /class="personal-panel \{\{isPanelSticky \? 'personal-panel--sticky' : ''\}\}"/);
-  assert.match(wxmlSource, /scroll-y="\{\{isPanelSticky\}\}"/);
+test("personal page uses scroll-view driven header opacity state", () => {
+  assert.match(source, /onScroll\(event: WechatMiniprogram\.ScrollViewScroll\)/);
+  assert.match(source, /opacityRate: rate >= 1 \? 1 : rate/);
+  assert.match(wxmlSource, /bindscroll="onScroll"/);
+  assert.match(wxmlSource, /sticky-section/);
 });
