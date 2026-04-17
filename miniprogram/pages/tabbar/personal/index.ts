@@ -1,6 +1,6 @@
 import type { MiniappUserSummary } from "@utils/api-types";
 import { getAuthState, syncCurrentUser } from "@utils/session";
-import { getNavbarHeight } from "@utils/util";
+import { getNavbarHeight, rpx2px } from "@utils/util";
 
 type ProfileStat = {
   label: string;
@@ -71,12 +71,15 @@ Page({
 
     pageDistance: {
       topHeight: 0,
+      bgTop: 0,
+
       panelStickyStartPx: 0,
       panelScrollTop: 0,
       menuTop: 0,
       menuHeight: 0,
       isPanelSticky: false,
       opacityRate: 0,
+      stickyHeight: 0,
     },
   },
   onLoad() {
@@ -86,16 +89,13 @@ Page({
       topHeight,
       menuTop,
       menuHeight,
+      stickyHeight: topHeight + rpx2px(20),
     });
     this.setData({
       pageDistance: this.data.pageDistance,
     });
     this.applyUserProfile(getAuthState().user);
     void this.loadProfile();
-  },
-
-  onReady() {
-    this.measurePanelStickyStart();
   },
 
   onShow() {
@@ -110,11 +110,13 @@ Page({
     const { scrollTop } = event.detail;
     const { topHeight } = this.data.pageDistance;
     const rate = scrollTop / topHeight;
-    console.log("rate", rate);
+    const maxBgScroll = rpx2px(588) - topHeight;
+
     this.setData({
       pageDistance: {
         ...this.data.pageDistance,
         opacityRate: rate >= 1 ? 1 : rate,
+        bgTop: scrollTop > maxBgScroll ? maxBgScroll : scrollTop,
       },
     });
   },
@@ -167,37 +169,6 @@ Page({
         icon: "none",
       });
     }
-  },
-
-  measurePanelStickyStart() {
-    const query = wx.createSelectorQuery();
-    query.select(".personal-panel-anchor").boundingClientRect();
-    query.selectViewport().scrollOffset();
-    query.exec((result) => {
-      const rect = result?.[0] as WechatMiniprogram.BoundingClientRectCallbackResult | undefined;
-      const viewport = result?.[1] as { scrollTop?: number } | undefined;
-
-      if (!rect) {
-        return;
-      }
-      const topHeightPx = this.data.pageDistance.topHeight as number;
-      const scrollTop = viewport?.scrollTop || 0;
-      this.setData({
-        pageDistance: {
-          ...this.data.pageDistance,
-          panelStickyStartPx: Math.max(rect.top + scrollTop - topHeightPx, 0),
-        },
-      });
-    });
-  },
-
-  handleInnerScroll(event: WechatMiniprogram.ScrollViewScroll) {
-    this.setData({
-      pageDistance: {
-        ...this.data.pageDistance,
-        panelScrollTop: event.detail.scrollTop,
-      },
-    });
   },
 
   handleInnerScrollToUpper() {

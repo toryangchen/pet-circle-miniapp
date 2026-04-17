@@ -7,6 +7,8 @@
   class="scroll-view"
   scroll-y
   enhanced="{{true}}"
+  bounces="{{false}}"
+  fast-deceleration="{{true}}"
   show-scrollbar="{{false}}"
   type="custom"
   bindscroll="onScroll"
@@ -14,15 +16,18 @@
   <sticky-section push-pinned-header="{{false}}">
     <sticky-header>
       <view
-        class="navbar-holder"
-        style="height: {{pageDistance.topHeight}}px; opacity: {{pageDistance.opacityRate}}; visibility: {{ pageDistance.opacityRate <= 0 ? 'hidden': 'visible'  }};"
+        class="sticky-header-content"
+        style="height: {{pageDistance.stickyHeight}}px; opacity: {{pageDistance.opacityRate}}; visibility: {{ pageDistance.opacityRate <= 0 ? 'hidden': 'visible'  }};"
       >
-        <image
-          class="top-avatar"
-          style="height: {{pageDistance.menuHeight}}px; width: {{pageDistance.menuHeight}}px; margin-top: {{pageDistance.menuTop * pageDistance.opacityRate}}px;"
-          src="{{profile.avatar}}"
-          mode="aspectFill"
-        ></image>
+        <image class="header-bg" src="{{profile.background}}"></image>
+        <view class="navbar-holder" style="height: {{pageDistance.stickyHeight}}px; ">
+          <image
+            class="top-avatar"
+            style="height: {{pageDistance.menuHeight}}px; width: {{pageDistance.menuHeight}}px; margin-top: {{pageDistance.menuTop * pageDistance.opacityRate}}px;"
+            src="{{profile.avatar}}"
+            mode="aspectFill"
+          ></image>
+        </view>
       </view>
     </sticky-header>
 
@@ -76,24 +81,18 @@
         </view>
       </view>
       <view class="personal-divider"></view>
-
-      <scroll-view style="height: calc(100vh - {{pageDistance.topHeight}}px - 100rpx);">
-        <view class="personal-panel">
-          <view class="personal-empty">
-            <view class="personal-empty__icon-wrap">
-              <image
-                class="personal-empty__icon"
-                src="/assets/logo-paw.png"
-                mode="aspectFit"
-              ></image>
-            </view>
-            <text class="personal-empty__title">{{emptyState.title}}</text>
-            <text class="personal-empty__summary">{{emptyState.summary}}</text>
-            <view class="personal-empty__button" bindtap="goCreate">{{emptyState.cta}}</view>
-          </view>
-        </view>
-      </scroll-view>
     </sticky-header>
-    <list-view> </list-view>
+    <list-view>
+      <view class="personal-panel">
+        <view class="personal-empty">
+          <view class="personal-empty__icon-wrap">
+            <image class="personal-empty__icon" src="/assets/logo-paw.png" mode="aspectFit"></image>
+          </view>
+          <text class="personal-empty__title">{{emptyState.title}}</text>
+          <text class="personal-empty__summary">{{emptyState.summary}}</text>
+          <view class="personal-empty__button" bindtap="goCreate">{{emptyState.cta}}</view>
+        </view>
+      </view>
+    </list-view>
   </sticky-section>
 </scroll-view>

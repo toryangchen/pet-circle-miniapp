@@ -39,6 +39,12 @@ export const px2rpx = (px: number) => {
   return (px * 750) / windowInfo.screenWidth;
 };
 
+export const rpx2px = (rpx: number) => {
+  const windowInfo = wx.getWindowInfo();
+
+  return (rpx * windowInfo.screenWidth) / 750;
+};
+
 export const resolveUploadableFilePath = (src: string): Promise<string> => {
   if (!src.startsWith("http://tmp/") && !src.startsWith("https://tmp/")) {
     return Promise.resolve(src);

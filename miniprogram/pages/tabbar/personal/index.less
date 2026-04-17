@@ -4,7 +4,6 @@
   left: 0;
   height: 588rpx;
   width: 100%;
-  z-index: 0;
   pointer-events: none;
 
   .personal-hero__bg {
@@ -33,17 +32,31 @@
   z-index: 2;
 }
 
-.navbar-holder {
+.sticky-header-content {
   width: 100%;
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(20rpx);
-  -webkit-backdrop-filter: blur(20rpx);
-  display: flex;
-  justify-content: center;
-  opacity: 0;
+  overflow: hidden;
+  position: relative;
 
-  .top-avatar {
-    border-radius: 50%;
+  .header-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 588rpx;
+    width: 100%;
+  }
+
+  .navbar-holder {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(20rpx);
+    -webkit-backdrop-filter: blur(20rpx);
+    display: flex;
+    justify-content: center;
+    position: relative;
+
+    .top-avatar {
+      border-radius: 50%;
+    }
   }
 }
 
@@ -162,7 +175,7 @@
 .personal-shortcuts {
   display: flex;
   gap: 8rpx;
-  margin-top: 20rpx;
+  margin: 20rpx 0;
   padding: 0 8rpx;
 }
 
@@ -190,7 +203,6 @@
 }
 
 .personal-panel {
-  overflow: hidden;
   border: 1rpx solid #e6ded2;
   background: #fffdfc;
   margin: 0 8rpx;
@@ -203,8 +215,19 @@
   flex-shrink: 0;
   background: #fffdfc;
   margin: 0 8rpx;
-  margin-top: 20rpx;
   border-radius: 24rpx 24rpx 0 0;
+}
+
+.personal-divider {
+  height: 1rpx;
+  background: #efe8de;
+  flex-shrink: 0;
+  margin: 0 8rpx;
+}
+
+.personal-tab-panel {
+  margin: 0 8rpx;
+  background: #fffdfc;
 }
 
 .personal-tabs--sticky {
@@ -240,14 +263,6 @@
 
 .personal-tab--active .personal-tab__line {
   background: #40a200;
-}
-
-.personal-divider {
-  width: 100%;
-  height: 1rpx;
-  background: #efe8de;
-  flex-shrink: 0;
-  margin: 0 8rpx;
 }
 
 .personal-panel__content {
