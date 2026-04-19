@@ -43,7 +43,36 @@
 
     <view wx:if="{{currentTab !== 'PET_SOCIAL'}}" class="publish-form-card">
       <view wx:for="{{currentFields}}" wx:key="key" class="publish-field-block">
-        <view class="publish-field-row" data-field-key="{{item.key}}" bindtap="activateField">
+        <picker
+          wx:if="{{item.inputType === 'picker'}}"
+          range="{{item.options}}"
+          value="{{item.optionIndex}}"
+          data-field-key="{{item.key}}"
+          bindchange="handleFieldPickerChange"
+        >
+          <view class="publish-field-row">
+            <text class="publish-field-row__label">{{item.label}}</text>
+            <view class="publish-field-row__value-wrap">
+              <view
+                class="publish-field-row__value {{!item.value ? 'publish-field-row__value--placeholder' : ''}}"
+              >
+                {{item.value || item.placeholder}}
+              </view>
+              <image
+                class="publish-field-row__arrow-icon"
+                src="/assets/icon-arrow-right.png"
+                mode="aspectFit"
+              ></image>
+            </view>
+          </view>
+        </picker>
+
+        <view
+          wx:else
+          class="publish-field-row"
+          data-field-key="{{item.key}}"
+          bindtap="openFieldDialog"
+        >
           <text class="publish-field-row__label">{{item.label}}</text>
           <view class="publish-field-row__value-wrap">
             <view
@@ -56,44 +85,6 @@
               src="/assets/icon-arrow-right.png"
               mode="aspectFit"
             ></image>
-          </view>
-        </view>
-
-        <view wx:if="{{item.isActive}}" class="publish-field-editor">
-          <picker
-            wx:if="{{item.inputType === 'picker'}}"
-            range="{{activeFieldOptions}}"
-            value="{{activeFieldOptionIndex}}"
-            bindchange="handleFieldPickerChange"
-          >
-            <view class="publish-field-picker">点击选择{{activeFieldLabel}}</view>
-          </picker>
-
-          <input
-            wx:elif="{{item.inputType === 'text'}}"
-            class="publish-field-input"
-            value="{{activeFieldValue}}"
-            placeholder="{{activeFieldPlaceholder}}"
-            placeholder-class="publish-placeholder"
-            maxlength="50"
-            focus
-            bindinput="handleFieldInput"
-          />
-
-          <textarea
-            wx:else
-            class="publish-field-textarea"
-            value="{{activeFieldValue}}"
-            placeholder="{{activeFieldPlaceholder}}"
-            placeholder-class="publish-placeholder"
-            maxlength="120"
-            auto-height
-            focus
-            bindinput="handleFieldInput"
-          />
-
-          <view class="publish-field-editor__footer">
-            <text class="publish-field-editor__done" bindtap="finishFieldEdit">完成</text>
           </view>
         </view>
       </view>
@@ -112,5 +103,51 @@
     >
       发布
     </button>
+  </view>
+
+  <view wx:if="{{isFieldDialogVisible}}" class="publish-field-dialog">
+    <view class="publish-field-dialog__mask" bindtap="closeFieldDialog"></view>
+    <view class="publish-field-dialog__panel">
+      <view class="publish-field-dialog__header">
+        <text class="publish-field-dialog__title">{{dialogFieldLabel}}</text>
+      </view>
+      <input
+        wx:if="{{dialogFieldInputType === 'text'}}"
+        class="publish-field-dialog__input"
+        value="{{dialogFieldValue}}"
+        placeholder="{{dialogFieldPlaceholder}}"
+        placeholder-class="publish-placeholder"
+        maxlength="50"
+        focus
+        bindinput="handleDialogFieldInput"
+      />
+
+      <textarea
+        wx:else
+        class="publish-field-dialog__textarea"
+        value="{{dialogFieldValue}}"
+        placeholder="{{dialogFieldPlaceholder}}"
+        placeholder-class="publish-placeholder"
+        maxlength="120"
+        auto-height
+        focus
+        bindinput="handleDialogFieldInput"
+      />
+
+      <view class="publish-field-dialog__actions">
+        <view
+          class="publish-field-dialog__action publish-field-dialog__action--ghost"
+          bindtap="closeFieldDialog"
+        >
+          取消
+        </view>
+        <view
+          class="publish-field-dialog__action publish-field-dialog__action--primary"
+          bindtap="confirmFieldDialog"
+        >
+          确定
+        </view>
+      </view>
+    </view>
   </view>
 </view>

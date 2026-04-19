@@ -26,7 +26,7 @@ type FieldConfig = {
 type FieldValues = Record<PublishFieldKey, string>;
 type FieldView = FieldConfig & {
   value: string;
-  isActive: boolean;
+  optionIndex: number;
 };
 
 const tabs = [
@@ -134,7 +134,7 @@ const emptyFieldValues: FieldValues = {
   resaleDelivery: "",
 };
 
-function buildFieldViews(currentTab: PublishTab, values: FieldValues, activeFieldKey: string) {
+function buildFieldViews(currentTab: PublishTab, values: FieldValues) {
   if (currentTab === "PET_SOCIAL") {
     return [] as FieldView[];
   }
@@ -142,7 +142,7 @@ function buildFieldViews(currentTab: PublishTab, values: FieldValues, activeFiel
   return fieldGroups[currentTab].map((field) => ({
     ...field,
     value: values[field.key],
-    isActive: activeFieldKey === field.key,
+    optionIndex: Math.max((field.options ?? []).indexOf(values[field.key]), 0),
   }));
 }
 
@@ -176,18 +176,17 @@ Page({
     fieldValues: emptyFieldValues,
     fieldGroups,
     currentFields: [] as FieldView[],
-    activeFieldKey: "",
-    activeFieldLabel: "",
-    activeFieldValue: "",
-    activeFieldPlaceholder: "",
-    activeFieldOptions: [] as string[],
-    activeFieldOptionIndex: 0,
-    activeFieldInputType: "text" as FieldInputType,
+    isFieldDialogVisible: false,
+    dialogFieldKey: "",
+    dialogFieldLabel: "",
+    dialogFieldValue: "",
+    dialogFieldPlaceholder: "",
+    dialogFieldInputType: "text" as FieldInputType,
     isPublishEnabled: false,
   },
 
   onLoad() {
-    this.refreshFieldViews("PET_SOCIAL", emptyFieldValues, "", "", "");
+    this.refreshFieldViews("PET_SOCIAL", emptyFieldValues, "", "");
   },
 
   switchTab(event: WechatMiniprogram.BaseEvent) {
@@ -201,7 +200,6 @@ Page({
       this.data.fieldValues as FieldValues,
       this.data.titleInput as string,
       this.data.contentInput as string,
-      "",
     );
   },
 
@@ -212,7 +210,6 @@ Page({
       this.data.fieldValues as FieldValues,
       titleInput,
       this.data.contentInput as string,
-      this.data.activeFieldKey as string,
     );
   },
 
@@ -223,11 +220,10 @@ Page({
       this.data.fieldValues as FieldValues,
       this.data.titleInput as string,
       contentInput,
-      this.data.activeFieldKey as string,
     );
   },
 
-  activateField(event: WechatMiniprogram.BaseEvent) {
+  openFieldDialog(event: WechatMiniprogram.BaseEvent) {
     const { fieldKey } = event.currentTarget.dataset as { fieldKey?: string };
     const currentTab = this.data.currentTab as PublishTab;
     if (!fieldKey || currentTab === "PET_SOCIAL") {
@@ -240,54 +236,72 @@ Page({
     }
 
     const fieldValues = this.data.fieldValues as FieldValues;
-    const activeFieldValue = fieldValues[field.key];
-    const activeFieldOptions = field.options ?? [];
 
     this.setData({
-      activeFieldKey: field.key,
-      activeFieldLabel: field.label,
-      activeFieldValue,
-      activeFieldPlaceholder: field.placeholder,
-      activeFieldOptions,
-      activeFieldOptionIndex: Math.max(activeFieldOptions.indexOf(activeFieldValue), 0),
-      activeFieldInputType: field.inputType,
-      currentFields: buildFieldViews(currentTab, fieldValues, field.key),
+      isFieldDialogVisible: true,
+      dialogFieldKey: field.key,
+      dialogFieldLabel: field.label,
+      dialogFieldValue: fieldValues[field.key],
+      dialogFieldPlaceholder: field.placeholder,
+      dialogFieldInputType: field.inputType,
     });
   },
 
-  handleFieldInput(event: WechatMiniprogram.CustomEvent<{ value?: string }>) {
+  handleDialogFieldInput(event: WechatMiniprogram.CustomEvent<{ value?: string }>) {
     const value = event.detail.value ?? "";
-    const activeFieldKey = this.data.activeFieldKey as PublishFieldKey | "";
-    if (!activeFieldKey) {
-      return;
-    }
-
-    const nextValues = {
-      ...(this.data.fieldValues as FieldValues),
-      [activeFieldKey]: value,
-    };
-
-    this.refreshFieldViews(
-      this.data.currentTab as PublishTab,
-      nextValues,
-      this.data.titleInput as string,
-      this.data.contentInput as string,
-      activeFieldKey,
-    );
+    this.setData({
+      dialogFieldValue: value,
+    });
   },
 
   handleFieldPickerChange(event: WechatMiniprogram.CustomEvent<{ value?: string | number }>) {
-    const activeFieldKey = this.data.activeFieldKey as PublishFieldKey | "";
-    if (!activeFieldKey) {
+    const { fieldKey } = event.currentTarget.dataset as { fieldKey?: PublishFieldKey };
+    const currentTab = this.data.currentTab as PublishTab;
+    if (!fieldKey || currentTab === "PET_SOCIAL") {
       return;
     }
 
-    const options = this.data.activeFieldOptions as string[];
+    const field = findFieldConfig(currentTab, fieldKey);
+    if (!field) {
+      return;
+    }
+
+    const options = field.options ?? [];
     const optionIndex = Number(event.detail.value ?? 0);
     const nextValue = options[optionIndex] ?? "";
     const nextValues = {
       ...(this.data.fieldValues as FieldValues),
-      [activeFieldKey]: nextValue,
+      [fieldKey]: nextValue,
+    };
+
+    this.refreshFieldViews(
+      currentTab,
+      nextValues,
+      this.data.titleInput as string,
+      this.data.contentInput as string,
+    );
+  },
+
+  closeFieldDialog() {
+    this.setData({
+      isFieldDialogVisible: false,
+      dialogFieldKey: "",
+      dialogFieldLabel: "",
+      dialogFieldValue: "",
+      dialogFieldPlaceholder: "",
+      dialogFieldInputType: "text",
+    });
+  },
+
+  confirmFieldDialog() {
+    const dialogFieldKey = this.data.dialogFieldKey as PublishFieldKey | "";
+    if (!dialogFieldKey) {
+      return;
+    }
+
+    const nextValues = {
+      ...(this.data.fieldValues as FieldValues),
+      [dialogFieldKey]: this.data.dialogFieldValue as string,
     };
 
     this.refreshFieldViews(
@@ -295,22 +309,9 @@ Page({
       nextValues,
       this.data.titleInput as string,
       this.data.contentInput as string,
-      activeFieldKey,
     );
 
-    this.setData({
-      activeFieldOptionIndex: optionIndex,
-    });
-  },
-
-  finishFieldEdit() {
-    this.refreshFieldViews(
-      this.data.currentTab as PublishTab,
-      this.data.fieldValues as FieldValues,
-      this.data.titleInput as string,
-      this.data.contentInput as string,
-      "",
-    );
+    this.closeFieldDialog();
   },
 
   handleImageTap() {
@@ -340,25 +341,13 @@ Page({
     values: FieldValues,
     titleInput: string,
     contentInput: string,
-    activeFieldKey: string,
   ) {
-    const field = findFieldConfig(currentTab, activeFieldKey);
-    const activeFieldOptions = field?.options ?? [];
-    const activeFieldValue = field && activeFieldKey ? values[field.key] : "";
-
     this.setData({
       currentTab,
       titleInput,
       contentInput,
       fieldValues: values,
-      currentFields: buildFieldViews(currentTab, values, activeFieldKey),
-      activeFieldKey,
-      activeFieldLabel: field?.label ?? "",
-      activeFieldPlaceholder: field?.placeholder ?? "",
-      activeFieldOptions,
-      activeFieldOptionIndex: Math.max(activeFieldOptions.indexOf(activeFieldValue), 0),
-      activeFieldInputType: field?.inputType ?? "text",
-      activeFieldValue,
+      currentFields: buildFieldViews(currentTab, values),
       isPublishEnabled: isPublishEnabled(currentTab, titleInput, contentInput, values),
     });
   },

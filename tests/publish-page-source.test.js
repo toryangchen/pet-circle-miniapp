@@ -17,6 +17,7 @@ test("publish page uses local-only four-tab form state", () => {
   assert.equal(source.includes('{ key: "HOME_VISIT", label: "#上门喂养" }'), true);
   assert.equal(source.includes('{ key: "RESALE", label: "#二手闲置" }'), true);
   assert.equal(source.includes("fieldGroups"), true);
+  assert.equal(source.includes("isFieldDialogVisible"), true);
   assert.equal(source.includes("isPublishEnabled"), true);
 });
 
@@ -39,10 +40,13 @@ test("publish page template renders editable local form shell", () => {
   assert.equal(source.includes('placeholder="添加正文或发语音"'), true);
   assert.equal(source.includes('maxlength="500"\n        auto-height'), false);
   assert.equal(source.includes('wx:if="{{currentTab !== \'PET_SOCIAL\'}}"'), true);
-  assert.equal(source.includes('bindtap="activateField"'), true);
-  assert.equal(source.includes('bindinput="handleFieldInput"'), true);
+  assert.equal(source.includes('bindtap="openFieldDialog"'), true);
+  assert.equal(source.includes('bindinput="handleDialogFieldInput"'), true);
   assert.equal(source.includes('bindchange="handleFieldPickerChange"'), true);
+  assert.equal(source.includes('wx:if="{{item.inputType === \'picker\'}}"'), true);
+  assert.equal(source.includes('class="publish-field-dialog__mask"'), true);
   assert.equal(source.includes('src="/assets/icon-arrow-right.png"'), true);
+  assert.equal(source.includes("publish-field-editor"), false);
 });
 
 test("publish page footer styles use muted disabled treatment", () => {
@@ -52,8 +56,9 @@ test("publish page footer styles use muted disabled treatment", () => {
   assert.equal(source.includes("color: #a2978c;"), true);
   assert.equal(source.includes("font-size: 22rpx;"), true);
   assert.equal(source.includes(".publish-footer__button--disabled"), true);
-  assert.equal(source.includes("background: #e6ded2;"), true);
-  assert.equal(source.includes("color: #ffffff;"), true);
+  assert.equal(source.includes("background-color: #40a200 !important;"), true);
+  assert.equal(source.includes("color: #ffffff !important;"), true);
+  assert.equal(source.includes("opacity: 0.6;"), true);
   assert.equal(source.includes(".publish-field-row__arrow-icon"), true);
-  assert.equal(source.includes("height: 220rpx;"), true);
+  assert.equal(source.includes("max-height: 360rpx;"), true);
 });
