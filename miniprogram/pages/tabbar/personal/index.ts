@@ -150,13 +150,8 @@ Page({
   },
 
   goCreate() {
-    wx.switchTab({
+    wx.navigateTo({
       url: "/pages/publish/index",
-      fail: () => {
-        wx.reLaunch({
-          url: "/pages/publish/index",
-        });
-      },
     });
   },
 });

@@ -1,85 +1,116 @@
-<view class="pc-screen publish-screen">
-  <view class="publish-topbar">
-    <view class="pc-topbar__status">
-      <text>9:41</text>
-      <text>5G 100%</text>
-    </view>
-    <view class="pc-topbar__nav">
-      <view class="pc-topbar__ghost"></view>
-      <text class="pc-topbar__title">{{title}}</text>
-      <view class="pc-topbar__ghost"></view>
-    </view>
-  </view>
-
-  <scroll-view class="publish-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="pc-page-body">
-      <view class="publish-intro">
-        <view class="pc-chip pc-chip--warm">统一发布入口</view>
-        <text class="publish-intro__title">这次想发布什么？</text>
-        <text class="publish-intro__summary"
-          >先选择内容类型，再进入对应表单。宠物圈偏分享，服务和闲置更偏本地信息发布。</text
-        >
+<navigation-bar back title="发布" background="#ffffff"></navigation-bar>
+<view class="publish-screen">
+  <view class="pc-page-body publish-body">
+    <view class="publish-panel">
+      <view class="publish-media-row">
+        <view class="publish-media publish-media--adder" bindtap="handleImageTap">
+          <text class="publish-media__plus">+</text>
+        </view>
       </view>
 
-      <view class="publish-switch">
+      <input
+        class="publish-title-input"
+        placeholder="添加标题"
+        placeholder-class="publish-placeholder"
+        value="{{titleInput}}"
+        maxlength="30"
+        bindinput="handleTitleInput"
+      />
+
+      <textarea
+        class="publish-content-input"
+        placeholder="添加正文或发语音"
+        placeholder-class="publish-placeholder"
+        value="{{contentInput}}"
+        maxlength="500"
+        bindinput="handleContentInput"
+      />
+    </view>
+
+    <scroll-view class="publish-tab-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="publish-tabs">
         <view
           wx:for="{{tabs}}"
           wx:key="key"
-          class="publish-switch__item {{item.key === currentType ? 'publish-switch__item--active' : ''}}"
+          class="publish-tab {{item.key === currentTab ? 'publish-tab--active' : ''}}"
           data-key="{{item.key}}"
-          bindtap="switchType"
+          bindtap="switchTab"
         >
           {{item.label}}
         </view>
       </view>
+    </scroll-view>
 
-      <view class="publish-type-list">
-        <view
-          wx:for="{{publishTypes}}"
-          wx:key="key"
-          class="publish-type-card {{item.key === currentType ? 'publish-type-card--active' : ''}}"
-        >
-          <view class="publish-type-card__icon">
-            <text>+</text>
-          </view>
-          <view class="publish-type-card__body">
-            <text class="publish-type-card__title">{{item.title}}</text>
-            <text class="publish-type-card__summary">{{item.description}}</text>
-            <view class="publish-type-card__chip">{{item.chip}}</view>
-          </view>
-        </view>
-      </view>
-
-      <view class="publish-form pc-card">
-        <view class="publish-form__head">
-          <text class="publish-form__title">服务表单预览</text>
-          <text class="publish-form__hint">后续接后端时这里会切换成真实输入项</text>
-        </view>
-
-        <view class="publish-form__fields">
-          <view wx:for="{{fields}}" wx:key="label" class="publish-field">
-            <text class="publish-field__label">{{item.label}}</text>
-            <text class="publish-field__value">{{item.value}}</text>
+    <view wx:if="{{currentTab !== 'PET_SOCIAL'}}" class="publish-form-card">
+      <view wx:for="{{currentFields}}" wx:key="key" class="publish-field-block">
+        <view class="publish-field-row" data-field-key="{{item.key}}" bindtap="activateField">
+          <text class="publish-field-row__label">{{item.label}}</text>
+          <view class="publish-field-row__value-wrap">
+            <view
+              class="publish-field-row__value {{!item.value ? 'publish-field-row__value--placeholder' : ''}}"
+            >
+              {{item.value || item.placeholder}}
+            </view>
+            <image
+              class="publish-field-row__arrow-icon"
+              src="/assets/icon-arrow-right.png"
+              mode="aspectFit"
+            ></image>
           </view>
         </view>
 
-        <view class="publish-form__bottom">
-          <view class="publish-form__tip">人工审核后即发布成功，预计 3 - 5 分钟完成审核。</view>
-          <view wx:if="{{submitState}}" class="publish-form__status">{{submitState}}</view>
-          <button
-            wx:if="{{!phoneAuthorized}}"
-            class="publish-form__button publish-form__button--action"
-            open-type="getPhoneNumber"
-            bindgetphonenumber="handleGetPhoneNumber"
-            loading="{{isAuthorizingPhone}}"
+        <view wx:if="{{item.isActive}}" class="publish-field-editor">
+          <picker
+            wx:if="{{item.inputType === 'picker'}}"
+            range="{{activeFieldOptions}}"
+            value="{{activeFieldOptionIndex}}"
+            bindchange="handleFieldPickerChange"
           >
-            {{isAuthorizingPhone ? '授权中...' : '授权手机号后发布'}}
-          </button>
-          <view wx:else class="publish-form__button" bindtap="submitDraft">
-            {{isSubmitting ? '提交中...' : '发布'}}
+            <view class="publish-field-picker">点击选择{{activeFieldLabel}}</view>
+          </picker>
+
+          <input
+            wx:elif="{{item.inputType === 'text'}}"
+            class="publish-field-input"
+            value="{{activeFieldValue}}"
+            placeholder="{{activeFieldPlaceholder}}"
+            placeholder-class="publish-placeholder"
+            maxlength="50"
+            focus
+            bindinput="handleFieldInput"
+          />
+
+          <textarea
+            wx:else
+            class="publish-field-textarea"
+            value="{{activeFieldValue}}"
+            placeholder="{{activeFieldPlaceholder}}"
+            placeholder-class="publish-placeholder"
+            maxlength="120"
+            auto-height
+            focus
+            bindinput="handleFieldInput"
+          />
+
+          <view class="publish-field-editor__footer">
+            <text class="publish-field-editor__done" bindtap="finishFieldEdit">完成</text>
           </view>
         </view>
       </view>
     </view>
-  </scroll-view>
+  </view>
+
+  <view class="publish-footer">
+    <view class="publish-footer__tip">
+      <view>人工审核后即发布成功，</view>
+      <view>预计 3 ~ 5 分钟完成审核</view>
+    </view>
+    <button
+      class="publish-footer__button {{isPublishEnabled ? 'publish-footer__button--enabled' : 'publish-footer__button--disabled'}}"
+      disabled="{{!isPublishEnabled}}"
+      bindtap="previewPublish"
+    >
+      发布
+    </button>
+  </view>
 </view>

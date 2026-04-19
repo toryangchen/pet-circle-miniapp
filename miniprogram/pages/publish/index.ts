@@ -1,259 +1,365 @@
-import type { PublishDraftType, PublishResult } from "@utils/api-types";
-import { mockPublishTypes } from "@utils/mock-api";
-import { requestWithAuth } from "@utils/request";
-import {
-  bootstrapSession,
-  ensurePhoneAuthorized,
-  getAuthState,
-  syncCurrentUser,
-} from "@utils/session";
+type PublishTab = "PET_SOCIAL" | "FOSTER" | "HOME_VISIT" | "RESALE";
+type StructuredPublishTab = Exclude<PublishTab, "PET_SOCIAL">;
+type FieldInputType = "text" | "textarea" | "picker";
+type PublishFieldKey =
+  | "fosterPetType"
+  | "fosterNeed"
+  | "fosterPickup"
+  | "fosterBudget"
+  | "homeVisitArea"
+  | "homeVisitTime"
+  | "homeVisitPrice"
+  | "homeVisitDescription"
+  | "resaleItem"
+  | "resaleCondition"
+  | "resalePrice"
+  | "resaleDelivery";
 
-type DraftField = {
+type FieldConfig = {
+  key: PublishFieldKey;
   label: string;
+  placeholder: string;
+  inputType: FieldInputType;
+  options?: string[];
+};
+
+type FieldValues = Record<PublishFieldKey, string>;
+type FieldView = FieldConfig & {
   value: string;
+  isActive: boolean;
 };
 
-const DEFAULT_POST_IMAGE =
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80";
+const tabs = [
+  { key: "PET_SOCIAL", label: "#宠物圈" },
+  { key: "FOSTER", label: "#寄养领养" },
+  { key: "HOME_VISIT", label: "#上门喂养" },
+  { key: "RESALE", label: "#二手闲置" },
+];
 
-const draftMap: Record<
-  PublishDraftType,
-  {
-    fields: DraftField[];
-    description: string;
-  }
-> = {
-  PET_SOCIAL: {
-    description: "今天带家里猫咪出去晒太阳，真的很乖，想把这份柔软分享给更多宠友。",
-    fields: [
-      { label: "标题", value: "猫咪春天第一次出门晒太阳" },
-      { label: "城市", value: "西安" },
-      {
-        label: "内容",
-        value: "宠物日常、救助故事和社区分享会走宠物圈内容审核。",
-      },
-      { label: "图片", value: "默认带 1 张占位封面，后续切真上传。" },
-    ],
-  },
-  SERVICE: {
-    description: "家里两只英短，提供上门喂食、换水和简单陪玩。",
-    fields: [
-      { label: "标题", value: "西安高新区可上门喂猫，五一假期可接单" },
-      { label: "城市", value: "西安" },
-      { label: "联系方式", value: "手机号授权后自动展示联系入口" },
-      { label: "描述", value: "家里两只英短，提供上门喂食、换水和简单陪玩。" },
-    ],
-  },
-  RESALE: {
-    description: "家里闲置猫爬架和饮水机，成色很好，支持同城自提。",
-    fields: [
-      { label: "标题", value: "二手猫爬架和饮水机，同城自提" },
-      { label: "城市", value: "西安" },
-      { label: "联系方式", value: "受控联系申请后展示" },
-      { label: "描述", value: "会以闲置服务类型提交，后续接真实二手字段。" },
-    ],
-  },
+const fieldGroups: Record<StructuredPublishTab, FieldConfig[]> = {
+  FOSTER: [
+    {
+      key: "fosterPetType",
+      label: "宠物类型",
+      placeholder: "猫咪",
+      inputType: "picker",
+      options: ["猫咪", "狗狗", "异宠", "其他"],
+    },
+    {
+      key: "fosterNeed",
+      label: "服务诉求",
+      placeholder: "找人帮忙照看",
+      inputType: "text",
+    },
+    {
+      key: "fosterPickup",
+      label: "是否可上门",
+      placeholder: "可商议",
+      inputType: "picker",
+      options: ["可商议", "可上门接送", "需自行送宠"],
+    },
+    {
+      key: "fosterBudget",
+      label: "预算范围",
+      placeholder: "300元/天起",
+      inputType: "text",
+    },
+  ],
+  HOME_VISIT: [
+    {
+      key: "homeVisitArea",
+      label: "服务区域",
+      placeholder: "雁塔区附近优先",
+      inputType: "text",
+    },
+    {
+      key: "homeVisitTime",
+      label: "可上门时间",
+      placeholder: "工作日晚间 / 周末全天",
+      inputType: "text",
+    },
+    {
+      key: "homeVisitPrice",
+      label: "参考价格",
+      placeholder: "80元 / 次",
+      inputType: "text",
+    },
+    {
+      key: "homeVisitDescription",
+      label: "服务说明",
+      placeholder: "喂饭、换水、清理砂盆",
+      inputType: "textarea",
+    },
+  ],
+  RESALE: [
+    {
+      key: "resaleItem",
+      label: "闲置物品",
+      placeholder: "猫抓板 / 猫爬架 / 宠物包",
+      inputType: "text",
+    },
+    {
+      key: "resaleCondition",
+      label: "新旧程度",
+      placeholder: "9成新，功能完好",
+      inputType: "text",
+    },
+    {
+      key: "resalePrice",
+      label: "价格",
+      placeholder: "120元，可小刀",
+      inputType: "text",
+    },
+    {
+      key: "resaleDelivery",
+      label: "交易方式",
+      placeholder: "西安同城自提 / 核验自取",
+      inputType: "text",
+    },
+  ],
 };
 
-function buildPublishRequest(currentType: PublishDraftType, draft: { fields: DraftField[]; description: string }) {
-  if (currentType === "PET_SOCIAL") {
-    return {
-      type: "PET_SOCIAL",
-      title: draft.fields[0].value,
-      content: draft.description,
-      city: draft.fields[1].value,
-      images: [DEFAULT_POST_IMAGE],
-    };
+const emptyFieldValues: FieldValues = {
+  fosterPetType: "",
+  fosterNeed: "",
+  fosterPickup: "",
+  fosterBudget: "",
+  homeVisitArea: "",
+  homeVisitTime: "",
+  homeVisitPrice: "",
+  homeVisitDescription: "",
+  resaleItem: "",
+  resaleCondition: "",
+  resalePrice: "",
+  resaleDelivery: "",
+};
+
+function buildFieldViews(currentTab: PublishTab, values: FieldValues, activeFieldKey: string) {
+  if (currentTab === "PET_SOCIAL") {
+    return [] as FieldView[];
   }
 
-  if (currentType === "RESALE") {
-    return {
-      type: "SERVICE",
-      serviceCategory: "SECOND_HAND",
-      title: draft.fields[0].value,
-      content: draft.description,
-      city: draft.fields[1].value,
-      images: [DEFAULT_POST_IMAGE],
-      contact: {
-        wechatId: "mock-wechat",
-      },
-      secondHandDetail: {
-        itemType: "闲置",
-        itemCondition: "良好",
-        price: "面议",
-      },
-    };
-  }
-
-  return {
-    type: "SERVICE",
-    serviceCategory: "HOME_FEEDING",
-    title: draft.fields[0].value,
-    content: draft.description,
-    city: draft.fields[1].value,
-    images: [DEFAULT_POST_IMAGE],
-    contact: {
-      wechatId: "mock-wechat",
-      phone: "13800000000",
-    },
-    homeFeedingDetail: {
-      serviceArea: "西安市区",
-      availableTime: "工作日晚间",
-      price: "30",
-    },
-  };
+  return fieldGroups[currentTab].map((field) => ({
+    ...field,
+    value: values[field.key],
+    isActive: activeFieldKey === field.key,
+  }));
 }
 
-async function submitPublishDraft(currentType: PublishDraftType, draft: { fields: DraftField[]; description: string }) {
-  return requestWithAuth<PublishResult>({
-    method: "POST",
-    path: "/posts",
-    data: buildPublishRequest(currentType, draft),
-  });
+function isPublishEnabled(currentTab: PublishTab, titleInput: string, contentInput: string, values: FieldValues) {
+  if (!titleInput.trim() || !contentInput.trim()) {
+    return false;
+  }
+
+  if (currentTab === "PET_SOCIAL") {
+    return true;
+  }
+
+  return fieldGroups[currentTab].every((field) => values[field.key].trim());
+}
+
+function findFieldConfig(currentTab: PublishTab, fieldKey: string) {
+  if (currentTab === "PET_SOCIAL") {
+    return null;
+  }
+
+  return fieldGroups[currentTab].find((field) => field.key === fieldKey) ?? null;
 }
 
 Page({
   data: {
     title: "发布",
-    currentType: "SERVICE" as PublishDraftType,
-    tabs: [
-      { key: "PET_SOCIAL", label: "宠物圈" },
-      { key: "SERVICE", label: "服务" },
-      { key: "RESALE", label: "闲置" },
-    ],
-    publishTypes: mockPublishTypes,
-    fields: draftMap.SERVICE.fields,
-    submitState: "",
-    isSubmitting: false,
-    isAuthorizingPhone: false,
-    phoneAuthorized: false,
+    currentTab: "PET_SOCIAL" as PublishTab,
+    tabs,
+    titleInput: "",
+    contentInput: "",
+    fieldValues: emptyFieldValues,
+    fieldGroups,
+    currentFields: [] as FieldView[],
+    activeFieldKey: "",
+    activeFieldLabel: "",
+    activeFieldValue: "",
+    activeFieldPlaceholder: "",
+    activeFieldOptions: [] as string[],
+    activeFieldOptionIndex: 0,
+    activeFieldInputType: "text" as FieldInputType,
+    isPublishEnabled: false,
   },
 
-  async onLoad() {
-    await this.syncAuthState();
+  onLoad() {
+    this.refreshFieldViews("PET_SOCIAL", emptyFieldValues, "", "", "");
   },
 
-  async onShow() {
-    await this.syncAuthState();
-  },
-
-  switchType(event: WechatMiniprogram.BaseEvent) {
-    const { key } = event.currentTarget.dataset as { key?: PublishDraftType };
+  switchTab(event: WechatMiniprogram.BaseEvent) {
+    const { key } = event.currentTarget.dataset as { key?: PublishTab };
     if (!key) {
       return;
     }
 
-    this.setData({
-      currentType: key,
-      fields: draftMap[key].fields,
-      submitState: "",
-    });
+    this.refreshFieldViews(
+      key,
+      this.data.fieldValues as FieldValues,
+      this.data.titleInput as string,
+      this.data.contentInput as string,
+      "",
+    );
   },
 
-  async submitDraft() {
-    if (this.data.isSubmitting) {
+  handleTitleInput(event: WechatMiniprogram.CustomEvent<{ value?: string }>) {
+    const titleInput = event.detail.value ?? "";
+    this.refreshFieldViews(
+      this.data.currentTab as PublishTab,
+      this.data.fieldValues as FieldValues,
+      titleInput,
+      this.data.contentInput as string,
+      this.data.activeFieldKey as string,
+    );
+  },
+
+  handleContentInput(event: WechatMiniprogram.CustomEvent<{ value?: string }>) {
+    const contentInput = event.detail.value ?? "";
+    this.refreshFieldViews(
+      this.data.currentTab as PublishTab,
+      this.data.fieldValues as FieldValues,
+      this.data.titleInput as string,
+      contentInput,
+      this.data.activeFieldKey as string,
+    );
+  },
+
+  activateField(event: WechatMiniprogram.BaseEvent) {
+    const { fieldKey } = event.currentTarget.dataset as { fieldKey?: string };
+    const currentTab = this.data.currentTab as PublishTab;
+    if (!fieldKey || currentTab === "PET_SOCIAL") {
       return;
     }
 
-    if (!this.data.phoneAuthorized) {
+    const field = findFieldConfig(currentTab, fieldKey);
+    if (!field) {
+      return;
+    }
+
+    const fieldValues = this.data.fieldValues as FieldValues;
+    const activeFieldValue = fieldValues[field.key];
+    const activeFieldOptions = field.options ?? [];
+
+    this.setData({
+      activeFieldKey: field.key,
+      activeFieldLabel: field.label,
+      activeFieldValue,
+      activeFieldPlaceholder: field.placeholder,
+      activeFieldOptions,
+      activeFieldOptionIndex: Math.max(activeFieldOptions.indexOf(activeFieldValue), 0),
+      activeFieldInputType: field.inputType,
+      currentFields: buildFieldViews(currentTab, fieldValues, field.key),
+    });
+  },
+
+  handleFieldInput(event: WechatMiniprogram.CustomEvent<{ value?: string }>) {
+    const value = event.detail.value ?? "";
+    const activeFieldKey = this.data.activeFieldKey as PublishFieldKey | "";
+    if (!activeFieldKey) {
+      return;
+    }
+
+    const nextValues = {
+      ...(this.data.fieldValues as FieldValues),
+      [activeFieldKey]: value,
+    };
+
+    this.refreshFieldViews(
+      this.data.currentTab as PublishTab,
+      nextValues,
+      this.data.titleInput as string,
+      this.data.contentInput as string,
+      activeFieldKey,
+    );
+  },
+
+  handleFieldPickerChange(event: WechatMiniprogram.CustomEvent<{ value?: string | number }>) {
+    const activeFieldKey = this.data.activeFieldKey as PublishFieldKey | "";
+    if (!activeFieldKey) {
+      return;
+    }
+
+    const options = this.data.activeFieldOptions as string[];
+    const optionIndex = Number(event.detail.value ?? 0);
+    const nextValue = options[optionIndex] ?? "";
+    const nextValues = {
+      ...(this.data.fieldValues as FieldValues),
+      [activeFieldKey]: nextValue,
+    };
+
+    this.refreshFieldViews(
+      this.data.currentTab as PublishTab,
+      nextValues,
+      this.data.titleInput as string,
+      this.data.contentInput as string,
+      activeFieldKey,
+    );
+
+    this.setData({
+      activeFieldOptionIndex: optionIndex,
+    });
+  },
+
+  finishFieldEdit() {
+    this.refreshFieldViews(
+      this.data.currentTab as PublishTab,
+      this.data.fieldValues as FieldValues,
+      this.data.titleInput as string,
+      this.data.contentInput as string,
+      "",
+    );
+  },
+
+  handleImageTap() {
+    wx.showToast({
+      title: "界面预览版，暂未接入图片上传",
+      icon: "none",
+    });
+  },
+
+  previewPublish() {
+    if (!(this.data.isPublishEnabled as boolean)) {
       wx.showToast({
-        title: "请先授权手机号",
+        title: "请先补全内容",
         icon: "none",
       });
       return;
     }
 
-    const currentType = this.data.currentType as PublishDraftType;
-    const draft = draftMap[currentType];
-
-    this.setData({
-      isSubmitting: true,
-      submitState: "正在提交草稿...",
+    wx.showToast({
+      title: "界面预览版，暂未接入发布",
+      icon: "none",
     });
-
-    try {
-      const result = await submitPublishDraft(currentType, draft);
-
-      this.setData({
-        submitState: `已提交，当前状态：${result.status}`,
-      });
-
-      wx.showToast({
-        title: "已进入审核队列",
-        icon: "success",
-      });
-    } catch {
-      this.setData({
-        submitState: "提交失败，已保留当前草稿。",
-      });
-
-      wx.showToast({
-        title: "提交失败",
-        icon: "none",
-      });
-    } finally {
-      this.setData({
-        isSubmitting: false,
-      });
-    }
   },
 
-  async handleGetPhoneNumber(
-    event: WechatMiniprogram.CustomEvent<{ code?: string; errMsg?: string }>,
+  refreshFieldViews(
+    currentTab: PublishTab,
+    values: FieldValues,
+    titleInput: string,
+    contentInput: string,
+    activeFieldKey: string,
   ) {
-    const phoneCode = event.detail.code;
-    if (!phoneCode) {
-      wx.showToast({
-        title: "需要手机号授权后才能发布",
-        icon: "none",
-      });
-      return;
-    }
+    const field = findFieldConfig(currentTab, activeFieldKey);
+    const activeFieldOptions = field?.options ?? [];
+    const activeFieldValue = field && activeFieldKey ? values[field.key] : "";
 
     this.setData({
-      isAuthorizingPhone: true,
-      submitState: "正在同步手机号授权...",
-    });
-
-    try {
-      await ensurePhoneAuthorized(phoneCode);
-      await syncCurrentUser();
-      await this.syncAuthState();
-      wx.showToast({
-        title: "授权成功",
-        icon: "success",
-      });
-      await this.submitDraft();
-    } catch (error) {
-      this.setData({
-        submitState: "手机号授权失败，请稍后重试。",
-      });
-      wx.showToast({
-        title: error instanceof Error ? error.message : "手机号授权失败",
-        icon: "none",
-      });
-    } finally {
-      this.setData({
-        isAuthorizingPhone: false,
-      });
-    }
-  },
-
-  async syncAuthState() {
-    await bootstrapSession();
-    const state = getAuthState();
-    if (state.isAuthenticated) {
-      try {
-        await syncCurrentUser();
-      } catch {
-        // Keep the last known auth state; publish gating only trusts phoneAuthorized below.
-      }
-    }
-
-    const nextState = getAuthState();
-    this.setData({
-      phoneAuthorized: nextState.phoneAuthorized,
-      submitState: nextState.phoneAuthorized ? "" : "发布前需先完成手机号授权。",
+      currentTab,
+      titleInput,
+      contentInput,
+      fieldValues: values,
+      currentFields: buildFieldViews(currentTab, values, activeFieldKey),
+      activeFieldKey,
+      activeFieldLabel: field?.label ?? "",
+      activeFieldPlaceholder: field?.placeholder ?? "",
+      activeFieldOptions,
+      activeFieldOptionIndex: Math.max(activeFieldOptions.indexOf(activeFieldValue), 0),
+      activeFieldInputType: field?.inputType ?? "text",
+      activeFieldValue,
+      isPublishEnabled: isPublishEnabled(currentTab, titleInput, contentInput, values),
     });
   },
 });
