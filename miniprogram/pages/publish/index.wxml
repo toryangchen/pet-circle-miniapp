@@ -2,11 +2,32 @@
 <view class="publish-screen">
   <view class="pc-page-body publish-body">
     <view class="publish-panel">
-      <view class="publish-media-row">
-        <view class="publish-media publish-media--adder" bindtap="handleImageTap">
+      <view class="publish-image-grid" id="publish-image-grid">
+        <view
+          wx:for="{{imageList}}"
+          wx:key="id"
+          class="publish-image-card {{draggingImageId === item.id ? 'publish-image-card--dragging' : ''}}"
+          data-image-id="{{item.id}}"
+          data-index="{{index}}"
+          bindlongpress="startImageDrag"
+          catchtouchmove="onImageDragMove"
+          bindtouchend="finishImageDrag"
+          bindtouchcancel="finishImageDrag"
+        >
+          <image class="publish-image-card__image" src="{{item.previewUrl}}" mode="aspectFill"></image>
+          <view wx:if="{{item.uploadStatus !== 'success'}}" class="publish-image-card__status">
+            {{item.uploadStatus === 'uploading' ? '上传中' : '上传失败'}}
+          </view>
+          <view class="publish-image-card__remove" data-image-id="{{item.id}}" catchtap="removeImage">
+            <text>×</text>
+          </view>
+        </view>
+
+        <view wx:if="{{imageList.length < maxImageCount}}" class="publish-media publish-media--adder" bindtap="handleImageTap">
           <text class="publish-media__plus">+</text>
         </view>
       </view>
+      <text class="publish-image-tip">最多上传3张，可长按拖动排序</text>
 
       <input
         class="publish-title-input"
@@ -101,7 +122,7 @@
       disabled="{{!isPublishEnabled}}"
       bindtap="previewPublish"
     >
-      发布
+      {{isSubmitting ? '发布中...' : '发布'}}
     </button>
   </view>
 

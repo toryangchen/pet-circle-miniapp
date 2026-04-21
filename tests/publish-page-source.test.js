@@ -24,11 +24,15 @@ test("publish page uses local-only four-tab form state", () => {
 test("publish page no longer depends on auth or request helpers", () => {
   const source = read("pages/publish/index.ts");
 
-  assert.equal(source.includes("requestWithAuth"), false);
   assert.equal(source.includes("ensurePhoneAuthorized"), false);
   assert.equal(source.includes("bootstrapSession"), false);
   assert.equal(source.includes("submitPublishDraft"), false);
-  assert.equal(source.includes('title: "界面预览版，暂未接入发布"'), true);
+  assert.equal(source.includes("requestWithAuth"), true);
+  assert.equal(source.includes("uploadImageToCos"), true);
+  assert.equal(source.includes("wx.compressImage"), true);
+  assert.equal(source.includes("wx.showActionSheet"), true);
+  assert.equal(source.includes("kind: \"post-image\""), true);
+  assert.equal(source.includes("images: uploadedImages.map((item) => item.url)"), true);
 });
 
 test("publish page template renders editable local form shell", () => {
@@ -36,6 +40,12 @@ test("publish page template renders editable local form shell", () => {
 
   assert.equal(source.includes('<navigation-bar back title="发布" background="#ffffff"></navigation-bar>'), true);
   assert.equal(source.includes('<scroll-view class="publish-scroll" scroll-y enhanced show-scrollbar="{{false}}">'), false);
+  assert.equal(source.includes('class="publish-image-grid"'), true);
+  assert.equal(source.includes('bindtap="handleImageTap"'), true);
+  assert.equal(source.includes('catchtap="removeImage"'), true);
+  assert.equal(source.includes('bindlongpress="startImageDrag"'), true);
+  assert.equal(source.includes('catchtouchmove="onImageDragMove"'), true);
+  assert.equal(source.includes('bindtouchend="finishImageDrag"'), true);
   assert.equal(source.includes('placeholder="添加标题"'), true);
   assert.equal(source.includes('placeholder="添加正文或发语音"'), true);
   assert.equal(source.includes('maxlength="500"\n        auto-height'), false);
@@ -47,6 +57,19 @@ test("publish page template renders editable local form shell", () => {
   assert.equal(source.includes('class="publish-field-dialog__mask"'), true);
   assert.equal(source.includes('src="/assets/icon-arrow-right.png"'), true);
   assert.equal(source.includes("publish-field-editor"), false);
+});
+
+test("publish page limits images and tracks upload state", () => {
+  const source = read("pages/publish/index.ts");
+
+  assert.equal(source.includes("const MAX_UPLOAD_IMAGES = 3;"), true);
+  assert.equal(source.includes("imageList"), true);
+  assert.equal(source.includes("uploadStatus"), true);
+  assert.equal(source.includes("wx.chooseMedia"), true);
+  assert.equal(source.includes("count: remainingCount"), true);
+  assert.equal(source.includes("最多上传3张图片"), true);
+  assert.equal(source.includes("startImageDrag"), true);
+  assert.equal(source.includes("finishImageDrag"), true);
 });
 
 test("publish page footer styles use muted disabled treatment", () => {
