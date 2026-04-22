@@ -14,16 +14,28 @@
           bindtouchend="finishImageDrag"
           bindtouchcancel="finishImageDrag"
         >
-          <image class="publish-image-card__image" src="{{item.previewUrl}}" mode="aspectFill"></image>
+          <image
+            class="publish-image-card__image"
+            src="{{item.previewUrl}}"
+            mode="aspectFill"
+          ></image>
           <view wx:if="{{item.uploadStatus !== 'success'}}" class="publish-image-card__status">
             {{item.uploadStatus === 'uploading' ? '上传中' : '上传失败'}}
           </view>
-          <view class="publish-image-card__remove" data-image-id="{{item.id}}" catchtap="removeImage">
+          <view
+            class="publish-image-card__remove"
+            data-image-id="{{item.id}}"
+            catchtap="removeImage"
+          >
             <text>×</text>
           </view>
         </view>
 
-        <view wx:if="{{imageList.length < maxImageCount}}" class="publish-media publish-media--adder" bindtap="handleImageTap">
+        <view
+          wx:if="{{imageList.length < maxImageCount}}"
+          class="publish-media publish-media--adder"
+          bindtap="handleImageTap"
+        >
           <text class="publish-media__plus">+</text>
         </view>
       </view>
@@ -113,10 +125,6 @@
   </view>
 
   <view class="publish-footer">
-    <view class="publish-footer__tip">
-      <view>人工审核后即发布成功，</view>
-      <view>预计 3 ~ 5 分钟完成审核</view>
-    </view>
     <button
       class="publish-footer__button {{isPublishEnabled ? 'publish-footer__button--enabled' : 'publish-footer__button--disabled'}}"
       disabled="{{!isPublishEnabled}}"

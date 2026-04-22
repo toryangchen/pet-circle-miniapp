@@ -56,7 +56,6 @@ type GridRect = {
 const MAX_UPLOAD_IMAGES = 3;
 const IMAGE_COMPRESS_QUALITY = 80;
 const IMAGE_GAP_RPX = 12;
-const IMAGE_CARD_RPX = 148;
 const IMAGE_SOURCE_OPTIONS = ["从相册选择", "拍照"] as const;
 
 let imageIdSeed = 0;
@@ -227,7 +226,13 @@ function createImageItem(filePath: string): PublishImageItem {
 }
 
 function reorderImages(items: PublishImageItem[], fromIndex: number, toIndex: number) {
-  if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= items.length || toIndex >= items.length) {
+  if (
+    fromIndex === toIndex ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= items.length ||
+    toIndex >= items.length
+  ) {
     return items;
   }
 
@@ -444,10 +449,9 @@ Page({
         count: remainingCount,
         mediaType: ["image"],
         sourceType: tapIndex === 0 ? ["album"] : ["camera"],
-        sizeType: ["original"],
       });
 
-      const tempFiles = result.tempFiles
+      const tempFiles = (result.tempFiles ?? [])
         .map((file) => file.tempFilePath)
         .filter((filePath): filePath is string => Boolean(filePath));
 
@@ -514,7 +518,9 @@ Page({
       return;
     }
 
-    const nextImageList = (this.data.imageList as PublishImageItem[]).filter((item) => item.id !== imageId);
+    const nextImageList = (this.data.imageList as PublishImageItem[]).filter(
+      (item) => item.id !== imageId,
+    );
     this.refreshPageData({
       currentTab: this.data.currentTab as PublishTab,
       fieldValues: this.data.fieldValues as FieldValues,
@@ -548,7 +554,9 @@ Page({
       return;
     }
 
-    const stride = rpx2px(IMAGE_CARD_RPX + IMAGE_GAP_RPX);
+    const gapPx = rpx2px(IMAGE_GAP_RPX);
+    const cardWidth = (this.gridRect.width - gapPx * (MAX_UPLOAD_IMAGES - 1)) / MAX_UPLOAD_IMAGES;
+    const stride = cardWidth + gapPx;
     const relativeX = Math.max(pointX - this.gridRect.left, 0);
     const maxIndex = (this.data.imageList as PublishImageItem[]).length - 1;
     const nextIndex = Math.max(0, Math.min(maxIndex, Math.floor(relativeX / stride)));
@@ -725,7 +733,7 @@ Page({
       });
 
       wx.showToast({
-        title: "已进入审核队列",
+        title: "发布成功",
         icon: "success",
       });
 
@@ -738,6 +746,12 @@ Page({
         contentInput: "",
         imageList: [],
       });
+
+      setTimeout(() => {
+        wx.switchTab({
+          url: "/pages/tabbar/home/index",
+        });
+      }, 300);
     } catch (error) {
       wx.showToast({
         title: error instanceof Error ? error.message : "发布失败",
@@ -784,7 +798,13 @@ Page({
       fieldValues,
       imageList,
       currentFields: buildFieldViews(currentTab, fieldValues),
-      isPublishEnabled: isPublishEnabled(currentTab, titleInput, contentInput, fieldValues, imageList),
+      isPublishEnabled: isPublishEnabled(
+        currentTab,
+        titleInput,
+        contentInput,
+        fieldValues,
+        imageList,
+      ),
     });
   },
 });

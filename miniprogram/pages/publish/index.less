@@ -4,7 +4,6 @@ page {
 
 .publish-screen {
   background: #ffffff;
-  min-height: 100vh;
   box-sizing: border-box;
   padding-bottom: calc(112rpx + env(safe-area-inset-bottom));
 }
@@ -32,23 +31,24 @@ page {
 }
 
 .publish-media {
-  width: 148rpx;
-  height: 148rpx;
+  width: calc((100% - 24rpx) / 3);
+  aspect-ratio: 1 / 1;
   border-radius: 16rpx;
   background: #f0ebe2;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  flex: 0 0 calc((100% - 24rpx) / 3);
 }
 
 .publish-image-card {
   position: relative;
-  width: 148rpx;
-  height: 148rpx;
+  width: calc((100% - 24rpx) / 3);
+  aspect-ratio: 1 / 1;
   border-radius: 16rpx;
   overflow: hidden;
-  flex: 0 0 auto;
+  flex: 0 0 calc((100% - 24rpx) / 3);
   background: #f0ebe2;
 }
 
@@ -124,7 +124,7 @@ page {
 
 .publish-title-input {
   min-height: 58rpx;
-  font-size: 26rpx;
+  font-size: 32rpx;
   line-height: 1.35;
   font-weight: 500;
 }
@@ -133,7 +133,7 @@ page {
   min-height: 180rpx;
   max-height: 360rpx;
   padding-top: 10rpx;
-  font-size: 24rpx;
+  font-size: 28rpx;
   line-height: 1.6;
 }
 
@@ -234,19 +234,8 @@ page {
   gap: 20rpx;
 }
 
-.publish-footer__tip {
-  flex: 1;
-  font-size: 22rpx;
-  line-height: 1.5;
-  color: #a2978c;
-  font-weight: 500;
-  view {
-    text-align: center;
-  }
-}
-
 .publish-footer__button {
-  width: 240rpx;
+  width: 680rpx !important;
   height: 72rpx;
   border-radius: 999rpx;
   padding: 0;

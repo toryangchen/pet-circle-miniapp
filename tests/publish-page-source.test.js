@@ -33,6 +33,8 @@ test("publish page no longer depends on auth or request helpers", () => {
   assert.equal(source.includes("wx.showActionSheet"), true);
   assert.equal(source.includes("kind: \"post-image\""), true);
   assert.equal(source.includes("images: uploadedImages.map((item) => item.url)"), true);
+  assert.equal(source.includes('title: "发布成功"'), true);
+  assert.equal(source.includes('url: "/pages/tabbar/home/index"'), true);
 });
 
 test("publish page template renders editable local form shell", () => {
@@ -57,6 +59,7 @@ test("publish page template renders editable local form shell", () => {
   assert.equal(source.includes('class="publish-field-dialog__mask"'), true);
   assert.equal(source.includes('src="/assets/icon-arrow-right.png"'), true);
   assert.equal(source.includes("publish-field-editor"), false);
+  assert.equal(source.includes("发布成功后将直接展示在首页"), true);
 });
 
 test("publish page limits images and tracks upload state", () => {
@@ -66,6 +69,7 @@ test("publish page limits images and tracks upload state", () => {
   assert.equal(source.includes("imageList"), true);
   assert.equal(source.includes("uploadStatus"), true);
   assert.equal(source.includes("wx.chooseMedia"), true);
+  assert.equal(source.includes("wx.chooseImage"), false);
   assert.equal(source.includes("count: remainingCount"), true);
   assert.equal(source.includes("最多上传3张图片"), true);
   assert.equal(source.includes("startImageDrag"), true);
@@ -84,4 +88,7 @@ test("publish page footer styles use muted disabled treatment", () => {
   assert.equal(source.includes("opacity: 0.6;"), true);
   assert.equal(source.includes(".publish-field-row__arrow-icon"), true);
   assert.equal(source.includes("max-height: 360rpx;"), true);
+  assert.equal(source.includes("font-size: 32rpx;"), true);
+  assert.equal(source.includes("font-size: 28rpx;"), true);
+  assert.equal(source.includes("calc((100% - 24rpx) / 3)"), true);
 });
