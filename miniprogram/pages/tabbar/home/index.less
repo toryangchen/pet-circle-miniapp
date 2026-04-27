@@ -29,17 +29,15 @@
 
 .home-card {
   overflow: hidden;
-  width: 360rpx;
+  min-height: 360rpx;
 }
 
 .home-card__img-content {
   width: 100%;
-  height: 480rpx;
 }
 
 .home-card__image {
   width: 100%;
-  height: 480rpx;
 }
 
 .home-card__body {
@@ -67,6 +65,7 @@
 
 .home-card__summary,
 .home-card__meta {
+  margin-top: 10rpx;
   font-size: 22rpx;
   line-height: 1.45;
   color: var(--pc-text-secondary);
@@ -74,6 +73,16 @@
 
 .home-card__meta {
   display: flex;
-  justify-content: space-between;
-  gap: 8rpx;
+  align-items: center;
+  .img-avator {
+    width: 32rpx;
+    height: 32rpx;
+    border-radius: 50%;
+    margin-right: 8rpx;
+  }
+  .icon-love {
+    width: 26rpx;
+    height: 26rpx;
+    margin-right: 8rpx;
+  }
 }

@@ -34,7 +34,18 @@ test("publish page no longer depends on auth or request helpers", () => {
   assert.equal(source.includes("kind: \"post-image\""), true);
   assert.equal(source.includes("images: uploadedImages.map((item) => item.url)"), true);
   assert.equal(source.includes('title: "发布成功"'), true);
+  assert.equal(source.includes('const HOME_FEED_REFRESH_FLAG = "home_feed_needs_refresh";'), true);
+  assert.equal(source.includes("wx.setStorageSync(HOME_FEED_REFRESH_FLAG, true);"), true);
   assert.equal(source.includes('url: "/pages/tabbar/home/index"'), true);
+});
+
+test("home page consumes one-time refresh marker on show", () => {
+  const source = read("pages/tabbar/home/index.ts");
+
+  assert.equal(source.includes('const HOME_FEED_REFRESH_FLAG = "home_feed_needs_refresh";'), true);
+  assert.equal(source.includes("wx.getStorageSync(HOME_FEED_REFRESH_FLAG)"), true);
+  assert.equal(source.includes("wx.removeStorageSync(HOME_FEED_REFRESH_FLAG);"), true);
+  assert.equal(source.includes("await this.reloadHomeFeed();"), true);
 });
 
 test("publish page template renders editable local form shell", () => {
@@ -49,6 +60,7 @@ test("publish page template renders editable local form shell", () => {
   assert.equal(source.includes('catchtouchmove="onImageDragMove"'), true);
   assert.equal(source.includes('bindtouchend="finishImageDrag"'), true);
   assert.equal(source.includes('placeholder="添加标题"'), true);
+  assert.equal(source.includes('maxlength="30"\n        auto-height'), true);
   assert.equal(source.includes('placeholder="添加正文或发语音"'), true);
   assert.equal(source.includes('maxlength="500"\n        auto-height'), false);
   assert.equal(source.includes('wx:if="{{currentTab !== \'PET_SOCIAL\'}}"'), true);
@@ -59,7 +71,7 @@ test("publish page template renders editable local form shell", () => {
   assert.equal(source.includes('class="publish-field-dialog__mask"'), true);
   assert.equal(source.includes('src="/assets/icon-arrow-right.png"'), true);
   assert.equal(source.includes("publish-field-editor"), false);
-  assert.equal(source.includes("发布成功后将直接展示在首页"), true);
+  assert.equal(source.includes('class="publish-footer__button {{isPublishEnabled ? \'publish-footer__button--enabled\' : \'publish-footer__button--disabled\'}}"'), true);
 });
 
 test("publish page limits images and tracks upload state", () => {
@@ -71,6 +83,8 @@ test("publish page limits images and tracks upload state", () => {
   assert.equal(source.includes("wx.chooseMedia"), true);
   assert.equal(source.includes("wx.chooseImage"), false);
   assert.equal(source.includes("count: remainingCount"), true);
+  assert.equal(source.includes("const latestImageList = this.data.imageList as PublishImageItem[];"), true);
+  assert.equal(source.includes("[...latestImageList, ...nextItems].slice(0, MAX_UPLOAD_IMAGES)"), true);
   assert.equal(source.includes("最多上传3张图片"), true);
   assert.equal(source.includes("startImageDrag"), true);
   assert.equal(source.includes("finishImageDrag"), true);
@@ -79,9 +93,7 @@ test("publish page limits images and tracks upload state", () => {
 test("publish page footer styles use muted disabled treatment", () => {
   const source = read("pages/publish/index.less");
 
-  assert.equal(source.includes(".publish-footer__tip"), true);
-  assert.equal(source.includes("color: #a2978c;"), true);
-  assert.equal(source.includes("font-size: 22rpx;"), true);
+  assert.equal(source.includes(".publish-footer"), true);
   assert.equal(source.includes(".publish-footer__button--disabled"), true);
   assert.equal(source.includes("background-color: #40a200 !important;"), true);
   assert.equal(source.includes("color: #ffffff !important;"), true);

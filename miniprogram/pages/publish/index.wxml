@@ -41,12 +41,13 @@
       </view>
       <text class="publish-image-tip">最多上传3张，可长按拖动排序</text>
 
-      <input
+      <textarea
         class="publish-title-input"
         placeholder="添加标题"
         placeholder-class="publish-placeholder"
         value="{{titleInput}}"
         maxlength="30"
+        auto-height
         bindinput="handleTitleInput"
       />
 

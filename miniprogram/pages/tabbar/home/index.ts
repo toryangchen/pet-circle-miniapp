@@ -1,5 +1,8 @@
 import type { FeedCardView, FeedItem, PagedResult } from "@utils/api-types";
 import { request } from "@utils/request";
+import { rpx2px } from "@utils/util";
+
+const HOME_FEED_REFRESH_FLAG = "home_feed_needs_refresh";
 
 const HOME_PAGE_COPY = {
   location: "西安",
@@ -50,12 +53,18 @@ Page({
     hasMore: true,
     isLoading: false,
     isLoadingMore: false,
+    gap: rpx2px(10),
   },
-  onShow() {
+  async onShow() {
     if (typeof this.getTabBar === "function" && this.getTabBar()) {
       this.getTabBar().setData({
         selected: 0, // 控制哪一项是选中状态
       });
+    }
+
+    if (wx.getStorageSync(HOME_FEED_REFRESH_FLAG)) {
+      wx.removeStorageSync(HOME_FEED_REFRESH_FLAG);
+      await this.reloadHomeFeed();
     }
   },
 

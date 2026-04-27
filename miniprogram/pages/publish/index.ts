@@ -57,6 +57,7 @@ const MAX_UPLOAD_IMAGES = 3;
 const IMAGE_COMPRESS_QUALITY = 80;
 const IMAGE_GAP_RPX = 12;
 const IMAGE_SOURCE_OPTIONS = ["从相册选择", "拍照"] as const;
+const HOME_FEED_REFRESH_FLAG = "home_feed_needs_refresh";
 
 let imageIdSeed = 0;
 
@@ -460,7 +461,8 @@ Page({
       }
 
       const nextItems = tempFiles.map((filePath) => createImageItem(filePath));
-      const nextImageList = [...imageList, ...nextItems];
+      const latestImageList = this.data.imageList as PublishImageItem[];
+      const nextImageList = [...latestImageList, ...nextItems].slice(0, MAX_UPLOAD_IMAGES);
 
       this.refreshPageData({
         currentTab: this.data.currentTab as PublishTab,
@@ -746,6 +748,7 @@ Page({
         contentInput: "",
         imageList: [],
       });
+      wx.setStorageSync(HOME_FEED_REFRESH_FLAG, true);
 
       setTimeout(() => {
         wx.switchTab({

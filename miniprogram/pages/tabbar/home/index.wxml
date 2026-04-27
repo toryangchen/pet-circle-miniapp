@@ -27,8 +27,8 @@
   <grid-view
     type="masonry"
     cross-axis-count="2"
-    cross-axis-gap="2"
-    main-axis-gap="2"
+    main-axis-gap="{{gap}}"
+    cross-axis-gap="{{gap}}"
     padding="{{[0,0,10,0]}}"
   >
     <view
@@ -39,14 +39,20 @@
       bindtap="onTapPost"
     >
       <view class="home-card__img-content">
-        <image class="home-card__image" src="{{item.image}}"></image>
+        <image class="home-card__image" src="{{item.image}}" mode="widthFix"></image>
       </view>
 
       <view class="home-card__body">
         <text class="home-card__title" overflow="ellipsis" max-lines="2"> {{item.title}} </text>
         <view class="home-card__meta">
+          <image class="img-avator" src="{{item.authorAvatarUrl}}"></image>
           <text>{{item.author}}</text>
-          <text>{{item.meta}}</text>
+          <view style="flex: 1"></view>
+          <image
+            class="icon-love"
+            src="/assets/icon-love{{item.viewerState.favorited ? '-active' : ''}}.svg"
+          />
+          <text>{{item.stats.favoriteCount || '0'}}</text>
         </view>
       </view>
     </view>
