@@ -53,6 +53,7 @@ Page({
     hasMore: true,
     isLoading: false,
     isLoadingMore: false,
+    isRefreshing: false,
     gap: rpx2px(10),
   },
   async onShow() {
@@ -70,6 +71,24 @@ Page({
 
   async onLoad() {
     await this.reloadHomeFeed();
+  },
+
+  async onRefresherRefresh() {
+    if (this.data.isRefreshing) {
+      return;
+    }
+
+    this.setData({
+      isRefreshing: true,
+    });
+
+    try {
+      await this.reloadHomeFeed();
+    } finally {
+      this.setData({
+        isRefreshing: false,
+      });
+    }
   },
 
   async onReachBottom() {

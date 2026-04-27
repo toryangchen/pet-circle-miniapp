@@ -5,10 +5,24 @@
   scroll-y
   type="custom"
   enhanced="{{true}}"
+  refresher-enabled="{{true}}"
+  refresher-triggered="{{isRefreshing}}"
+  refresher-default-style="none"
+  refresher-background="transparent"
+  bindrefresherrefresh="onRefresherRefresh"
   show-scrollbar="{{false}}"
   lower-threshold="120"
   bindscrolltolower="onScrollToLower"
 >
+  <view class="top-loading">
+    <text>{{ isRefreshing? '正在加载中' : '松开手开始刷新' }} </text>
+    <view wx:if="{{isRefreshing}}" class="bottom-loading__dots" aria-hidden="true">
+      <text class="bottom-loading__dot"></text>
+      <text class="bottom-loading__dot"></text>
+      <text class="bottom-loading__dot"></text>
+    </view>
+  </view>
+
   <view class="pc-card home-hero">
     <view>
       <view class="pc-chip pc-chip--warm">西安社区</view>
@@ -58,11 +72,16 @@
     </view>
   </grid-view>
 
-  <view wx:if="{{isLoadingMore}}" class="pc-card">
-    <text>正在加载更多宠友圈内容...</text>
+  <view wx:if="{{isLoadingMore}}" class="bottom-loading">
+    <text>宠友圈内容加载中</text>
+    <view class="bottom-loading__dots" aria-hidden="true">
+      <text class="bottom-loading__dot"></text>
+      <text class="bottom-loading__dot"></text>
+      <text class="bottom-loading__dot"></text>
+    </view>
   </view>
 
-  <view wx:elif="{{!hasMore && featuredPosts.length > 0}}" class="pc-card">
-    <text>已经到底啦，先逛逛这些内容。</text>
+  <view wx:elif="{{!hasMore && featuredPosts.length > 0}}" class="bottom-loading">
+    <text> 已经到底啦，先逛逛这些内容。</text>
   </view>
 </scroll-view>

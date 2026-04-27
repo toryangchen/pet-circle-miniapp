@@ -48,6 +48,39 @@ test("home page consumes one-time refresh marker on show", () => {
   assert.equal(source.includes("await this.reloadHomeFeed();"), true);
 });
 
+test("home page supports pull down refresh", () => {
+  const jsonSource = read("pages/tabbar/home/index.json");
+  const wxmlSource = read("pages/tabbar/home/index.wxml");
+  const tsSource = read("pages/tabbar/home/index.ts");
+
+  assert.equal(jsonSource.includes('"enablePullDownRefresh": true'), false);
+  assert.equal(wxmlSource.includes('refresher-enabled="{{true}}"'), true);
+  assert.equal(wxmlSource.includes('refresher-triggered="{{isRefreshing}}"'), true);
+  assert.equal(wxmlSource.includes('refresher-default-style="none"'), true);
+  assert.equal(wxmlSource.includes('refresher-background="transparent"'), true);
+  assert.equal(wxmlSource.includes('bindrefresherrefresh="onRefresherRefresh"'), true);
+  assert.equal(tsSource.includes("async onRefresherRefresh()"), true);
+  assert.equal(tsSource.includes("isRefreshing: true"), true);
+  assert.equal(tsSource.includes("isRefreshing: false"), true);
+  assert.equal(tsSource.includes("await this.reloadHomeFeed();"), true);
+  assert.equal(tsSource.includes("wx.stopPullDownRefresh();"), false);
+});
+
+test("home page loading indicator uses animated dots", () => {
+  const wxmlSource = read("pages/tabbar/home/index.wxml");
+  const lessSource = read("pages/tabbar/home/index.less");
+
+  assert.equal(wxmlSource.includes("内容加载中"), true);
+  assert.equal(wxmlSource.includes('class="top-loading"'), true);
+  assert.equal(wxmlSource.includes('class="bottom-loading__dots"'), true);
+  assert.equal(wxmlSource.includes('class="bottom-loading__dot"'), true);
+  assert.equal(lessSource.includes(".top-loading"), true);
+  assert.equal(lessSource.includes(".bottom-loading__dot"), true);
+  assert.equal(lessSource.includes("@keyframes home-loading-dot"), true);
+  assert.equal(lessSource.includes("animation-delay: 0.2s;"), true);
+  assert.equal(lessSource.includes("animation-delay: 0.4s;"), true);
+});
+
 test("publish page template renders editable local form shell", () => {
   const source = read("pages/publish/index.wxml");
 

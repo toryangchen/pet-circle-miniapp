@@ -1,8 +1,9 @@
 .home-scroll {
-  height: calc(100vh - 240rpx);
+  height: calc(100vh - 160rpx);
   padding: 0 8rpx;
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: border-box;
+  margin-top: -80rpx;
 }
 
 .home-hero {
@@ -84,5 +85,63 @@
     width: 26rpx;
     height: 26rpx;
     margin-right: 8rpx;
+  }
+}
+
+.bottom-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  text-align: center;
+  margin-bottom: 20rpx;
+  color: #999999;
+  font-size: 24rpx;
+}
+
+.top-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  color: #999999;
+  font-size: 24rpx;
+  height: 80rpx;
+}
+
+.bottom-loading__dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.bottom-loading__dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: #999999;
+  opacity: 0.28;
+  animation: home-loading-dot 1.2s ease-in-out infinite;
+}
+
+.bottom-loading__dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.bottom-loading__dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes home-loading-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.28;
+    transform: scale(0.88);
+  }
+
+  40% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
