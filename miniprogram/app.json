@@ -31,7 +31,9 @@
   "rendererOptions": {
     "skyline": {
       "disableABTest": true,
-      "defaultDisplayBlock": true
+      "defaultDisplayBlock": true,
+      "sdkVersionBegin": "3.0.0",
+      "sdkVersionEnd": "15.255.255"
     }
   },
   "resolveAlias": {

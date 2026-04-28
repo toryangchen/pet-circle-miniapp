@@ -49,6 +49,14 @@ Page({
     heroSummary: HOME_PAGE_COPY.heroSummary,
     tags: HOME_PAGE_COPY.tags,
     featuredPosts: INITIAL_HOME_FEED,
+
+    type: "fade",
+    duration: 300,
+    closedElevation: 1,
+    closedBorderRadius: 4,
+    openElevation: 4,
+    openBorderRadius: 0,
+
     page: 1,
     pageSize: 10,
     hasMore: true,
