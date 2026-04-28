@@ -9,9 +9,9 @@
     >
       <image class="left" src="/assets/left-icon.png"></image>
     </view>
-    <view class="tab-title">
-      <block wx:if="{{title}}">{{title}}</block>
-      <slot wx:else name="title"></slot>
+    <view class="tab-title" wx:if="{{title}}"> {{title}} </view>
+    <view class="custom-content" wx:else>
+      <slot name="title"></slot>
     </view>
 
     <view wx:if="{{back}}" style="height: {{navBarHeight}}px; width: {{navBarHeight}}px;"> </view>

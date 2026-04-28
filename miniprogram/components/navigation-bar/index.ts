@@ -1,6 +1,9 @@
 import { getNavbarHeight } from "@utils/util";
 
 Component({
+  options: {
+    multipleSlots: true,
+  },
   properties: {
     background: {
       type: String,

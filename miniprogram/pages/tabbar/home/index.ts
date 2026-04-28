@@ -23,8 +23,9 @@ function toFeedCardView(item: FeedItem): FeedCardView {
     badge: "宠物圈",
     author: item.author ?? "宠友分享",
     authorAvatarUrl: item.authorAvatarUrl ?? null,
-    meta: item.meta ?? `${item.city} · ${item.stats.commentCount} 评论`,
     route: item.route ?? `/pages/detail/pet-social/index?id=${item.id}`,
+    favoriteCount: item.stats.favoriteCount,
+    favorited: item.viewerState.favorited,
   };
 }
 

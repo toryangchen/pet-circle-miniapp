@@ -1,0 +1,69 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+test("pet social detail page does not ship Pencil sample defaults", () => {
+  const pagePath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts");
+  const source = fs.readFileSync(pagePath, "utf8");
+
+  assert.equal(source.includes("糯米今天终于愿意主动贴贴了"), false);
+  assert.equal(source.includes("前几天还总是躲在窗帘后面"), false);
+  assert.equal(source.includes("photo-1769256130388"), false);
+  assert.equal(source.includes('likeCount: "19"'), false);
+  assert.equal(source.includes('commentCount: "32"'), false);
+  assert.equal(source.includes('tags: ["猫咪日常", "西安 · 晒猫"]'), false);
+});
+
+test("pet social detail hero uses a swipeable image carousel", () => {
+  const wxmlPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.wxml");
+  const tsPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts");
+  const wxml = fs.readFileSync(wxmlPath, "utf8");
+  const source = fs.readFileSync(tsPath, "utf8");
+
+  assert.equal(wxml.includes("<swiper"), true);
+  assert.equal(wxml.includes("<swiper-item"), true);
+  assert.equal(wxml.includes('wx:for="{{images}}"'), true);
+  assert.equal(wxml.includes('bindchange="onHeroSwiperChange"'), true);
+  assert.equal(source.includes("images: [] as string[]"), true);
+  assert.equal(source.includes("heroCurrent: 0"), true);
+  assert.equal(source.includes("onHeroSwiperChange"), true);
+});
+
+test("pet social detail content restores escaped newlines", () => {
+  const tsPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts");
+  const lessPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.less");
+  const source = fs.readFileSync(tsPath, "utf8");
+  const styles = fs.readFileSync(lessPath, "utf8");
+
+  assert.equal(source.includes("function restoreEscapedNewlines"), true);
+  assert.equal(source.includes("summary: restoreEscapedNewlines(detail.content)"), true);
+  assert.equal(styles.includes("white-space: pre-wrap;"), true);
+});
+
+test("pet social detail bottom favorite control toggles favorite state", () => {
+  const wxmlPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.wxml");
+  const source = fs.readFileSync(wxmlPath, "utf8");
+
+  assert.equal(source.includes('src="/assets/icon-love{{favorited ?'), true);
+  assert.equal(source.includes("<text>{{favoriteCount}}</text>"), true);
+  assert.equal(source.includes('class="pet-social-bottom__like" bindtap="toggleFavorite"'), true);
+});
+
+test("pet social detail composer styles are present", () => {
+  const lessPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.less");
+  const styles = fs.readFileSync(lessPath, "utf8");
+
+  assert.equal(styles.includes(".pet-social-composer {"), true);
+  assert.equal(styles.includes("height: 76rpx;"), true);
+  assert.equal(styles.includes(".pet-social-avatar {"), true);
+  assert.equal(styles.includes("border-radius: 999rpx;"), true);
+  assert.equal(styles.includes("justify-content: center;"), true);
+  assert.equal(styles.includes("flex-shrink: 0;"), true);
+  assert.equal(styles.includes(".pet-social-avatar--composer"), true);
+  assert.equal(styles.includes(".pet-social-avatar--composer image"), true);
+  assert.equal(styles.includes(".pet-social-composer__input {"), true);
+  assert.equal(styles.includes("min-width: 0;"), true);
+  assert.equal(styles.includes(".pet-social-composer__send {"), true);
+  assert.equal(styles.includes(".pet-social-composer__send[disabled]"), true);
+});

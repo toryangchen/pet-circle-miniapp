@@ -50,8 +50,10 @@ export interface FeedCardView {
   badge: string;
   author: string;
   authorAvatarUrl?: string | null;
-  meta: string;
+  meta?: string;
   route: string;
+  favoriteCount: number;
+  favorited: boolean;
 }
 
 export interface PostDetail {

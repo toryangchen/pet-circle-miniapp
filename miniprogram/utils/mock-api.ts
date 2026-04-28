@@ -36,6 +36,8 @@ const feedLookup = new Map<string, FeedCardView>([
           author: item.author,
           meta: item.meta,
           route: `/pages/detail/pet-social/index?id=${item.id}`,
+          favoriteCount: 0,
+          favorited: false,
         },
       ] as const,
   ),
@@ -52,6 +54,8 @@ const feedLookup = new Map<string, FeedCardView>([
           author: item.author,
           meta: item.meta,
           route: `/pages/detail/service/index?id=${item.id}`,
+          favoriteCount: 0,
+          favorited: false,
         },
       ] as const,
   ),
@@ -184,6 +188,8 @@ const favorites: FeedCardView[] = [
     author: SERVICE_FEEDS[0].author,
     meta: "已收藏 · 联系受控展示",
     route: "/pages/detail/service/index?id=service-1",
+    favoriteCount: 6,
+    favorited: true,
   },
   {
     id: "fav-2",
@@ -194,6 +200,8 @@ const favorites: FeedCardView[] = [
     author: HOME_FEEDS[0].author,
     meta: "已收藏 · 36 评论",
     route: "/pages/detail/pet-social/index?id=home-1",
+    favoriteCount: 12,
+    favorited: true,
   },
 ];
 
@@ -312,6 +320,8 @@ function toFeedCardView(item: FeedItem): FeedCardView {
         ? `${item.city} · ${item.stats.likeCount} 赞`
         : `${item.city} · ${item.stats.commentCount} 评论`),
     route: fallback?.route ?? toDetailRoute(item),
+    favoriteCount: item.stats.favoriteCount,
+    favorited: item.viewerState.favorited,
   };
 }
 

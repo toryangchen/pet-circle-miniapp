@@ -62,11 +62,8 @@
           <image class="img-avator" src="{{item.authorAvatarUrl}}"></image>
           <text>{{item.author}}</text>
           <view style="flex: 1"></view>
-          <image
-            class="icon-love"
-            src="/assets/icon-love{{item.viewerState.favorited ? '-active' : ''}}.svg"
-          />
-          <text>{{item.stats.favoriteCount || '0'}}</text>
+          <image class="icon-love" src="/assets/icon-love{{item.favorited ? '-active' : ''}}.svg" />
+          <text>{{item.favoriteCount || '0'}}</text>
         </view>
       </view>
     </view>

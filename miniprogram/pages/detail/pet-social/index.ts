@@ -96,36 +96,93 @@ async function updatePostFavorite(postId: string, favorited: boolean) {
   );
 }
 
+function formatPostMeta(createdAt: string, city: string) {
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) {
+    return city ? `刚刚 · ${city}` : "刚刚";
+  }
+
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return city ? `${month}-${day} · ${city}` : `${month}-${day}`;
+}
+
+function restoreEscapedNewlines(content: string) {
+  return content.replace(/\\n/g, "\n");
+}
+
+function formatCommentTime(createdAt: string) {
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) {
+    return createdAt || "刚刚";
+  }
+
+  const now = Date.now();
+  const diff = now - date.getTime();
+  const hour = 60 * 60 * 1000;
+  const day = 24 * hour;
+
+  if (diff >= 0 && diff < hour) {
+    return "刚刚";
+  }
+
+  if (diff >= hour && diff < day) {
+    return `${Math.max(1, Math.floor(diff / hour))}小时前`;
+  }
+
+  if (diff >= day && diff < 2 * day) {
+    return "昨天";
+  }
+
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const dateDay = `${date.getDate()}`.padStart(2, "0");
+  return `${month}-${dateDay}`;
+}
+
+function formatComments(comments: CommentItem[]) {
+  return comments.map((comment) => ({
+    ...comment,
+    createdAt: formatCommentTime(comment.createdAt),
+    replies: comment.replies.map((reply) => ({
+      ...reply,
+      createdAt: formatCommentTime(reply.createdAt),
+    })),
+  }));
+}
+
 Page({
   data: {
     title: "详情",
-    authorName: "雪球",
-    postId: "home-1",
-    badge: "宠物圈",
-    postTitle: "猫咪春天第一次出门晒太阳",
-    summary: "今天带家里猫咪出去晒太阳，真的很乖。社区里的宠物日常、救助故事和成长瞬间都放在这里。",
-    image:
-      "https://images.unsplash.com/photo-1571566882372-1598d88abd90?auto=format&fit=crop&w=1080&q=80",
-    stats: [
-      { value: "128", label: "点赞" },
-      { value: "36", label: "评论" },
-      { value: "12", label: "收藏" },
-    ],
-    tags: ["晒日常", "领养故事", "城市宠物"],
-    actions: ["点赞", "评论", "收藏", "分享"],
+    authorName: "",
+    authorAvator: "",
+    postId: "",
+    badge: "",
+    postTitle: "",
+    summary: "",
+    image: "",
+    images: [] as string[],
+    heroCurrent: 0,
+    postMeta: "",
+    likeCount: "0",
+    commentCount: "0",
+    favoriteCount: "0",
+    stats: [] as Array<{ value: string; label: string }>,
+    tags: [] as string[],
     comments: [] as CommentItem[],
     commentInput: "",
-    commentPlaceholder: "说点什么，让宠友看到你的想法",
+    commentInputFocused: false,
+    commentAnchor: "",
+    commentPlaceholder: "说点什么...",
     replyTargetId: "",
     replyTargetAuthor: "",
     liked: false,
-    favorited: true,
+    favorited: false,
     isLoading: false,
     isSubmittingComment: false,
   },
 
   async onLoad(query: Record<string, string | undefined>) {
-    const postId = query.id || "home-1";
+    const postId = query.id || "";
     this.setData({
       postId,
       isLoading: true,
@@ -138,19 +195,26 @@ Page({
       ]);
       this.setData({
         authorName: detail.author?.nickname || "宠友分享",
+        authorAvator: detail.author?.avatarUrl || "",
         badge: "宠物圈",
         postTitle: detail.title,
-        summary: detail.content,
+        summary: restoreEscapedNewlines(detail.content),
         image: detail.images[0] || this.data.image,
+        images: detail.images,
+        heroCurrent: 0,
+        postMeta: formatPostMeta(detail.createdAt, detail.city),
+        likeCount: String(detail.stats.likeCount),
+        commentCount: String(detail.stats.commentCount),
+        favoriteCount: String(detail.stats.favoriteCount),
         stats: [
           { value: String(detail.stats.likeCount), label: "点赞" },
           { value: String(detail.stats.commentCount), label: "评论" },
           { value: String(detail.stats.favoriteCount), label: "收藏" },
         ],
-        comments: comments.items,
+        tags: [],
+        comments: formatComments(comments.items),
         liked: detail.viewerState.liked,
         favorited: detail.viewerState.favorited,
-        actions: this.buildActions(detail.viewerState.liked, detail.viewerState.favorited),
       });
     } finally {
       this.setData({
@@ -168,6 +232,18 @@ Page({
   onCommentInput(event: WechatMiniprogram.CustomEvent<{ value: string }>) {
     this.setData({
       commentInput: event.detail.value,
+    });
+  },
+
+  onCommentBlur() {
+    this.setData({
+      commentInputFocused: false,
+    });
+  },
+
+  onHeroSwiperChange(event: WechatMiniprogram.SwiperChange) {
+    this.setData({
+      heroCurrent: event.detail.current,
     });
   },
 
@@ -193,7 +269,7 @@ Page({
     this.setData({
       replyTargetId: "",
       replyTargetAuthor: "",
-      commentPlaceholder: "说点什么，让宠友看到你的想法",
+      commentPlaceholder: "说点什么...",
     });
   },
 
@@ -201,10 +277,11 @@ Page({
     const postId = this.data.postId as string;
     const nextLiked = !this.data.liked;
     await updatePostLike(postId, nextLiked);
+    const stats = this.updateStatsValue("点赞", nextLiked ? 1 : -1);
     this.setData({
       liked: nextLiked,
-      actions: this.buildActions(nextLiked, this.data.favorited),
-      stats: this.updateStatsValue("点赞", nextLiked ? 1 : -1),
+      stats,
+      likeCount: this.findStatsValue(stats, "点赞"),
     });
   },
 
@@ -212,17 +289,18 @@ Page({
     const postId = this.data.postId as string;
     const nextFavorited = !this.data.favorited;
     await updatePostFavorite(postId, nextFavorited);
+    const stats = this.updateStatsValue("收藏", nextFavorited ? 1 : -1);
     this.setData({
       favorited: nextFavorited,
-      actions: this.buildActions(this.data.liked, nextFavorited),
-      stats: this.updateStatsValue("收藏", nextFavorited ? 1 : -1),
+      stats,
+      favoriteCount: this.findStatsValue(stats, "收藏"),
     });
   },
 
   focusCommentInput() {
-    wx.pageScrollTo({
-      scrollTop: 9999,
-      duration: 200,
+    this.setData({
+      commentAnchor: "petSocialComposer",
+      commentInputFocused: true,
     });
   },
 
@@ -251,16 +329,20 @@ Page({
         fetchComments(postId),
       ]);
       this.setData({
-        comments: comments.items,
         commentInput: "",
+        commentInputFocused: false,
         replyTargetId: "",
         replyTargetAuthor: "",
-        commentPlaceholder: "说点什么，让宠友看到你的想法",
+        commentPlaceholder: "说点什么...",
+        comments: formatComments(comments.items),
         stats: [
           { value: String(detail.stats.likeCount), label: "点赞" },
           { value: String(detail.stats.commentCount), label: "评论" },
           { value: String(detail.stats.favoriteCount), label: "收藏" },
         ],
+        likeCount: String(detail.stats.likeCount),
+        commentCount: String(detail.stats.commentCount),
+        favoriteCount: String(detail.stats.favoriteCount),
       });
       wx.showToast({
         title: replyTargetId ? "回复已发送" : "评论已发送",
@@ -278,8 +360,12 @@ Page({
     }
   },
 
-  buildActions(liked: boolean, favorited: boolean) {
-    return [liked ? "已点赞" : "点赞", "评论", favorited ? "已收藏" : "收藏", "分享"];
+  onShareAppMessage() {
+    return {
+      title: this.data.postTitle as string,
+      path: `/pages/detail/pet-social/index?id=${this.data.postId}`,
+      imageUrl: this.data.image as string,
+    };
   },
 
   updateStatsValue(label: string, delta: number) {
@@ -294,5 +380,9 @@ Page({
         value: String(nextValue),
       };
     });
+  },
+
+  findStatsValue(stats: Array<{ value: string; label: string }>, label: string) {
+    return stats.find((item) => item.label === label)?.value || "0";
   },
 });

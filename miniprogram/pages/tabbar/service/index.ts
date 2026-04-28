@@ -38,6 +38,8 @@ function toFeedCardView(item: FeedItem): FeedCardView {
     authorAvatarUrl: item.authorAvatarUrl ?? null,
     meta: item.meta ?? `${item.city} · ${item.stats.likeCount} 赞`,
     route: item.route ?? `/pages/detail/service/index?id=${item.id}`,
+    favoriteCount: item.stats.favoriteCount,
+    favorited: item.viewerState.favorited,
   };
 }
 
