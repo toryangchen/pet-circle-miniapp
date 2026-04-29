@@ -14,6 +14,7 @@ import {
   toggleMockFavorite,
   toggleMockLike,
 } from "@utils/mock-api";
+import { consumePetSocialDetailPrefill } from "@utils/detail-prefill";
 import { request } from "@utils/request";
 
 async function withFallback<T>(loader: () => Promise<T>, fallback: T | (() => T)) {
@@ -187,6 +188,7 @@ Page({
       postId,
       isLoading: true,
     });
+    this.applyCachedDetailPrefill(postId);
 
     try {
       const [detail, comments] = await Promise.all([
@@ -229,6 +231,31 @@ Page({
     });
   },
 
+  applyCachedDetailPrefill(postId: string) {
+    const prefill = consumePetSocialDetailPrefill(postId);
+
+    if (!prefill) {
+      return;
+    }
+
+    this.setData({
+      authorName: prefill.authorName || "宠友分享",
+      authorAvator: prefill.authorAvatarUrl || "",
+      postTitle: prefill.title,
+      summary: restoreEscapedNewlines(prefill.summary),
+      image: prefill.image,
+      images: prefill.image ? [prefill.image] : [],
+      heroCurrent: 0,
+      favoriteCount: String(prefill.favoriteCount),
+      favorited: prefill.favorited,
+      stats: [
+        { value: "0", label: "点赞" },
+        { value: "0", label: "评论" },
+        { value: String(prefill.favoriteCount), label: "收藏" },
+      ],
+    });
+  },
+
   onCommentInput(event: WechatMiniprogram.CustomEvent<{ value: string }>) {
     this.setData({
       commentInput: event.detail.value,
@@ -244,6 +271,19 @@ Page({
   onHeroSwiperChange(event: WechatMiniprogram.SwiperChange) {
     this.setData({
       heroCurrent: event.detail.current,
+    });
+  },
+
+  previewHeroImage(event: WechatMiniprogram.CustomEvent<{ current?: string }>) {
+    const current = event.currentTarget.dataset.current as string | undefined;
+    const images = this.data.images as string[];
+    if (!current || !images.length) {
+      return;
+    }
+
+    wx.previewImage({
+      current,
+      urls: images,
     });
   },
 

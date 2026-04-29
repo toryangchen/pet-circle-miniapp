@@ -1,4 +1,5 @@
 import type { FeedCardView, FeedItem, PagedResult } from "@utils/api-types";
+import { setPetSocialDetailPrefill } from "@utils/detail-prefill";
 import { request } from "@utils/request";
 import { rpx2px } from "@utils/util";
 
@@ -38,6 +39,19 @@ async function fetchHomeFeed(page: number, pageSize: number) {
   return {
     ...result,
     items: result.items.map(toFeedCardView),
+  };
+}
+
+function buildPetSocialDetailPrefill(item: FeedCardView) {
+  return {
+    id: item.id,
+    title: item.title,
+    summary: item.summary,
+    image: item.image,
+    authorName: item.author,
+    authorAvatarUrl: item.authorAvatarUrl ?? "",
+    favoriteCount: item.favoriteCount,
+    favorited: item.favorited,
   };
 }
 
@@ -156,11 +170,26 @@ Page({
     }
   },
 
+  prefillPetSocialDetail(postId?: string) {
+    if (!postId) {
+      return;
+    }
+
+    const post = (this.data.featuredPosts as FeedCardView[]).find((item) => item.id === postId);
+    if (!post) {
+      return;
+    }
+
+    setPetSocialDetailPrefill(buildPetSocialDetailPrefill(post));
+  },
+
   onTapPost(event: WechatMiniprogram.BaseEvent) {
-    const { route } = event.currentTarget.dataset as { route?: string };
+    const { route } = event.currentTarget.dataset as { route?: string; postId?: string };
     if (!route) {
       return;
     }
+
+    this.prefillPetSocialDetail(event.currentTarget.dataset.postId as string | undefined);
 
     wx.navigateTo({
       url: route,

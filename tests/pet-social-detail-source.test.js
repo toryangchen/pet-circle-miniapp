@@ -30,6 +30,33 @@ test("pet social detail hero uses a swipeable image carousel", () => {
   assert.equal(source.includes("onHeroSwiperChange"), true);
 });
 
+test("pet social detail carousel shows dots and image counter", () => {
+  const wxmlPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.wxml");
+  const lessPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.less");
+  const wxml = fs.readFileSync(wxmlPath, "utf8");
+  const styles = fs.readFileSync(lessPath, "utf8");
+
+  assert.equal(wxml.includes('class="pet-social-hero__counter"'), true);
+  assert.equal(wxml.includes("{{heroCurrent + 1}}/{{images.length}}"), true);
+  assert.equal(wxml.includes('wx:if="{{images.length > 1}}" class="pet-social-indicator"'), false);
+  assert.equal(wxml.includes('wx:if="{{images.length}}" class="pet-social-indicator"'), true);
+  assert.equal(styles.includes(".pet-social-hero__counter {"), true);
+});
+
+test("pet social detail carousel images can be previewed", () => {
+  const wxmlPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.wxml");
+  const tsPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts");
+  const wxml = fs.readFileSync(wxmlPath, "utf8");
+  const source = fs.readFileSync(tsPath, "utf8");
+
+  assert.equal(wxml.includes('bindtap="previewHeroImage"'), true);
+  assert.equal(wxml.includes('data-current="{{item}}"'), true);
+  assert.equal(source.includes("previewHeroImage("), true);
+  assert.equal(source.includes("wx.previewImage({"), true);
+  assert.equal(source.includes("current,"), true);
+  assert.equal(source.includes("urls: images,"), true);
+});
+
 test("pet social detail content restores escaped newlines", () => {
   const tsPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts");
   const lessPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.less");
@@ -66,4 +93,17 @@ test("pet social detail composer styles are present", () => {
   assert.equal(styles.includes("min-width: 0;"), true);
   assert.equal(styles.includes(".pet-social-composer__send {"), true);
   assert.equal(styles.includes(".pet-social-composer__send[disabled]"), true);
+});
+
+test("pet social detail applies cached feed card before keeping original requests", () => {
+  const tsPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts");
+  const source = fs.readFileSync(tsPath, "utf8");
+
+  assert.equal(source.includes('from "@utils/detail-prefill"'), true);
+  assert.equal(source.includes("applyCachedDetailPrefill(postId)"), true);
+  assert.equal(source.includes("consumePetSocialDetailPrefill(postId)"), true);
+  assert.equal(source.includes("wx.getStorageSync(PET_SOCIAL_DETAIL_PREFILL_KEY)"), false);
+  assert.equal(source.includes("wx.removeStorageSync(PET_SOCIAL_DETAIL_PREFILL_KEY)"), false);
+  assert.equal(source.includes("fetchPetSocialDetail(postId)"), true);
+  assert.equal(source.includes("fetchComments(postId)"), true);
 });

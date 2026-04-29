@@ -17,17 +17,25 @@
     <swiper
       class="pet-social-hero__swiper"
       current="{{heroCurrent}}"
-      circular="{{images.length > 1}}"
       bindchange="onHeroSwiperChange"
     >
       <swiper-item wx:for="{{images}}" wx:key="*this" class="pet-social-hero__item">
-        <image class="pet-social-hero__image" src="{{item}}" mode="aspectFill"></image>
+        <image
+          class="pet-social-hero__image"
+          src="{{item}}"
+          mode="aspectFill"
+          data-current="{{item}}"
+          bindtap="previewHeroImage"
+        ></image>
       </swiper-item>
     </swiper>
+    <view wx:if="{{images.length}}" class="pet-social-hero__counter">
+      <text>{{heroCurrent + 1}}/{{images.length}}</text>
+    </view>
   </view>
 
   <view class="pet-social-content">
-    <view wx:if="{{images.length > 1}}" class="pet-social-indicator">
+    <view wx:if="{{images.length}}" class="pet-social-indicator">
       <view
         wx:for="{{images}}"
         wx:key="*this"

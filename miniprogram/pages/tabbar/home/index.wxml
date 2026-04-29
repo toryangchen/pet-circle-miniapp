@@ -54,6 +54,7 @@
         transition-type="{{type}}"
         transition-duration="{{duration}}"
         data-route="{{item.route}}"
+        data-post-id="{{item.id}}"
         bindtap="onTapPost"
       >
         <view class="pc-card home-card">

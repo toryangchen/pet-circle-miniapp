@@ -20,19 +20,40 @@
 }
 
 .pet-social-hero {
+  position: relative;
   height: 1000rpx;
-  background: #ede7df;
+  background: white;
 }
 
 .pet-social-hero__swiper,
 .pet-social-hero__item {
   width: 100%;
   height: 100%;
+  display: flex;
 }
 
 .pet-social-hero__image {
   width: 100%;
   height: 100%;
+  margin: 0 auto;
+}
+
+.pet-social-hero__counter {
+  position: absolute;
+  top: 24rpx;
+  right: 24rpx;
+  min-width: 72rpx;
+  height: 42rpx;
+  padding: 0 16rpx;
+  border-radius: 999rpx;
+  background: rgba(47, 42, 38, 0.58);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: 22rpx;
+  font-weight: 600;
 }
 
 .pet-social-content {
@@ -63,7 +84,6 @@
 }
 
 .pet-social-post {
-  margin-top: 20rpx;
   display: flex;
   flex-direction: column;
   gap: 16rpx;
