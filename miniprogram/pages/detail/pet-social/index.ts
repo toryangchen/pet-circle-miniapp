@@ -11,11 +11,13 @@ import {
   appendMockReply,
   getMockComments,
   getMockPostDetail,
+  removeMockComment,
   toggleMockFavorite,
   toggleMockLike,
 } from "@utils/mock-api";
 import { consumePetSocialDetailPrefill } from "@utils/detail-prefill";
 import { request } from "@utils/request";
+import { getAuthState } from "@utils/session";
 
 async function withFallback<T>(loader: () => Promise<T>, fallback: T | (() => T)) {
   try {
@@ -72,6 +74,17 @@ async function createReplyComment(commentId: string, content: string) {
         },
       }),
     appendMockReply(commentId, content),
+  );
+}
+
+async function deletePostComment(commentId: string) {
+  return withFallback(
+    () =>
+      request<{ id: string }>({
+        method: "DELETE",
+        path: `/comments/${commentId}`,
+      }),
+    removeMockComment(commentId),
   );
 }
 
@@ -140,9 +153,15 @@ function formatCommentTime(createdAt: string) {
   return `${month}-${dateDay}`;
 }
 
-function formatComments(comments: CommentItem[]) {
+function getCurrentUserId() {
+  const authState = getAuthState();
+  return authState.user?.id || authState.session?.userId || "";
+}
+
+function formatComments(comments: CommentItem[], currentUserId: string) {
   return comments.map((comment) => ({
     ...comment,
+    canDelete: Boolean(currentUserId && comment.author.id === currentUserId),
     createdAt: formatCommentTime(comment.createdAt),
     replies: comment.replies.map((reply) => ({
       ...reply,
@@ -169,7 +188,8 @@ Page({
     favoriteCount: "0",
     stats: [] as Array<{ value: string; label: string }>,
     tags: [] as string[],
-    comments: [] as CommentItem[],
+    comments: [] as Array<CommentItem & { canDelete: boolean }>,
+    currentUserId: "",
     commentInput: "",
     commentInputFocused: false,
     commentAnchor: "",
@@ -184,8 +204,10 @@ Page({
 
   async onLoad(query: Record<string, string | undefined>) {
     const postId = query.id || "";
+    const currentUserId = getCurrentUserId();
     this.setData({
       postId,
+      currentUserId,
       isLoading: true,
     });
     this.applyCachedDetailPrefill(postId);
@@ -214,7 +236,7 @@ Page({
           { value: String(detail.stats.favoriteCount), label: "收藏" },
         ],
         tags: [],
-        comments: formatComments(comments.items),
+        comments: formatComments(comments.items, currentUserId),
         liked: detail.viewerState.liked,
         favorited: detail.viewerState.favorited,
       });
@@ -374,8 +396,10 @@ Page({
       fetchPetSocialDetail(postId),
       fetchComments(postId),
     ]);
+    const currentUserId = getCurrentUserId();
     this.setData({
-      comments: formatComments(comments.items),
+      currentUserId,
+      comments: formatComments(comments.items, currentUserId),
       stats: [
         { value: String(detail.stats.likeCount), label: "点赞" },
         { value: String(detail.stats.commentCount), label: "评论" },
@@ -417,7 +441,7 @@ Page({
         replyTargetId: "",
         replyTargetAuthor: "",
         commentPlaceholder: "说点什么...",
-        comments: formatComments(comments.items),
+        comments: formatComments(comments.items, getCurrentUserId()),
         stats: [
           { value: String(detail.stats.likeCount), label: "点赞" },
           { value: String(detail.stats.commentCount), label: "评论" },
@@ -439,6 +463,52 @@ Page({
     } finally {
       this.setData({
         isSubmittingComment: false,
+      });
+    }
+  },
+
+  async deleteComment(
+    event: WechatMiniprogram.CustomEvent<
+      WechatMiniprogram.IAnyObject,
+      WechatMiniprogram.IAnyObject,
+      { commentId?: string }
+    >,
+  ) {
+    const commentId = event.currentTarget.dataset.commentId || "";
+    if (!commentId) {
+      return;
+    }
+
+    const confirmed = await new Promise<boolean>((resolve) => {
+      wx.showModal({
+        title: "删除评论",
+        content: "确定删除这条评论吗？",
+        confirmText: "删除",
+        confirmColor: "#e5534b",
+        success: (result) => {
+          resolve(Boolean(result.confirm));
+        },
+        fail: () => {
+          resolve(false);
+        },
+      });
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deletePostComment(commentId);
+      await this.refreshCommentsAfterSubmit();
+      wx.showToast({
+        title: "评论已删除",
+        icon: "success",
+      });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : "删除失败",
+        icon: "none",
       });
     }
   },

@@ -15,12 +15,12 @@
         bindkeyboardheightchange="onKeyboardHeightChange"
       />
     </view>
-    <button
-      class="comment-route__send {{!commentInput || isSubmitting ? 'comment-route__send--disabled' : ''}}"
-      disabled="{{!commentInput || isSubmitting}}"
-      bindtap="submitComment"
-    >
-      {{isSubmitting ? '发送中' : '发送'}}
-    </button>
+    <view class="comment-route_btn-wrap">
+      <view
+        class="comment-route__send {{!commentInput || isSubmitting ? 'comment-route__send--disabled' : ''}}"
+        bindtap="submitComment"
+        >{{isSubmitting ? '发送中' : '发送'}}</view
+      >
+    </view>
   </view>
 </view>

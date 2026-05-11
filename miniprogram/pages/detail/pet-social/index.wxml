@@ -49,7 +49,7 @@
       </view>
       <text class="pet-social-title">{{postTitle}}</text>
       <text class="pet-social-summary">{{summary}}</text>
-      <text class="pet-social-meta">{{postMeta}}</text>
+      <view class="pet-social-meta">{{postMeta}}</view>
     </view>
 
     <view class="pet-social-divider"></view>
@@ -68,7 +68,10 @@
         <view wx:for="{{comments}}" wx:key="id" class="pet-social-comment">
           <view class="pet-social-comment__row">
             <view class="pet-social-avatar pet-social-comment__avatar">
-              <image src="/assets/logo-paw.png" mode="aspectFit"></image>
+              <image
+                src="{{item.author.avatarUrl || '/assets/profile-pawpets-avatar.png'}}"
+                mode="aspectFill"
+              ></image>
             </view>
             <view class="pet-social-comment__body">
               <text class="pet-social-comment__author">{{item.author.nickname || '宠友'}}</text>
@@ -88,6 +91,12 @@
                 </view>
               </view>
             </view>
+            <text
+              class="pet-social-comment__delete"
+              data-comment-id="{{item.id}}"
+              bindtap="deleteComment"
+              >删除</text
+            >
           </view>
           <view class="pet-social-comment__divider"></view>
         </view>

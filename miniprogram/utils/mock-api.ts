@@ -518,6 +518,29 @@ export function appendMockComment(postId: string, content: string): CommentCreat
   };
 }
 
+export function removeMockComment(commentId: string) {
+  for (const [postId, list] of Object.entries(commentLookup)) {
+    const targetIndex = list.findIndex((item) => item.id === commentId);
+    if (targetIndex === -1) {
+      continue;
+    }
+
+    list.splice(targetIndex, 1);
+
+    const detail = postDetails[postId];
+    if (detail) {
+      detail.stats.commentCount = Math.max(0, detail.stats.commentCount - 1);
+      detail.updatedAt = new Date().toISOString();
+    }
+
+    return {
+      id: commentId,
+    };
+  }
+
+  throw new Error("Comment not found.");
+}
+
 export function appendMockReply(commentId: string, content: string): CommentCreateResult {
   const createdAt = new Date().toISOString();
 

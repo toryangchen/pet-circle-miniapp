@@ -47,18 +47,24 @@ page {
   line-height: 40rpx;
 }
 
+.comment-route_btn-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .comment-route__send {
   width: 132rpx;
-  height: 88rpx;
+  height: 64rpx;
   margin: 0;
   padding: 0;
-  align-self: flex-end;
-  border-radius: 999rpx;
+  border-radius: 16rpx;
   background: #40a200;
   color: #ffffff;
   font-size: 28rpx;
   font-weight: 700;
-  line-height: 88rpx;
+  line-height: 64rpx;
+  text-align: center;
 }
 
 .comment-route__send::after {
@@ -67,6 +73,6 @@ page {
 
 .comment-route__send--disabled,
 .comment-route__send[disabled] {
-  background: #d7d1c8;
-  color: rgba(255, 255, 255, 0.92);
+  background: rgba(64, 162, 0, 0.75);
+  color: #ffffff;
 }

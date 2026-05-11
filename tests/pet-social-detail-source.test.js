@@ -95,6 +95,32 @@ test("pet social detail composer styles are present", () => {
   assert.equal(styles.includes(".pet-social-composer__send[disabled]"), true);
 });
 
+test("pet social detail renders real comment avatars and own-comment delete action", () => {
+  const wxmlPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.wxml");
+  const tsPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts");
+  const lessPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.less");
+  const wxml = fs.readFileSync(wxmlPath, "utf8");
+  const source = fs.readFileSync(tsPath, "utf8");
+  const styles = fs.readFileSync(lessPath, "utf8");
+
+  assert.equal(
+    wxml.includes("src=\"{{item.author.avatarUrl || '/assets/profile-pawpets-avatar.png'}}\""),
+    true,
+  );
+  assert.equal(wxml.includes('wx:if="{{item.canDelete}}"'), true);
+  assert.equal(wxml.includes('class="pet-social-comment__delete"'), true);
+  assert.equal(wxml.includes('bindtap="deleteComment"'), true);
+  assert.equal(source.includes('from "@utils/session"'), true);
+  assert.equal(source.includes("currentUserId"), true);
+  assert.equal(source.includes("canDelete:"), true);
+  assert.equal(source.includes("path: `/comments/${commentId}`"), true);
+  assert.equal(source.includes('method: "DELETE"'), true);
+  assert.equal(source.includes("removeMockComment(commentId)"), true);
+  assert.equal(source.includes("wx.showModal"), true);
+  assert.equal(styles.includes(".pet-social-comment__delete {"), true);
+  assert.equal(styles.includes(".pet-social-comment__avatar image"), true);
+});
+
 test("pet social detail opens comment composer in a Skyline bottom-sheet route", () => {
   const appJson = fs.readFileSync(path.join(__dirname, "../miniprogram/app.json"), "utf8");
   const wxml = fs.readFileSync(

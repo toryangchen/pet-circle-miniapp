@@ -57,7 +57,7 @@
 }
 
 .pet-social-content {
-  padding: 16rpx 32rpx 180rpx;
+  padding: 16rpx 32rpx 200rpx;
   box-sizing: border-box;
   background: #ffffff;
 }
@@ -241,6 +241,7 @@
 .pet-social-comment__row {
   display: flex;
   gap: 12rpx;
+  align-items: flex-start;
 }
 
 .pet-social-comment:nth-child(2n) .pet-social-comment__avatar {
@@ -257,6 +258,12 @@
   display: flex;
   flex-direction: column;
   gap: 6rpx;
+}
+
+.pet-social-comment__avatar image {
+  width: 100%;
+  height: 100%;
+  border-radius: 999rpx;
 }
 
 .pet-social-comment__author {
@@ -276,6 +283,13 @@
   font-size: 20rpx;
   font-weight: 500;
   color: #a2978c;
+}
+
+.pet-social-comment__delete {
+  color: #a2978c;
+  font-size: 20rpx;
+  font-weight: 600;
+  line-height: 44rpx;
 }
 
 .pet-social-comment__divider {
