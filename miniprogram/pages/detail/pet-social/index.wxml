@@ -59,30 +59,6 @@
         <text>共 {{commentCount}} 条评论</text>
       </view>
 
-      <view id="petSocialComposer" class="pet-social-composer" bindtap="focusCommentInput">
-        <view class="pet-social-avatar pet-social-avatar--composer">
-          <image src="/assets/logo-paw.png" mode="aspectFit"></image>
-        </view>
-        <input
-          class="pet-social-composer__input"
-          placeholder="{{commentPlaceholder}}"
-          value="{{commentInput}}"
-          focus="{{commentInputFocused}}"
-          bindinput="onCommentInput"
-          bindblur="onCommentBlur"
-          confirm-type="send"
-          bindconfirm="submitComment"
-        />
-        <button
-          wx:if="{{commentInput}}"
-          class="pet-social-composer__send"
-          disabled="{{isSubmittingComment}}"
-          bindtap="submitComment"
-        >
-          {{isSubmittingComment ? '发送中' : '发送'}}
-        </button>
-      </view>
-
       <view wx:if="{{replyTargetId}}" class="pet-social-replying">
         <text>正在回复 {{replyTargetAuthor}}</text>
         <text bindtap="cancelReply">取消</text>
@@ -121,7 +97,7 @@
 </scroll-view>
 
 <view class="pet-social-bottom">
-  <view class="pet-social-bottom__input" bindtap="focusCommentInput">
+  <view class="pet-social-bottom__input" bindtap="openCommentComposer">
     <image src="/assets/edit.png" mode="aspectFit"></image>
     <text>说点什么...</text>
   </view>

@@ -1,0 +1,72 @@
+page {
+  background-color: transparent;
+}
+
+.comment-route {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+.comment-route__panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 22rpx 28rpx 28rpx;
+  border-radius: 32rpx 32rpx 0 0;
+  box-sizing: border-box;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20rpx;
+  transition: bottom 0.08s ease-out;
+}
+
+.comment-route__input-wrap {
+  width: 100%;
+  min-width: 0;
+  min-height: 132rpx;
+  padding: 22rpx 28rpx;
+  border-radius: 32rpx;
+  background: #f7f4ee;
+  box-sizing: border-box;
+}
+
+.comment-route__input {
+  width: 100%;
+  min-height: 88rpx;
+  color: #2f2a26;
+  font-size: 28rpx;
+  font-weight: 500;
+  line-height: 40rpx;
+}
+
+.comment-route__send {
+  width: 132rpx;
+  height: 88rpx;
+  margin: 0;
+  padding: 0;
+  align-self: flex-end;
+  border-radius: 999rpx;
+  background: #40a200;
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 88rpx;
+}
+
+.comment-route__send::after {
+  border: 0;
+}
+
+.comment-route__send--disabled,
+.comment-route__send[disabled] {
+  background: #d7d1c8;
+  color: rgba(255, 255, 255, 0.92);
+}

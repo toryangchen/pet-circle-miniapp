@@ -1,0 +1,38 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+test("pet social comment route is a minimal Skyline input page", () => {
+  const basePath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/comment");
+  const json = fs.readFileSync(path.join(basePath, "index.json"), "utf8");
+  const wxml = fs.readFileSync(path.join(basePath, "index.wxml"), "utf8");
+  const styles = fs.readFileSync(path.join(basePath, "index.less"), "utf8");
+  const source = fs.readFileSync(path.join(basePath, "index.ts"), "utf8");
+
+  assert.equal(json.includes('"renderer": "skyline"'), true);
+  assert.equal(json.includes('"backgroundColorContent": "#ffffff00"'), true);
+  assert.equal(wxml.includes("auto-focus"), true);
+  assert.equal(wxml.includes('focus="{{inputFocused}}"'), true);
+  assert.equal(wxml.includes("<textarea"), true);
+  assert.equal(wxml.includes('bindtap="dismissCommentRoute"'), true);
+  assert.equal(wxml.includes('catchtap="noop"'), true);
+  assert.equal(wxml.includes('bindtap="submitComment"'), true);
+  assert.equal(wxml.includes('bindkeyboardheightchange="onKeyboardHeightChange"'), true);
+  assert.equal(wxml.includes('adjust-position="{{false}}"'), true);
+  assert.equal(wxml.includes('style="bottom: {{keyboardHeight}}px"'), true);
+  assert.equal(styles.includes("position: fixed;"), true);
+  assert.equal(styles.includes("transition: bottom 0.08s ease-out;"), true);
+  assert.equal(styles.includes("background-color: transparent;"), true);
+  assert.equal(styles.includes("align-self: flex-end;"), true);
+  assert.equal(source.includes("path: `/posts/${postId}/comments`"), true);
+  assert.equal(source.includes("appendMockComment(postId, content)"), true);
+  assert.equal(source.includes("keyboardHeight: 0"), true);
+  assert.equal(source.includes("inputFocused: true"), true);
+  assert.equal(source.includes("onKeyboardHeightChange"), true);
+  assert.equal(source.includes("dismissCommentRoute"), true);
+  assert.equal(source.includes("wx.hideKeyboard"), true);
+  assert.equal(source.includes("setTimeout"), true);
+  assert.equal(source.includes("refreshCommentsAfterSubmit"), true);
+  assert.equal(source.includes("wx.navigateBack"), true);
+});

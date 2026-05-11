@@ -1,0 +1,26 @@
+<view class="comment-route" bindtap="dismissCommentRoute">
+  <view class="comment-route__panel" style="bottom: {{keyboardHeight}}px" catchtap="noop">
+    <view class="comment-route__input-wrap">
+      <textarea
+        class="comment-route__input"
+        placeholder="说点什么..."
+        value="{{commentInput}}"
+        maxlength="500"
+        focus="{{inputFocused}}"
+        auto-focus
+        auto-height
+        show-confirm-bar="{{false}}"
+        adjust-position="{{false}}"
+        bindinput="onCommentInput"
+        bindkeyboardheightchange="onKeyboardHeightChange"
+      />
+    </view>
+    <button
+      class="comment-route__send {{!commentInput || isSubmitting ? 'comment-route__send--disabled' : ''}}"
+      disabled="{{!commentInput || isSubmitting}}"
+      bindtap="submitComment"
+    >
+      {{isSubmitting ? '发送中' : '发送'}}
+    </button>
+  </view>
+</view>

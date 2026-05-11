@@ -95,6 +95,35 @@ test("pet social detail composer styles are present", () => {
   assert.equal(styles.includes(".pet-social-composer__send[disabled]"), true);
 });
 
+test("pet social detail opens comment composer in a Skyline bottom-sheet route", () => {
+  const appJson = fs.readFileSync(path.join(__dirname, "../miniprogram/app.json"), "utf8");
+  const wxml = fs.readFileSync(
+    path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.wxml"),
+    "utf8",
+  );
+  const source = fs.readFileSync(
+    path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts"),
+    "utf8",
+  );
+
+  assert.equal(appJson.includes("pages/detail/pet-social/comment/index"), true);
+  assert.equal(wxml.includes('id="petSocialComposer"'), false);
+  assert.equal(
+    wxml.includes('class="pet-social-bottom__input" bindtap="openCommentComposer"'),
+    true,
+  );
+  assert.equal(source.includes("openCommentComposer()"), true);
+  assert.equal(source.includes('routeType: "wx://bottom-sheet"'), true);
+  assert.equal(source.includes("routeConfig"), true);
+  assert.equal(source.includes('barrierColor: "rgba(0, 0, 0, 0.16)"'), true);
+  assert.equal(source.includes("barrierDismissible: false"), true);
+  assert.equal(source.includes("opaque: false"), true);
+  assert.equal(source.includes("transitionDuration: 120"), true);
+  assert.equal(source.includes("reverseTransitionDuration: 120"), true);
+  assert.equal(source.includes("height: 100"), true);
+  assert.equal(source.includes("refreshCommentsAfterSubmit"), true);
+});
+
 test("pet social detail applies cached feed card before keeping original requests", () => {
   const tsPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts");
   const source = fs.readFileSync(tsPath, "utf8");

@@ -337,10 +337,53 @@ Page({
     });
   },
 
-  focusCommentInput() {
+  openCommentComposer() {
+    const postId = this.data.postId as string;
+    if (!postId) {
+      return;
+    }
+
+    (
+      wx.navigateTo as (
+        options: WechatMiniprogram.NavigateToOption & Record<string, unknown>,
+      ) => void
+    )({
+      url: `/pages/detail/pet-social/comment/index?postId=${postId}`,
+      routeType: "wx://bottom-sheet",
+      routeConfig: {
+        opaque: false,
+        barrierDismissible: false,
+        barrierColor: "rgba(0, 0, 0, 0.16)",
+        transitionDuration: 120,
+        reverseTransitionDuration: 120,
+      },
+      routeOptions: {
+        height: 100,
+        round: false,
+      },
+    });
+  },
+
+  async refreshCommentsAfterSubmit() {
+    const postId = this.data.postId as string;
+    if (!postId) {
+      return;
+    }
+
+    const [detail, comments] = await Promise.all([
+      fetchPetSocialDetail(postId),
+      fetchComments(postId),
+    ]);
     this.setData({
-      commentAnchor: "petSocialComposer",
-      commentInputFocused: true,
+      comments: formatComments(comments.items),
+      stats: [
+        { value: String(detail.stats.likeCount), label: "点赞" },
+        { value: String(detail.stats.commentCount), label: "评论" },
+        { value: String(detail.stats.favoriteCount), label: "收藏" },
+      ],
+      likeCount: String(detail.stats.likeCount),
+      commentCount: String(detail.stats.commentCount),
+      favoriteCount: String(detail.stats.favoriteCount),
     });
   },
 

@@ -1,0 +1,7 @@
+{
+  "usingComponents": {},
+  "renderer": "skyline",
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "backgroundColorContent": "#ffffff00"
+}
