@@ -53,26 +53,36 @@ page {
   justify-content: flex-end;
 }
 
-.comment-route__send {
+.comment-route__send,
+.comment-route__send-disabled {
   width: 132rpx;
   height: 64rpx;
   margin: 0;
   padding: 0;
   border-radius: 16rpx;
-  background: #40a200;
-  color: #ffffff;
   font-size: 28rpx;
   font-weight: 700;
   line-height: 64rpx;
   text-align: center;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.comment-route__send {
+  background-color: #40a200;
+  color: #ffffff;
 }
 
 .comment-route__send::after {
   border: 0;
 }
 
-.comment-route__send--disabled,
-.comment-route__send[disabled] {
-  background: rgba(64, 162, 0, 0.75);
-  color: #ffffff;
+.comment-route__send-disabled {
+  background-color: #eeeeee;
+  border: 1rpx solid #e0ddd8;
+  color: #b7b1aa;
+  opacity: 1;
+  pointer-events: none;
 }

@@ -521,11 +521,16 @@ export function appendMockComment(postId: string, content: string): CommentCreat
 export function removeMockComment(commentId: string) {
   for (const [postId, list] of Object.entries(commentLookup)) {
     const targetIndex = list.findIndex((item) => item.id === commentId);
-    if (targetIndex === -1) {
+    const replyOwner = list.find((item) => item.replies.some((reply) => reply.id === commentId));
+    if (targetIndex === -1 && !replyOwner) {
       continue;
     }
 
-    list.splice(targetIndex, 1);
+    if (targetIndex >= 0) {
+      list.splice(targetIndex, 1);
+    } else if (replyOwner) {
+      replyOwner.replies = replyOwner.replies.filter((reply) => reply.id !== commentId);
+    }
 
     const detail = postDetails[postId];
     if (detail) {

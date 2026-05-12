@@ -3,7 +3,7 @@
     <view class="comment-route__input-wrap">
       <textarea
         class="comment-route__input"
-        placeholder="说点什么..."
+        placeholder="{{placeholder}}"
         value="{{commentInput}}"
         maxlength="500"
         focus="{{inputFocused}}"
@@ -17,10 +17,12 @@
     </view>
     <view class="comment-route_btn-wrap">
       <view
-        class="comment-route__send {{!commentInput || isSubmitting ? 'comment-route__send--disabled' : ''}}"
+        wx:if="{{canSubmit && !isSubmitting}}"
+        class="comment-route__send"
         bindtap="submitComment"
-        >{{isSubmitting ? '发送中' : '发送'}}</view
+        >发送</view
       >
+      <view wx:else class="comment-route__send-disabled">{{isSubmitting ? '发送中' : '发送'}}</view>
     </view>
   </view>
 </view>

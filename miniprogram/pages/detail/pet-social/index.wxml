@@ -86,12 +86,24 @@
               </view>
               <view wx:if="{{item.replies.length}}" class="pet-social-replies">
                 <view wx:for="{{item.replies}}" wx:key="id" class="pet-social-reply">
-                  <text class="pet-social-reply__author">{{item.author.nickname || '宠友'}}：</text>
-                  <text class="pet-social-reply__content">{{item.content}}</text>
+                  <view class="pet-social-reply__body">
+                    <text class="pet-social-reply__author"
+                      >{{item.author.nickname || '宠友'}}：</text
+                    >
+                    <text class="pet-social-reply__content">{{item.content}}</text>
+                  </view>
+                  <text
+                    wx:if="{{item.canDelete}}"
+                    class="pet-social-reply__delete"
+                    data-comment-id="{{item.id}}"
+                    bindtap="deleteComment"
+                    >删除</text
+                  >
                 </view>
               </view>
             </view>
             <text
+              wx:if="{{item.canDelete}}"
               class="pet-social-comment__delete"
               data-comment-id="{{item.id}}"
               bindtap="deleteComment"

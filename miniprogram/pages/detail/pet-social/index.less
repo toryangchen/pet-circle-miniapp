@@ -312,8 +312,17 @@
 }
 
 .pet-social-reply {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12rpx;
   font-size: 22rpx;
   line-height: 1.45;
+}
+
+.pet-social-reply__body {
+  flex: 1;
+  min-width: 0;
 }
 
 .pet-social-reply__author {
@@ -323,6 +332,13 @@
 
 .pet-social-reply__content {
   color: #2f2a26;
+}
+
+.pet-social-reply__delete {
+  flex-shrink: 0;
+  color: #a2978c;
+  font-size: 20rpx;
+  font-weight: 600;
 }
 
 .pet-social-bottom {

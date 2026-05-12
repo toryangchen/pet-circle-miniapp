@@ -59,7 +59,7 @@ async function createPostComment(postId: string, content: string) {
           content,
         },
       }),
-    appendMockComment(postId, content),
+    () => appendMockComment(postId, content),
   );
 }
 
@@ -73,7 +73,7 @@ async function createReplyComment(commentId: string, content: string) {
           content,
         },
       }),
-    appendMockReply(commentId, content),
+    () => appendMockReply(commentId, content),
   );
 }
 
@@ -84,7 +84,7 @@ async function deletePostComment(commentId: string) {
         method: "DELETE",
         path: `/comments/${commentId}`,
       }),
-    removeMockComment(commentId),
+    () => removeMockComment(commentId),
   );
 }
 
@@ -165,6 +165,7 @@ function formatComments(comments: CommentItem[], currentUserId: string) {
     createdAt: formatCommentTime(comment.createdAt),
     replies: comment.replies.map((reply) => ({
       ...reply,
+      canDelete: Boolean(currentUserId && reply.author.id === currentUserId),
       createdAt: formatCommentTime(reply.createdAt),
     })),
   }));
@@ -320,10 +321,9 @@ Page({
       return;
     }
 
-    this.setData({
+    this.openCommentComposer({
       replyTargetId: commentId,
       replyTargetAuthor: author,
-      commentPlaceholder: `回复 ${author}`,
     });
   },
 
@@ -359,18 +359,23 @@ Page({
     });
   },
 
-  openCommentComposer() {
+  openCommentComposer(options?: { replyTargetId?: string; replyTargetAuthor?: string }) {
     const postId = this.data.postId as string;
     if (!postId) {
       return;
     }
+    const replyTargetId = options?.replyTargetId || "";
+    const replyTargetAuthor = options?.replyTargetAuthor || "";
+    const query = replyTargetId
+      ? `&replyTargetId=${replyTargetId}&replyTargetAuthor=${encodeURIComponent(replyTargetAuthor)}`
+      : "";
 
     (
       wx.navigateTo as (
         options: WechatMiniprogram.NavigateToOption & Record<string, unknown>,
       ) => void
     )({
-      url: `/pages/detail/pet-social/comment/index?postId=${postId}`,
+      url: `/pages/detail/pet-social/comment/index?postId=${postId}${query}`,
       routeType: "wx://bottom-sheet",
       routeConfig: {
         opaque: false,
