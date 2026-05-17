@@ -57,25 +57,7 @@
         data-post-id="{{item.id}}"
         bindtap="onTapPost"
       >
-        <view class="pc-card home-card">
-          <view class="home-card__img-content">
-            <image class="home-card__image" src="{{item.image}}" mode="widthFix"></image>
-          </view>
-
-          <view class="home-card__body">
-            <text class="home-card__title" overflow="ellipsis" max-lines="2"> {{item.title}} </text>
-            <view class="home-card__meta">
-              <image class="img-avator" src="{{item.authorAvatarUrl}}"></image>
-              <text>{{item.author}}</text>
-              <view style="flex: 1"></view>
-              <image
-                class="icon-love"
-                src="/assets/icon-love{{item.favorited ? '-active' : ''}}.svg"
-              />
-              <text>{{item.favoriteCount || '0'}}</text>
-            </view>
-          </view>
-        </view>
+        <feed-card item="{{item}}"></feed-card>
       </open-container>
     </block>
   </grid-view>

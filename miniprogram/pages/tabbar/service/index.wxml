@@ -33,34 +33,17 @@
   <grid-view
     type="masonry"
     cross-axis-count="2"
-    cross-axis-gap="2"
-    main-axis-gap="2"
+    cross-axis-gap="{{gap}}"
+    main-axis-gap="{{gap}}"
     padding="{{[0,0,10,0]}}"
   >
-    <view
-      wx:for="{{servicePosts}}"
-      wx:key="id"
-      class="pc-card service-card"
-      data-route="{{item.route}}"
-      bindtap="onTapPost"
-    >
-      <view class="service-card__img-content">
-        <image class="service-card__image" src="{{item.image}}"></image>
-      </view>
-
-      <view class="service-card__body">
-        <view>
-          <view class="pc-chip pc-chip--warm">
-            <text>{{item.badge}}</text>
-          </view>
-        </view>
-
-        <text class="service-card__title" overflow="ellipsis" max-lines="2"> {{item.title}} </text>
-        <view class="service-card__meta">
-          <text>{{item.author}}</text>
-          <text>{{item.meta}}</text>
-        </view>
-      </view>
+    <view wx:for="{{servicePosts}}" wx:key="id" data-route="{{item.route}}" bindtap="openDetail">
+      <feed-card
+        item="{{item}}"
+        image-mode="aspectFill"
+        fixed-image-height="{{true}}"
+        show-badge="{{true}}"
+      ></feed-card>
     </view>
   </grid-view>
 </scroll-view>
