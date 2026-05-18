@@ -7,6 +7,11 @@ export interface PetSocialDetailPrefill {
   authorAvatarUrl?: string;
   favoriteCount: number;
   favorited: boolean;
+  isServiceDetail?: boolean;
+  badge?: string;
+  serviceFields?: Array<{ label: string; value: string }>;
+  serviceDescription?: string;
+  phoneAuthorized?: boolean;
 }
 
 let petSocialDetailPrefill: PetSocialDetailPrefill | null = null;

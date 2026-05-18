@@ -180,8 +180,35 @@ test("pet social detail applies cached feed card before keeping original request
   assert.equal(source.includes('from "@utils/detail-prefill"'), true);
   assert.equal(source.includes("applyCachedDetailPrefill(postId)"), true);
   assert.equal(source.includes("consumePetSocialDetailPrefill(postId)"), true);
+  assert.equal(source.includes("prefill.isServiceDetail"), true);
   assert.equal(source.includes("wx.getStorageSync(PET_SOCIAL_DETAIL_PREFILL_KEY)"), false);
   assert.equal(source.includes("wx.removeStorageSync(PET_SOCIAL_DETAIL_PREFILL_KEY)"), false);
   assert.equal(source.includes("fetchPetSocialDetail(postId)"), true);
   assert.equal(source.includes("fetchComments(postId)"), true);
+});
+
+test("pet social detail renders service-specific sections and bottom actions", () => {
+  const tsPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.ts");
+  const wxmlPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.wxml");
+  const lessPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.less");
+  const source = fs.readFileSync(tsPath, "utf8");
+  const wxml = fs.readFileSync(wxmlPath, "utf8");
+  const styles = fs.readFileSync(lessPath, "utf8");
+
+  assert.equal(source.includes("isServiceDetail"), true);
+  assert.equal(source.includes("serviceFields"), true);
+  assert.equal(source.includes("serviceDescription"), true);
+  assert.equal(source.includes("requestPostContact(postId)"), true);
+  assert.equal(source.includes("handleGetPhoneNumber"), true);
+  assert.equal(wxml.includes('wx:if="{{isServiceDetail}}" class="pet-social-service-info"'), true);
+  assert.equal(wxml.includes("服务信息"), true);
+  assert.equal(wxml.includes("服务说明"), true);
+  assert.equal(wxml.includes('wx:if="{{!isServiceDetail}}" class="pet-social-bottom"'), true);
+  assert.equal(
+    wxml.includes('wx:if="{{isServiceDetail}}" class="pet-social-service-bottom"'),
+    true,
+  );
+  assert.equal(wxml.includes("联系发布者"), true);
+  assert.equal(styles.includes(".pet-social-service-info {"), true);
+  assert.equal(styles.includes(".pet-social-service-bottom {"), true);
 });

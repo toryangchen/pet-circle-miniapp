@@ -52,6 +52,25 @@
       <view class="pet-social-meta">{{postMeta}}</view>
     </view>
 
+    <view wx:if="{{isServiceDetail}}" class="pet-social-divider"></view>
+
+    <view wx:if="{{isServiceDetail}}" class="pet-social-service-info">
+      <text class="pet-social-section-title">服务信息</text>
+      <view class="pet-social-service-grid">
+        <view wx:for="{{serviceFields}}" wx:key="label" class="pet-social-service-field">
+          <text class="pet-social-service-field__label">{{item.label}}</text>
+          <text class="pet-social-service-field__value">{{item.value}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{isServiceDetail}}" class="pet-social-divider"></view>
+
+    <view wx:if="{{isServiceDetail}}" class="pet-social-service-description">
+      <text class="pet-social-section-title">服务说明</text>
+      <text class="pet-social-service-description__content">{{serviceDescription}}</text>
+    </view>
+
     <view class="pet-social-divider"></view>
 
     <view class="pet-social-comments">
@@ -117,7 +136,7 @@
   </view>
 </scroll-view>
 
-<view class="pet-social-bottom">
+<view wx:if="{{!isServiceDetail}}" class="pet-social-bottom">
   <view class="pet-social-bottom__input" bindtap="openCommentComposer">
     <image src="/assets/edit.png" mode="aspectFit"></image>
     <text>说点什么...</text>
@@ -131,4 +150,27 @@
     <image src="/assets/share.png" mode="aspectFit"></image>
     <text>分享</text>
   </button>
+</view>
+
+<view wx:if="{{isServiceDetail}}" class="pet-social-service-bottom">
+  <view class="pet-social-service-bottom__icon" bindtap="toggleFavorite">
+    <image src="/assets/icon-love{{favorited ? '-active' : '-black'}}.svg" mode="aspectFit"></image>
+    <text>{{favoriteCount}}</text>
+  </view>
+  <button class="pet-social-service-bottom__icon" open-type="share">
+    <image src="/assets/share.png" mode="aspectFit"></image>
+    <text>分享</text>
+  </button>
+  <button
+    wx:if="{{!phoneAuthorized}}"
+    class="pet-social-service-bottom__primary"
+    open-type="getPhoneNumber"
+    bindgetphonenumber="handleGetPhoneNumber"
+    loading="{{isAuthorizingPhone}}"
+  >
+    {{isAuthorizingPhone ? '授权中...' : contactButtonLabel}}
+  </button>
+  <view wx:else class="pet-social-service-bottom__primary" bindtap="requestContact"
+    >联系发布者</view
+  >
 </view>

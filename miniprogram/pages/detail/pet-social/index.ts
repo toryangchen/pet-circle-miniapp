@@ -2,7 +2,9 @@ import type {
   CommentCreateResult,
   CommentItem,
   CommentListResult,
+  ContactRequestResult,
   PostDetail,
+  ServiceCategory,
   ToggleFavoriteResult,
   ToggleLikeResult,
 } from "@utils/api-types";
@@ -16,8 +18,8 @@ import {
   toggleMockLike,
 } from "@utils/mock-api";
 import { consumePetSocialDetailPrefill } from "@utils/detail-prefill";
-import { request } from "@utils/request";
-import { getAuthState } from "@utils/session";
+import { request, requestWithAuth } from "@utils/request";
+import { ensurePhoneAuthorized, getAuthState, syncCurrentUser } from "@utils/session";
 
 async function withFallback<T>(loader: () => Promise<T>, fallback: T | (() => T)) {
   try {
@@ -110,6 +112,13 @@ async function updatePostFavorite(postId: string, favorited: boolean) {
   );
 }
 
+async function requestPostContact(postId: string) {
+  return requestWithAuth<ContactRequestResult>({
+    method: "POST",
+    path: `/posts/${postId}/contact-request`,
+  });
+}
+
 function formatPostMeta(createdAt: string, city: string) {
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) {
@@ -171,6 +180,38 @@ function formatComments(comments: CommentItem[], currentUserId: string) {
   }));
 }
 
+function resolveServiceBadge(serviceCategory: ServiceCategory | null) {
+  switch (serviceCategory) {
+    case "BOARDING":
+      return "宠物寄养";
+    case "ADOPTION":
+      return "领养";
+    case "SECOND_HAND":
+      return "闲置";
+    case "HOME_FEEDING":
+      return "上门喂养";
+    default:
+      return "服务";
+  }
+}
+
+function buildServiceFields(detail: PostDetail) {
+  return [
+    { label: "服务区域", value: detail.city || "同城可约" },
+    { label: "服务类型", value: resolveServiceBadge(detail.serviceCategory) },
+    {
+      label: "联系方式",
+      value: detail.contact?.visible
+        ? detail.contact.wechatId || detail.contact.phone || "已授权可见"
+        : "受控联系申请后展示",
+    },
+    {
+      label: "联系入口",
+      value: detail.viewerState.phoneAuthorized ? "可发起联系申请" : "需先完成手机号授权",
+    },
+  ];
+}
+
 Page({
   data: {
     title: "详情",
@@ -184,6 +225,10 @@ Page({
     images: [] as string[],
     heroCurrent: 0,
     postMeta: "",
+    isServiceDetail: false,
+    serviceFields: [] as Array<{ label: string; value: string }>,
+    serviceDescription: "",
+    contactButtonLabel: "联系发布者",
     likeCount: "0",
     commentCount: "0",
     favoriteCount: "0",
@@ -201,6 +246,8 @@ Page({
     favorited: false,
     isLoading: false,
     isSubmittingComment: false,
+    isAuthorizingPhone: false,
+    phoneAuthorized: false,
   },
 
   async onLoad(query: Record<string, string | undefined>) {
@@ -218,16 +265,22 @@ Page({
         fetchPetSocialDetail(postId),
         fetchComments(postId),
       ]);
+      const isServiceDetail = detail.type === "SERVICE";
+      const serviceBadge = resolveServiceBadge(detail.serviceCategory);
       this.setData({
-        authorName: detail.author?.nickname || "宠友分享",
+        authorName: detail.author?.nickname || (isServiceDetail ? "服务发布" : "宠友分享"),
         authorAvator: detail.author?.avatarUrl || "",
-        badge: "宠物圈",
+        badge: isServiceDetail ? serviceBadge : "宠物圈",
         postTitle: detail.title,
         summary: restoreEscapedNewlines(detail.content),
         image: detail.images[0] || this.data.image,
         images: detail.images,
         heroCurrent: 0,
         postMeta: formatPostMeta(detail.createdAt, detail.city),
+        isServiceDetail,
+        serviceFields: isServiceDetail ? buildServiceFields(detail) : [],
+        serviceDescription: isServiceDetail ? restoreEscapedNewlines(detail.content) : "",
+        contactButtonLabel: detail.viewerState.phoneAuthorized ? "联系发布者" : "先绑定手机号",
         likeCount: String(detail.stats.likeCount),
         commentCount: String(detail.stats.commentCount),
         favoriteCount: String(detail.stats.favoriteCount),
@@ -236,10 +289,11 @@ Page({
           { value: String(detail.stats.commentCount), label: "评论" },
           { value: String(detail.stats.favoriteCount), label: "收藏" },
         ],
-        tags: [],
+        tags: isServiceDetail ? [serviceBadge, detail.city].filter(Boolean) : [],
         comments: formatComments(comments.items, currentUserId),
         liked: detail.viewerState.liked,
         favorited: detail.viewerState.favorited,
+        phoneAuthorized: detail.viewerState.phoneAuthorized,
       });
     } finally {
       this.setData({
@@ -254,6 +308,23 @@ Page({
     });
   },
 
+  async onShow() {
+    if (!this.data.isServiceDetail || !getAuthState().isAuthenticated) {
+      return;
+    }
+
+    try {
+      await syncCurrentUser();
+      const nextState = getAuthState();
+      this.setData({
+        phoneAuthorized: nextState.phoneAuthorized,
+        contactButtonLabel: nextState.phoneAuthorized ? "联系发布者" : "先绑定手机号",
+      });
+    } catch {
+      // Preserve the last successful phone authorization state when sync fails.
+    }
+  },
+
   applyCachedDetailPrefill(postId: string) {
     const prefill = consumePetSocialDetailPrefill(postId);
 
@@ -264,13 +335,19 @@ Page({
     this.setData({
       authorName: prefill.authorName || "宠友分享",
       authorAvator: prefill.authorAvatarUrl || "",
+      isServiceDetail: Boolean(prefill.isServiceDetail),
+      badge: prefill.badge || (prefill.isServiceDetail ? "服务" : this.data.badge),
       postTitle: prefill.title,
       summary: restoreEscapedNewlines(prefill.summary),
       image: prefill.image,
       images: prefill.image ? [prefill.image] : [],
       heroCurrent: 0,
+      serviceFields: prefill.serviceFields || [],
+      serviceDescription: restoreEscapedNewlines(prefill.serviceDescription || ""),
+      contactButtonLabel: prefill.phoneAuthorized ? "联系发布者" : "先绑定手机号",
       favoriteCount: String(prefill.favoriteCount),
       favorited: prefill.favorited,
+      phoneAuthorized: Boolean(prefill.phoneAuthorized),
       stats: [
         { value: "0", label: "点赞" },
         { value: "0", label: "评论" },
@@ -356,6 +433,19 @@ Page({
       favorited: nextFavorited,
       stats,
       favoriteCount: this.findStatsValue(stats, "收藏"),
+    });
+  },
+
+  async requestContact() {
+    const postId = this.data.postId as string;
+    if (!(await this.ensurePhoneReady())) {
+      return;
+    }
+
+    const result = await requestPostContact(postId);
+    wx.showToast({
+      title: `申请已发送：${result.status}`,
+      icon: "success",
     });
   },
 
@@ -472,6 +562,47 @@ Page({
     }
   },
 
+  async handleGetPhoneNumber(
+    event: WechatMiniprogram.CustomEvent<{ code?: string; errMsg?: string }>,
+  ) {
+    const phoneCode = event.detail.code;
+    if (!phoneCode) {
+      wx.showToast({
+        title: "需要手机号授权后才能联系发布者",
+        icon: "none",
+      });
+      return;
+    }
+
+    this.setData({
+      isAuthorizingPhone: true,
+    });
+
+    try {
+      await ensurePhoneAuthorized(phoneCode);
+      await syncCurrentUser();
+      const nextState = getAuthState();
+      this.setData({
+        phoneAuthorized: nextState.phoneAuthorized,
+        contactButtonLabel: "联系发布者",
+      });
+      wx.showToast({
+        title: "授权成功",
+        icon: "success",
+      });
+      await this.requestContact();
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : "手机号授权失败",
+        icon: "none",
+      });
+    } finally {
+      this.setData({
+        isAuthorizingPhone: false,
+      });
+    }
+  },
+
   async deleteComment(
     event: WechatMiniprogram.CustomEvent<
       WechatMiniprogram.IAnyObject,
@@ -542,5 +673,32 @@ Page({
 
   findStatsValue(stats: Array<{ value: string; label: string }>, label: string) {
     return stats.find((item) => item.label === label)?.value || "0";
+  },
+
+  async ensurePhoneReady() {
+    if (this.data.phoneAuthorized) {
+      return true;
+    }
+
+    try {
+      await syncCurrentUser();
+    } catch {
+      // Ignore sync failures and rely on the latest local state.
+    }
+
+    const nextState = getAuthState();
+    if (nextState.phoneAuthorized) {
+      this.setData({
+        phoneAuthorized: true,
+        contactButtonLabel: "联系发布者",
+      });
+      return true;
+    }
+
+    wx.showToast({
+      title: "请先完成手机号授权",
+      icon: "none",
+    });
+    return false;
   },
 });

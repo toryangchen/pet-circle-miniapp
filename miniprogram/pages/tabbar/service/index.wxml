@@ -37,7 +37,13 @@
     main-axis-gap="{{gap}}"
     padding="{{[0,0,10,0]}}"
   >
-    <view wx:for="{{servicePosts}}" wx:key="id" data-route="{{item.route}}" bindtap="openDetail">
+    <view
+      wx:for="{{servicePosts}}"
+      wx:key="id"
+      data-route="{{item.route}}"
+      data-post-id="{{item.id}}"
+      bindtap="openDetail"
+    >
       <feed-card
         item="{{item}}"
         image-mode="aspectFill"

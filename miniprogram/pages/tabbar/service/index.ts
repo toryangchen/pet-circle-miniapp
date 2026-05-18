@@ -1,4 +1,5 @@
 import type { FeedCardView, FeedItem, PagedResult } from "@utils/api-types";
+import { setPetSocialDetailPrefill } from "@utils/detail-prefill";
 import { request } from "@utils/request";
 import { rpx2px } from "@utils/util";
 
@@ -50,10 +51,33 @@ function toFeedCardView(item: FeedItem): ServiceFeedCardView {
     author: item.author ?? "服务发布",
     authorAvatarUrl: item.authorAvatarUrl ?? null,
     meta: item.meta ?? `${item.city} · ${item.stats.likeCount} 赞`,
-    route: item.route ?? `/pages/detail/service/index?id=${item.id}`,
+    route: `/pages/detail/pet-social/index?id=${item.id}`,
     favoriteCount: item.stats.favoriteCount,
     favorited: item.viewerState.favorited,
     serviceCategory: item.serviceCategory,
+  };
+}
+
+function buildPetSocialDetailPrefill(item: ServiceFeedCardView) {
+  return {
+    id: item.id,
+    title: item.title,
+    summary: item.summary,
+    image: item.image,
+    authorName: item.author,
+    authorAvatarUrl: item.authorAvatarUrl ?? "",
+    favoriteCount: item.favoriteCount,
+    favorited: item.favorited,
+    isServiceDetail: true,
+    badge: item.badge,
+    serviceDescription: item.summary,
+    serviceFields: [
+      { label: "服务类型", value: item.badge },
+      { label: "服务区域", value: item.meta || "同城可约" },
+      { label: "联系方式", value: "受控联系申请后展示" },
+      { label: "联系入口", value: "需先完成手机号授权" },
+    ],
+    phoneAuthorized: false,
   };
 }
 
@@ -134,8 +158,25 @@ Page({
       return;
     }
 
+    this.prefillPetSocialDetail(event.currentTarget.dataset.postId as string | undefined);
+
     wx.navigateTo({
       url: route,
     });
+  },
+
+  prefillPetSocialDetail(postId?: string) {
+    if (!postId) {
+      return;
+    }
+
+    const post = (this.data.servicePosts as ServiceFeedCardView[]).find(
+      (item) => item.id === postId,
+    );
+    if (!post) {
+      return;
+    }
+
+    setPetSocialDetailPrefill(buildPetSocialDetailPrefill(post));
   },
 });

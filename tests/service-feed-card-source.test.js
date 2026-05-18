@@ -43,3 +43,17 @@ test("shared feed card uses virtual host for Skyline grid measurement", () => {
 
   assert.equal(componentSource.includes("virtualHost: true"), true);
 });
+
+test("service tab reuses pet social detail page for card taps", () => {
+  const pagePath = path.join(__dirname, "../miniprogram/pages/tabbar/service/index.ts");
+  const templatePath = path.join(__dirname, "../miniprogram/pages/tabbar/service/index.wxml");
+  const source = fs.readFileSync(pagePath, "utf8");
+  const template = fs.readFileSync(templatePath, "utf8");
+
+  assert.equal(source.includes('from "@utils/detail-prefill"'), true);
+  assert.equal(source.includes("route: `/pages/detail/pet-social/index?id=${item.id}`"), true);
+  assert.equal(source.includes("setPetSocialDetailPrefill("), true);
+  assert.equal(source.includes("isServiceDetail: true"), true);
+  assert.equal(source.includes("prefillPetSocialDetail(event.currentTarget.dataset.postId"), true);
+  assert.equal(template.includes('data-post-id="{{item.id}}"'), true);
+});
