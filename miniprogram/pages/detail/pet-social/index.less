@@ -496,9 +496,9 @@
 }
 
 .pet-social-service-bottom__icon {
-  width: 122rpx !important;
+  width: 96rpx !important;
   height: 76rpx;
-  margin: 0;
+  margin: 0 !important;
   padding: 0;
   background: transparent !important;
   border: 0;
@@ -510,7 +510,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
+  gap: 4rpx;
+
+  .icon {
+    margin-right: 5rpx;
+  }
 }
 
 .pet-social-service-bottom__icon::after,
@@ -524,9 +528,10 @@
 }
 
 .pet-social-service-bottom__primary {
-  flex: 1;
+  flex: 0 0 260rpx;
+  width: 260rpx;
   height: 76rpx;
-  margin: 0 0 0 24rpx;
+  margin: 0 0 0 16rpx;
   padding: 0;
   border: 0;
   border-radius: 999rpx;

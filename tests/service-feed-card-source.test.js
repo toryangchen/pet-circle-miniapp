@@ -74,10 +74,12 @@ test("service tab opens cards with the same open-container pattern as home", () 
   assert.equal(template.includes('bindtap="openDetail"'), true);
   assert.equal(source.includes('type: "fade"'), true);
   assert.equal(source.includes("duration: 300"), true);
-  assert.equal(source.includes("closedElevation: 1"), true);
+  assert.equal(source.includes("closedElevation: 0"), true);
   assert.equal(source.includes("closedBorderRadius: 4"), true);
-  assert.equal(source.includes("openElevation: 4"), true);
+  assert.equal(source.includes("openElevation: 0"), true);
   assert.equal(source.includes("openBorderRadius: 0"), true);
+  assert.equal(source.includes("closedElevation: 1"), false);
+  assert.equal(source.includes("openElevation: 4"), false);
 });
 
 test("service tab supports pull refresh and paged load more like home", () => {

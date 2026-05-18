@@ -12,7 +12,6 @@ test("page files do not import aggregated api module", () => {
     "pages/tabbar/home/index.ts",
     "pages/tabbar/service/index.ts",
     "pages/detail/pet-social/index.ts",
-    "pages/detail/service/index.ts",
     "pages/publish/index.ts",
   ];
 
@@ -24,6 +23,18 @@ test("page files do not import aggregated api module", () => {
       `${file} should not import @utils/api`,
     );
   }
+});
+
+test("legacy service detail page is no longer registered or routed to", () => {
+  const appJson = readPageSource("app.json");
+  const messageSource = readPageSource("pages/tabbar/message/index.ts");
+  const mockApiSource = readPageSource("utils/mock-api.ts");
+  const mockSource = readPageSource("utils/mock.ts");
+
+  assert.equal(appJson.includes("pages/detail/service/index"), false);
+  assert.equal(messageSource.includes("/pages/detail/service/index"), false);
+  assert.equal(mockApiSource.includes("/pages/detail/service/index"), false);
+  assert.equal(mockSource.includes("/pages/detail/service/index"), false);
 });
 
 test("tab pages show feed request urls inline", () => {

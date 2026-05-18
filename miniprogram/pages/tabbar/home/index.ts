@@ -66,9 +66,9 @@ Page({
 
     type: "fade",
     duration: 300,
-    closedElevation: 1,
+    closedElevation: 0,
     closedBorderRadius: 4,
-    openElevation: 4,
+    openElevation: 0,
     openBorderRadius: 0,
 
     page: 1,

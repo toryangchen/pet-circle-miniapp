@@ -53,7 +53,7 @@ const feedLookup = new Map<string, FeedCardView>([
           badge: item.badge,
           author: item.author,
           meta: item.meta,
-          route: `/pages/detail/service/index?id=${item.id}`,
+          route: `/pages/detail/pet-social/index?id=${item.id}`,
           favoriteCount: 0,
           favorited: false,
         },
@@ -187,7 +187,7 @@ const favorites: FeedCardView[] = [
     badge: SERVICE_FEEDS[0].badge,
     author: SERVICE_FEEDS[0].author,
     meta: "已收藏 · 联系受控展示",
-    route: "/pages/detail/service/index?id=service-1",
+    route: "/pages/detail/pet-social/index?id=service-1",
     favoriteCount: 6,
     favorited: true,
   },
@@ -213,7 +213,7 @@ const posts: MyPostCardView[] = [
     title: "未央区可上门喂养，拍照反馈很及时",
     status: "PENDING",
     summary: "等待审核中，结构化服务字段已填写。",
-    route: "/pages/detail/service/index?id=service-1",
+    route: "/pages/detail/pet-social/index?id=service-1",
   },
   {
     id: "post-2",
@@ -290,7 +290,7 @@ const commentLookup: Record<string, CommentItem[]> = {
 
 function toDetailRoute(item: { id: string; type: FeedItem["type"] }) {
   return item.type === "SERVICE"
-    ? `/pages/detail/service/index?id=${item.id}`
+    ? `/pages/detail/pet-social/index?id=${item.id}`
     : `/pages/detail/pet-social/index?id=${item.id}`;
 }
 
@@ -343,7 +343,7 @@ function toNotificationCardView(item: NotificationItem): NotificationCardView {
     unread: !item.isRead,
     route: item.post
       ? item.post.type === "SERVICE"
-        ? `/pages/detail/service/index?id=${item.post.id}`
+        ? `/pages/detail/pet-social/index?id=${item.post.id}`
         : `/pages/detail/pet-social/index?id=${item.post.id}`
       : "/pages/message/index",
     conversationId: item.conversationId,

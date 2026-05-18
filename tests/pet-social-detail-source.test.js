@@ -208,7 +208,26 @@ test("pet social detail renders service-specific sections and bottom actions", (
     wxml.includes('wx:if="{{isServiceDetail}}" class="pet-social-service-bottom"'),
     true,
   );
+  const serviceBottomStart = wxml.indexOf(
+    'wx:if="{{isServiceDetail}}" class="pet-social-service-bottom"',
+  );
+  const serviceBottom = wxml.slice(serviceBottomStart);
+  assert.equal(serviceBottom.includes('src="/assets/message.svg"'), true);
+  assert.equal(serviceBottom.includes('bindtap="openCommentComposer"'), true);
+  assert.equal(
+    serviceBottom.indexOf('bindtap="toggleFavorite"') <
+      serviceBottom.indexOf('bindtap="openCommentComposer"'),
+    true,
+  );
+  assert.equal(
+    serviceBottom.indexOf('bindtap="openCommentComposer"') <
+      serviceBottom.indexOf('open-type="share"'),
+    true,
+  );
   assert.equal(wxml.includes("联系发布者"), true);
   assert.equal(styles.includes(".pet-social-service-info {"), true);
   assert.equal(styles.includes(".pet-social-service-bottom {"), true);
+  assert.equal(styles.includes("width: 96rpx !important;"), true);
+  assert.equal(styles.includes("gap: 4rpx;"), true);
+  assert.equal(styles.includes("width: 260rpx;"), true);
 });

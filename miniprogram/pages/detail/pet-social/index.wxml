@@ -154,8 +154,16 @@
 
 <view wx:if="{{isServiceDetail}}" class="pet-social-service-bottom">
   <view class="pet-social-service-bottom__icon" bindtap="toggleFavorite">
-    <image src="/assets/icon-love{{favorited ? '-active' : '-black'}}.svg" mode="aspectFit"></image>
+    <image
+      class="icon"
+      src="/assets/icon-love{{favorited ? '-active' : '-black'}}.svg"
+      mode="aspectFit"
+    ></image>
     <text>{{favoriteCount}}</text>
+  </view>
+  <view class="pet-social-service-bottom__icon" bindtap="openCommentComposer">
+    <image class="icon" src="/assets/message.svg" mode="aspectFit"></image>
+    <text>{{commentCount}}</text>
   </view>
   <button class="pet-social-service-bottom__icon" open-type="share">
     <image src="/assets/share.png" mode="aspectFit"></image>

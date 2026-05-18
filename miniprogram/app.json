@@ -6,7 +6,6 @@
     "pages/tabbar/personal/index",
     "pages/profileEdit/index",
     "pages/publish/index",
-    "pages/detail/service/index",
     "pages/detail/pet-social/index",
     "pages/detail/pet-social/comment/index"
   ],

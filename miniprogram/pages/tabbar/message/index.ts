@@ -15,7 +15,7 @@ const MOCK_NOTIFICATIONS: NotificationItemView[] = [
   {
     id: "notification-1",
     unread: true,
-    route: "/pages/detail/service/index?id=service-1",
+    route: "/pages/detail/pet-social/index?id=service-1",
     title: "雪球",
     summary: "收藏了你的服务发布《周末可上门喂猫》",
     time: "2分钟前",
@@ -35,7 +35,7 @@ const MOCK_NOTIFICATIONS: NotificationItemView[] = [
   {
     id: "notification-3",
     unread: true,
-    route: "/pages/detail/service/index?id=service-1",
+    route: "/pages/detail/pet-social/index?id=service-1",
     title: "阿满",
     summary: "评论了你：周五晚上也可以接猫咪寄养吗？",
     time: "今天 09:24",
@@ -55,7 +55,7 @@ const MOCK_NOTIFICATIONS: NotificationItemView[] = [
   {
     id: "notification-5",
     unread: true,
-    route: "/pages/detail/service/index?id=service-1",
+    route: "/pages/detail/pet-social/index?id=service-1",
     title: "西安宠友群",
     summary: "你好，想咨询一下上门喂养的时间，清明假期可以约吗？",
     time: "周一",
@@ -65,7 +65,7 @@ const MOCK_NOTIFICATIONS: NotificationItemView[] = [
   {
     id: "notification-6",
     unread: true,
-    route: "/pages/detail/service/index?id=service-1",
+    route: "/pages/detail/pet-social/index?id=service-1",
     title: "豆包妈妈",
     summary: "二手航空箱还在吗？如果方便的话我想周末自提。",
     time: "3月28日",

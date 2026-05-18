@@ -46,3 +46,13 @@ test("home tab caches tapped feed card for pet social detail prefill", () => {
   assert.equal(source.includes("prefillPetSocialDetail(event.currentTarget.dataset.postId"), true);
   assert.equal(template.includes('data-post-id="{{item.id}}"'), true);
 });
+
+test("home tab feed cards do not render open-container shadows", () => {
+  const pagePath = path.join(__dirname, "../miniprogram/pages/tabbar/home/index.ts");
+  const source = fs.readFileSync(pagePath, "utf8");
+
+  assert.equal(source.includes("closedElevation: 0"), true);
+  assert.equal(source.includes("openElevation: 0"), true);
+  assert.equal(source.includes("closedElevation: 1"), false);
+  assert.equal(source.includes("openElevation: 4"), false);
+});

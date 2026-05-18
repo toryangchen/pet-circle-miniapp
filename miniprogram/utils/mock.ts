@@ -167,7 +167,7 @@ export const SERVICE_FEEDS: FeedCard[] = [
     badge: "上门喂养",
     author: "糯米和团子的家",
     meta: "服务中 · 3.8km",
-    route: "/pages/detail/service/index",
+    route: "/pages/detail/pet-social/index",
   },
   {
     id: "service-2",
@@ -178,7 +178,7 @@ export const SERVICE_FEEDS: FeedCard[] = [
     badge: "宠物寄养",
     author: "阿喵的家",
     meta: "服务中 · 4.2km",
-    route: "/pages/detail/service/index",
+    route: "/pages/detail/pet-social/index",
   },
   {
     id: "service-3",
