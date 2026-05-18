@@ -292,6 +292,40 @@
   gap: 16rpx;
 }
 
+.pet-social-comment-empty {
+  min-height: 300rpx;
+  border-radius: 24rpx;
+  background: #fbf8f3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.pet-social-comment-empty__icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 999rpx;
+  background: #f0eadf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pet-social-comment-empty__icon image {
+  width: 38rpx;
+  height: 38rpx;
+  opacity: 0.48;
+}
+
+.pet-social-comment-empty__text {
+  color: #a2978c;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
 .pet-social-comment {
   display: flex;
   flex-direction: column;
@@ -416,9 +450,9 @@
 }
 
 .pet-social-bottom__input {
-  width: 412rpx;
+  flex: 1;
   height: 76rpx;
-  margin-left: 24rpx;
+  margin: 0 24rpx;
   border-radius: 999rpx;
   background: #f5f3ef;
   display: flex;
@@ -441,6 +475,7 @@
 
 .pet-social-bottom__like,
 .pet-social-bottom__share {
+  width: 110rpx;
   height: 76rpx;
   background-color: transparent !important;
   border-radius: 999rpx;
@@ -496,7 +531,7 @@
 }
 
 .pet-social-service-bottom__icon {
-  width: 96rpx !important;
+  width: 110rpx !important;
   height: 76rpx;
   margin: 0 !important;
   padding: 0;
@@ -528,8 +563,7 @@
 }
 
 .pet-social-service-bottom__primary {
-  flex: 0 0 260rpx;
-  width: 260rpx;
+  flex: 1;
   height: 76rpx;
   margin: 0 0 0 16rpx;
   padding: 0;

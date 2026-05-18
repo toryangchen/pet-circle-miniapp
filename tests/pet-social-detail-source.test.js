@@ -124,6 +124,20 @@ test("pet social detail renders real comment avatars and own-comment delete acti
   assert.equal(styles.includes(".pet-social-comment__avatar image"), true);
 });
 
+test("pet social detail renders an empty state when there are no comments", () => {
+  const wxmlPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.wxml");
+  const lessPath = path.join(__dirname, "../miniprogram/pages/detail/pet-social/index.less");
+  const wxml = fs.readFileSync(wxmlPath, "utf8");
+  const styles = fs.readFileSync(lessPath, "utf8");
+
+  assert.equal(wxml.includes('wx:if="{{comments.length}}" class="pet-social-comment-list"'), true);
+  assert.equal(wxml.includes('wx:else class="pet-social-comment-empty"'), true);
+  assert.equal(wxml.includes('src="/assets/message.svg"'), true);
+  assert.equal(wxml.includes("暂无评论，快来抢沙发"), true);
+  assert.equal(styles.includes(".pet-social-comment-empty {"), true);
+  assert.equal(styles.includes(".pet-social-comment-empty__icon image"), true);
+});
+
 test("pet social detail opens comment composer in a Skyline bottom-sheet route", () => {
   const appJson = fs.readFileSync(path.join(__dirname, "../miniprogram/app.json"), "utf8");
   const wxml = fs.readFileSync(
