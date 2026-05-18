@@ -18,7 +18,11 @@ test("page files do not import aggregated api module", () => {
 
   for (const file of pageFiles) {
     const source = readPageSource(file);
-    assert.equal(source.includes('from "@utils/api"'), false, `${file} should not import @utils/api`);
+    assert.equal(
+      source.includes('from "@utils/api"'),
+      false,
+      `${file} should not import @utils/api`,
+    );
   }
 });
 
@@ -27,11 +31,11 @@ test("tab pages show feed request urls inline", () => {
   const serviceSource = readPageSource("pages/tabbar/service/index.ts");
 
   assert.equal(
-    homeSource.includes('path: `/posts/feed?channel=PET_SOCIAL&page=${page}&pageSize=${pageSize}`'),
+    homeSource.includes("path: `/posts/feed?channel=PET_SOCIAL&page=${page}&pageSize=${pageSize}`"),
     true,
   );
   assert.equal(
-    serviceSource.includes('/posts/feed?channel=SERVICE&page=1&pageSize=10'),
+    serviceSource.includes("path: `/posts/feed?channel=SERVICE&page=${page}&pageSize=${pageSize}`"),
     true,
   );
 });
@@ -39,8 +43,5 @@ test("tab pages show feed request urls inline", () => {
 test("base request helper requires login before sending page requests", () => {
   const requestSource = readPageSource("utils/request.ts");
 
-  assert.equal(
-    requestSource.includes("return requestWithAuth<T>(options);"),
-    true,
-  );
+  assert.equal(requestSource.includes("return requestWithAuth<T>(options);"), true);
 });

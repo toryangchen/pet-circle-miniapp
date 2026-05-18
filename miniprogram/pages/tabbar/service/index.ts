@@ -81,13 +81,16 @@ function buildPetSocialDetailPrefill(item: ServiceFeedCardView) {
   };
 }
 
-async function fetchServiceFeed() {
+async function fetchServiceFeed(page: number, pageSize: number) {
   const result = await request<PagedResult<FeedItem>>({
     method: "GET",
-    path: "/posts/feed?channel=SERVICE&page=1&pageSize=10",
+    path: `/posts/feed?channel=SERVICE&page=${page}&pageSize=${pageSize}`,
   });
 
-  return result.items.map(toFeedCardView);
+  return {
+    ...result,
+    items: result.items.map(toFeedCardView),
+  };
 }
 
 Page({
@@ -101,7 +104,20 @@ Page({
     highlightSummary: SERVICE_PAGE_COPY.highlightSummary,
     servicePosts: [] as ServiceFeedCardView[],
     allServicePosts: [] as ServiceFeedCardView[],
+
+    type: "fade",
+    duration: 300,
+    closedElevation: 1,
+    closedBorderRadius: 4,
+    openElevation: 4,
+    openBorderRadius: 0,
+
     isLoading: false,
+    isLoadingMore: false,
+    isRefreshing: false,
+    page: 1,
+    pageSize: 10,
+    hasMore: true,
     gap: rpx2px(10),
   },
   onShow() {
@@ -113,16 +129,77 @@ Page({
   },
 
   async onLoad() {
+    await this.reloadServiceFeed();
+  },
+
+  async onRefresherRefresh() {
+    if (this.data.isRefreshing) {
+      return;
+    }
+
+    this.setData({
+      isRefreshing: true,
+    });
+
+    try {
+      await this.reloadServiceFeed();
+    } finally {
+      this.setData({
+        isRefreshing: false,
+      });
+    }
+  },
+
+  async onReachBottom() {
+    await this.loadNextPage();
+  },
+
+  async onScrollToLower() {
+    await this.loadNextPage();
+  },
+
+  async reloadServiceFeed() {
     this.setData({ isLoading: true });
 
     try {
-      const allServicePosts = await fetchServiceFeed();
+      const page = 1;
+      const pageSize = this.data.pageSize as number;
+      const result = await fetchServiceFeed(page, pageSize);
       this.setData({
-        allServicePosts,
+        allServicePosts: result.items,
+        page,
+        hasMore: result.hasMore,
       });
       this.applyCurrentTab(this.data.currentTab);
     } finally {
       this.setData({ isLoading: false });
+    }
+  },
+
+  async loadNextPage() {
+    if (this.data.isLoading || this.data.isLoadingMore || !this.data.hasMore) {
+      return;
+    }
+
+    const nextPage = (this.data.page as number) + 1;
+    const pageSize = this.data.pageSize as number;
+
+    this.setData({
+      isLoadingMore: true,
+    });
+
+    try {
+      const result = await fetchServiceFeed(nextPage, pageSize);
+      this.setData({
+        allServicePosts: [...(this.data.allServicePosts as ServiceFeedCardView[]), ...result.items],
+        page: nextPage,
+        hasMore: result.hasMore,
+      });
+      this.applyCurrentTab(this.data.currentTab);
+    } finally {
+      this.setData({
+        isLoadingMore: false,
+      });
     }
   },
 
