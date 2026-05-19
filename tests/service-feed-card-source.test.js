@@ -55,7 +55,7 @@ test("service tab reuses pet social detail page for card taps", () => {
   assert.equal(source.includes("setPetSocialDetailPrefill("), true);
   assert.equal(source.includes("isServiceDetail: true"), true);
   assert.equal(source.includes("prefillPetSocialDetail(event.currentTarget.dataset.postId"), true);
-  assert.equal(template.includes('data-post-id="{{item.id}}"'), true);
+  assert.equal(template.includes('data-post-id="{{post.id}}"'), true);
 });
 
 test("service tab opens cards with the same open-container pattern as home", () => {
@@ -110,4 +110,34 @@ test("service tab supports pull refresh and paged load more like home", () => {
   assert.equal(template.includes("服务内容加载中"), true);
   assert.equal(styles.includes(".top-loading"), true);
   assert.equal(styles.includes(".bottom-loading"), true);
+});
+
+test("service tab uses a measured tab indicator for category switching", () => {
+  const pagePath = path.join(__dirname, "../miniprogram/pages/tabbar/service/index.ts");
+  const templatePath = path.join(__dirname, "../miniprogram/pages/tabbar/service/index.wxml");
+  const stylesPath = path.join(__dirname, "../miniprogram/pages/tabbar/service/index.less");
+  const source = fs.readFileSync(pagePath, "utf8");
+  const template = fs.readFileSync(templatePath, "utf8");
+  const styles = fs.readFileSync(stylesPath, "utf8");
+
+  assert.equal(template.includes('class="service-tabs__track"'), true);
+  assert.equal(template.includes('<swiper class="service-swiper"'), true);
+  assert.equal(template.includes('current="{{currentTab}}"'), true);
+  assert.equal(template.includes('bindchange="onTabChanged"'), true);
+  assert.equal(template.includes('<swiper-item wx:for="{{serviceTabPanels}}"'), true);
+  assert.equal(template.includes('wx:for="{{panel.posts}}"'), true);
+  assert.equal(template.includes('class="service-tab-indicator"'), true);
+  assert.equal(template.includes("translateX({{tabIndicatorLeft}}px) scaleX(0.72)"), true);
+  assert.equal(source.includes("serviceTabPanels: buildServiceTabPanels([])"), true);
+  assert.equal(source.includes("tabIndicatorLeft: 0"), true);
+  assert.equal(source.includes("tabIndicatorWidth: 0"), true);
+  assert.equal(source.includes("updateTabIndicator(nextIndex)"), true);
+  assert.equal(source.includes("onTabChanged(event:"), true);
+  assert.equal(source.includes("const nextIndex = event.detail.current"), true);
+  assert.equal(source.includes("buildServiceTabPanels(allServicePosts)"), true);
+  assert.equal(source.includes('query.select(".service-tabs__track").boundingClientRect()'), true);
+  assert.equal(source.includes('query.selectAll(".service-tab").boundingClientRect()'), true);
+  assert.equal(styles.includes(".service-swiper"), true);
+  assert.equal(styles.includes(".service-tab-indicator"), true);
+  assert.equal(styles.includes("transition: width 220ms ease, transform 220ms ease;"), true);
 });

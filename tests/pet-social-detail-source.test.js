@@ -241,7 +241,6 @@ test("pet social detail renders service-specific sections and bottom actions", (
   assert.equal(wxml.includes("联系发布者"), true);
   assert.equal(styles.includes(".pet-social-service-info {"), true);
   assert.equal(styles.includes(".pet-social-service-bottom {"), true);
-  assert.equal(styles.includes("width: 96rpx !important;"), true);
-  assert.equal(styles.includes("gap: 4rpx;"), true);
-  assert.equal(styles.includes("width: 260rpx;"), true);
+  assert.equal(styles.includes(".pet-social-service-bottom__icon {"), true);
+  assert.equal(styles.includes(".pet-social-service-bottom__primary {"), true);
 });

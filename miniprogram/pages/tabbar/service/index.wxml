@@ -1,90 +1,100 @@
 <navigation-bar title="服务"></navigation-bar>
 
 <view class="service-tabs">
-  <view
-    wx:for="{{tabs}}"
-    wx:key="*this"
-    class="service-tab {{index === currentTab ? 'service-tab--active' : ''}}"
-    data-index="{{index}}"
-    bindtap="switchTab"
-  >
-    <text>{{item}}</text>
+  <view class="service-tabs__track">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="*this"
+      class="service-tab {{index === currentTab ? 'service-tab--active' : ''}}"
+      data-index="{{index}}"
+      bindtap="switchTab"
+    >
+      <text>{{item}}</text>
+    </view>
+    <view
+      class="service-tab-indicator"
+      style="width: {{tabIndicatorWidth}}px; transform: translateX({{tabIndicatorLeft}}px) scaleX(0.72);"
+    ></view>
   </view>
 </view>
 
-<scroll-view
-  class="service-scroll"
-  scroll-y
-  type="custom"
-  enhanced="{{true}}"
-  refresher-enabled="{{true}}"
-  refresher-triggered="{{isRefreshing}}"
-  refresher-default-style="none"
-  refresher-background="transparent"
-  bindrefresherrefresh="onRefresherRefresh"
-  show-scrollbar="{{false}}"
-  lower-threshold="120"
-  bindscrolltolower="onScrollToLower"
->
-  <view class="top-loading">
-    <text>{{ isRefreshing? '正在加载中' : '松开手开始刷新' }} </text>
-    <view wx:if="{{isRefreshing}}" class="bottom-loading__dots" aria-hidden="true">
-      <text class="bottom-loading__dot"></text>
-      <text class="bottom-loading__dot"></text>
-      <text class="bottom-loading__dot"></text>
-    </view>
-  </view>
-
-  <view class="pc-card service-hero">
-    <text class="hero__title">{{highlightTitle}}</text>
-    <text class="hero__summary">{{highlightSummary}}</text>
-
-    <view class="service-tag-row">
-      <view wx:for="{{tags}}" wx:key="*this" class="pc-chip pc-chip--soft">
-        <text>{{item}}</text>
+<swiper class="service-swiper" current="{{currentTab}}" duration="260" bindchange="onTabChanged">
+  <swiper-item wx:for="{{serviceTabPanels}}" wx:for-item="panel" wx:key="category">
+    <scroll-view
+      class="service-scroll"
+      scroll-y
+      type="custom"
+      enhanced="{{true}}"
+      refresher-enabled="{{true}}"
+      refresher-triggered="{{isRefreshing}}"
+      refresher-default-style="none"
+      refresher-background="transparent"
+      bindrefresherrefresh="onRefresherRefresh"
+      show-scrollbar="{{false}}"
+      lower-threshold="120"
+      bindscrolltolower="onScrollToLower"
+    >
+      <view class="top-loading">
+        <text>{{ isRefreshing? '正在加载中' : '松开手开始刷新' }} </text>
+        <view wx:if="{{isRefreshing}}" class="bottom-loading__dots" aria-hidden="true">
+          <text class="bottom-loading__dot"></text>
+          <text class="bottom-loading__dot"></text>
+          <text class="bottom-loading__dot"></text>
+        </view>
       </view>
-    </view>
-  </view>
 
-  <grid-view
-    type="masonry"
-    cross-axis-count="2"
-    cross-axis-gap="{{gap}}"
-    main-axis-gap="{{gap}}"
-    padding="{{[0,0,10,0]}}"
-  >
-    <block wx:for="{{servicePosts}}" wx:key="id">
-      <open-container
-        closed-elevation="{{closedElevation}}"
-        closed-border-radius="{{closedBorderRadius}}"
-        open-elevation="{{openElevation}}"
-        open-border-radius="{{openBorderRadius}}"
-        transition-type="{{type}}"
-        transition-duration="{{duration}}"
-        data-route="{{item.route}}"
-        data-post-id="{{item.id}}"
-        bindtap="openDetail"
+      <view class="pc-card service-hero">
+        <text class="hero__title">{{highlightTitle}}</text>
+        <text class="hero__summary">{{highlightSummary}}</text>
+
+        <view class="service-tag-row">
+          <view wx:for="{{tags}}" wx:key="*this" class="pc-chip pc-chip--soft">
+            <text>{{item}}</text>
+          </view>
+        </view>
+      </view>
+
+      <grid-view
+        type="masonry"
+        cross-axis-count="2"
+        cross-axis-gap="{{gap}}"
+        main-axis-gap="{{gap}}"
+        padding="{{[0,0,10,0]}}"
       >
-        <feed-card
-          item="{{item}}"
-          image-mode="aspectFill"
-          fixed-image-height="{{true}}"
-          show-badge="{{true}}"
-        ></feed-card>
-      </open-container>
-    </block>
-  </grid-view>
+        <block wx:for="{{panel.posts}}" wx:for-item="post" wx:key="id">
+          <open-container
+            closed-elevation="{{closedElevation}}"
+            closed-border-radius="{{closedBorderRadius}}"
+            open-elevation="{{openElevation}}"
+            open-border-radius="{{openBorderRadius}}"
+            transition-type="{{type}}"
+            transition-duration="{{duration}}"
+            data-route="{{post.route}}"
+            data-post-id="{{post.id}}"
+            bindtap="openDetail"
+          >
+            <feed-card
+              item="{{post}}"
+              image-mode="aspectFill"
+              fixed-image-height="{{true}}"
+              show-badge="{{true}}"
+            ></feed-card>
+          </open-container>
+        </block>
+      </grid-view>
 
-  <view wx:if="{{isLoadingMore}}" class="bottom-loading">
-    <text>服务内容加载中</text>
-    <view class="bottom-loading__dots" aria-hidden="true">
-      <text class="bottom-loading__dot"></text>
-      <text class="bottom-loading__dot"></text>
-      <text class="bottom-loading__dot"></text>
-    </view>
-  </view>
+      <view wx:if="{{isLoadingMore}}" class="bottom-loading">
+        <text>服务内容加载中</text>
+        <view class="bottom-loading__dots" aria-hidden="true">
+          <text class="bottom-loading__dot"></text>
+          <text class="bottom-loading__dot"></text>
+          <text class="bottom-loading__dot"></text>
+        </view>
+      </view>
 
-  <view wx:elif="{{!hasMore && allServicePosts.length > 0}}" class="bottom-loading">
-    <text>已经到底啦，先看看这些服务。</text>
-  </view>
-</scroll-view>
+      <view wx:elif="{{!hasMore && allServicePosts.length > 0}}" class="bottom-loading">
+        <text>已经到底啦，先看看这些服务。</text>
+      </view>
+    </scroll-view>
+  </swiper-item>
+</swiper>

@@ -7,6 +7,13 @@ type ServiceFeedCardView = FeedCardView & {
   serviceCategory: FeedItem["serviceCategory"];
 };
 
+type ServiceTabCategory = "ALL" | "ADOPTION" | "BOARDING" | "HOME_FEEDING" | "SECOND_HAND";
+
+type ServiceTabPanel = {
+  category: ServiceTabCategory;
+  posts: ServiceFeedCardView[];
+};
+
 const SERVICE_PAGE_COPY = {
   location: "西安",
   title: "服务",
@@ -16,7 +23,7 @@ const SERVICE_PAGE_COPY = {
   highlightSummary: "服务页直接读取线上服务列表，按领养、寄养、上门喂养和闲置分类浏览。",
 };
 
-const TAB_CATEGORY_MAP: Array<"ALL" | "ADOPTION" | "BOARDING" | "HOME_FEEDING" | "SECOND_HAND"> = [
+const TAB_CATEGORY_MAP: ServiceTabCategory[] = [
   "ALL",
   "ADOPTION",
   "BOARDING",
@@ -81,6 +88,18 @@ function buildPetSocialDetailPrefill(item: ServiceFeedCardView) {
   };
 }
 
+function filterPostsByTab(posts: ServiceFeedCardView[], tabIndex: number) {
+  const category = TAB_CATEGORY_MAP[tabIndex] ?? "ALL";
+  return category === "ALL" ? posts : posts.filter((item) => item.serviceCategory === category);
+}
+
+function buildServiceTabPanels(posts: ServiceFeedCardView[]): ServiceTabPanel[] {
+  return TAB_CATEGORY_MAP.map((category, index) => ({
+    category,
+    posts: filterPostsByTab(posts, index),
+  }));
+}
+
 async function fetchServiceFeed(page: number, pageSize: number) {
   const result = await request<PagedResult<FeedItem>>({
     method: "GET",
@@ -99,11 +118,14 @@ Page({
     title: SERVICE_PAGE_COPY.title,
     tabs: SERVICE_PAGE_COPY.tabs,
     currentTab: 0,
+    tabIndicatorLeft: 0,
+    tabIndicatorWidth: 0,
     tags: SERVICE_PAGE_COPY.tags,
     highlightTitle: SERVICE_PAGE_COPY.highlightTitle,
     highlightSummary: SERVICE_PAGE_COPY.highlightSummary,
     servicePosts: [] as ServiceFeedCardView[],
     allServicePosts: [] as ServiceFeedCardView[],
+    serviceTabPanels: buildServiceTabPanels([]),
 
     type: "fade",
     duration: 300,
@@ -130,6 +152,10 @@ Page({
 
   async onLoad() {
     await this.reloadServiceFeed();
+  },
+
+  onReady() {
+    this.updateTabIndicator(this.data.currentTab as number);
   },
 
   async onRefresherRefresh() {
@@ -213,19 +239,52 @@ Page({
     this.setData({
       currentTab: nextIndex,
     });
+    this.updateTabIndicator(nextIndex);
     this.applyCurrentTab(nextIndex);
   },
 
+  onTabChanged(event: WechatMiniprogram.SwiperChange) {
+    const nextIndex = event.detail.current;
+    if (nextIndex === this.data.currentTab) {
+      return;
+    }
+
+    this.setData({
+      currentTab: nextIndex,
+    });
+    this.updateTabIndicator(nextIndex);
+    this.applyCurrentTab(nextIndex);
+  },
+
+  updateTabIndicator(tabIndex: number) {
+    wx.nextTick(() => {
+      const query = wx.createSelectorQuery();
+      query.select(".service-tabs__track").boundingClientRect();
+      query.selectAll(".service-tab").boundingClientRect();
+      query.exec((result) => {
+        const trackRect = result[0] as WechatMiniprogram.BoundingClientRectCallbackResult | null;
+        const tabRects = result[1] as WechatMiniprogram.BoundingClientRectCallbackResult[] | null;
+        const activeRect = tabRects?.[tabIndex];
+
+        if (!trackRect || !activeRect) {
+          return;
+        }
+
+        this.setData({
+          tabIndicatorLeft: Math.max(0, activeRect.left - trackRect.left),
+          tabIndicatorWidth: activeRect.width,
+        });
+      });
+    });
+  },
+
   applyCurrentTab(tabIndex: number) {
-    const category = TAB_CATEGORY_MAP[tabIndex] ?? "ALL";
     const allServicePosts = this.data.allServicePosts as ServiceFeedCardView[];
-    const servicePosts =
-      category === "ALL"
-        ? allServicePosts
-        : allServicePosts.filter((item) => item.serviceCategory === category);
+    const servicePosts = filterPostsByTab(allServicePosts, tabIndex);
 
     this.setData({
       servicePosts,
+      serviceTabPanels: buildServiceTabPanels(allServicePosts),
     });
   },
 
