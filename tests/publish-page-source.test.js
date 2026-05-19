@@ -7,6 +7,14 @@ function read(relativePath) {
   return fs.readFileSync(path.join(__dirname, "..", "miniprogram", relativePath), "utf8");
 }
 
+function cssBlock(source, selector) {
+  const start = source.indexOf(`${selector} {`);
+  assert.notEqual(start, -1);
+  const end = source.indexOf("\n}", start);
+  assert.notEqual(end, -1);
+  return source.slice(start, end);
+}
+
 test("publish page uses local-only four-tab form state", () => {
   const source = read("pages/publish/index.ts");
 
@@ -101,10 +109,48 @@ test("publish page template renders editable local form shell", () => {
   assert.equal(source.includes('bindinput="handleDialogFieldInput"'), true);
   assert.equal(source.includes('bindchange="handleFieldPickerChange"'), true);
   assert.equal(source.includes('wx:if="{{item.inputType === \'picker\'}}"'), true);
-  assert.equal(source.includes('class="publish-field-dialog__mask"'), true);
+  assert.equal(source.includes('class="publish-field-dialog__mask"'), false);
   assert.equal(source.includes('src="/assets/icon-arrow-right.png"'), true);
-  assert.equal(source.includes("publish-field-editor"), false);
+  assert.equal(source.includes("publish-field-editor"), true);
   assert.equal(source.includes('class="publish-footer__button {{isPublishEnabled ? \'publish-footer__button--enabled\' : \'publish-footer__button--disabled\'}}"'), true);
+});
+
+test("publish page field text editor follows comment route bottom input pattern", () => {
+  const wxmlSource = read("pages/publish/index.wxml");
+  const lessSource = read("pages/publish/index.less");
+  const tsSource = read("pages/publish/index.ts");
+
+  assert.equal(wxmlSource.includes('class="publish-field-editor"'), true);
+  assert.equal(wxmlSource.includes('bindtap="dismissFieldEditor"'), true);
+  assert.equal(wxmlSource.includes('catchtap="noop"'), true);
+  assert.equal(wxmlSource.includes('style="bottom: {{fieldEditorKeyboardHeight}}px"'), true);
+  assert.equal(wxmlSource.includes('focus="{{fieldEditorInputFocused}}"'), true);
+  assert.equal(wxmlSource.includes("auto-focus"), true);
+  assert.equal(wxmlSource.includes('adjust-position="{{false}}"'), true);
+  assert.equal(wxmlSource.includes('bindkeyboardheightchange="onFieldEditorKeyboardHeightChange"'), true);
+  assert.equal(wxmlSource.includes('wx:if="{{canConfirmFieldEditor}}"'), true);
+  assert.equal(wxmlSource.includes('bindtap="confirmFieldEditor"'), true);
+  assert.equal(wxmlSource.includes("publish-field-dialog__panel"), false);
+
+  assert.equal(lessSource.includes(".publish-field-editor {"), true);
+  assert.equal(lessSource.includes(".publish-field-editor__panel"), true);
+  assert.equal(lessSource.includes("transition: bottom 0.08s ease-out;"), true);
+  assert.equal(lessSource.includes(".publish-field-dialog__panel"), false);
+
+  assert.equal(tsSource.includes("fieldEditorKeyboardHeight: 0"), true);
+  assert.equal(tsSource.includes("fieldEditorInputFocused: false"), true);
+  assert.equal(tsSource.includes("canConfirmFieldEditor: false"), true);
+  assert.equal(tsSource.includes("onFieldEditorKeyboardHeightChange"), true);
+  assert.equal(tsSource.includes("dismissFieldEditor"), true);
+  assert.equal(tsSource.includes("confirmFieldEditor"), true);
+  assert.equal(tsSource.includes("closeFieldDialog"), false);
+});
+
+test("publish page structured form rows use larger text", () => {
+  const source = read("pages/publish/index.less");
+
+  assert.equal(cssBlock(source, ".publish-field-row__label").includes("font-size: 26rpx;"), true);
+  assert.equal(cssBlock(source, ".publish-field-row__value").includes("font-size: 24rpx;"), true);
 });
 
 test("publish page limits images and tracks upload state", () => {

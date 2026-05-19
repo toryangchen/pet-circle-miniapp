@@ -373,11 +373,14 @@ Page({
     maxImageCount: MAX_UPLOAD_IMAGES,
     draggingImageId: "",
     isFieldDialogVisible: false,
-    dialogFieldKey: "",
-    dialogFieldLabel: "",
-    dialogFieldValue: "",
-    dialogFieldPlaceholder: "",
-    dialogFieldInputType: "text" as FieldInputType,
+    fieldEditorKey: "",
+    fieldEditorLabel: "",
+    fieldEditorValue: "",
+    fieldEditorPlaceholder: "",
+    fieldEditorInputType: "text" as FieldInputType,
+    fieldEditorKeyboardHeight: 0,
+    fieldEditorInputFocused: false,
+    canConfirmFieldEditor: false,
     isSubmitting: false,
     isPublishEnabled: false,
   },
@@ -609,17 +612,28 @@ Page({
     const fieldValues = this.data.fieldValues as FieldValues;
     this.setData({
       isFieldDialogVisible: true,
-      dialogFieldKey: field.key,
-      dialogFieldLabel: field.label,
-      dialogFieldValue: fieldValues[field.key],
-      dialogFieldPlaceholder: field.placeholder,
-      dialogFieldInputType: field.inputType,
+      fieldEditorKey: field.key,
+      fieldEditorLabel: field.label,
+      fieldEditorValue: fieldValues[field.key],
+      fieldEditorPlaceholder: field.placeholder,
+      fieldEditorInputType: field.inputType,
+      fieldEditorKeyboardHeight: 0,
+      fieldEditorInputFocused: true,
+      canConfirmFieldEditor: Boolean(fieldValues[field.key].trim()),
     });
   },
 
   handleDialogFieldInput(event: WechatMiniprogram.CustomEvent<{ value?: string }>) {
+    const value = event.detail.value ?? "";
     this.setData({
-      dialogFieldValue: event.detail.value ?? "",
+      fieldEditorValue: value,
+      canConfirmFieldEditor: Boolean(value.trim()),
+    });
+  },
+
+  onFieldEditorKeyboardHeightChange(event: WechatMiniprogram.CustomEvent<{ height?: number }>) {
+    this.setData({
+      fieldEditorKeyboardHeight: Math.max(0, event.detail.height || 0),
     });
   },
 
@@ -652,26 +666,37 @@ Page({
     });
   },
 
-  closeFieldDialog() {
+  noop() {},
+
+  dismissFieldEditor() {
+    const keyboardVisible = (this.data.fieldEditorKeyboardHeight as number) > 0;
+    if (keyboardVisible) {
+      wx.hideKeyboard();
+    }
+
     this.setData({
       isFieldDialogVisible: false,
-      dialogFieldKey: "",
-      dialogFieldLabel: "",
-      dialogFieldValue: "",
-      dialogFieldPlaceholder: "",
-      dialogFieldInputType: "text",
+      fieldEditorKey: "",
+      fieldEditorLabel: "",
+      fieldEditorValue: "",
+      fieldEditorPlaceholder: "",
+      fieldEditorInputType: "text",
+      fieldEditorKeyboardHeight: 0,
+      fieldEditorInputFocused: false,
+      canConfirmFieldEditor: false,
     });
   },
 
-  confirmFieldDialog() {
-    const dialogFieldKey = this.data.dialogFieldKey as PublishFieldKey | "";
-    if (!dialogFieldKey) {
+  confirmFieldEditor() {
+    const fieldEditorKey = this.data.fieldEditorKey as PublishFieldKey | "";
+    const fieldEditorValue = this.data.fieldEditorValue as string;
+    if (!fieldEditorKey || !fieldEditorValue.trim()) {
       return;
     }
 
     const nextValues = {
       ...(this.data.fieldValues as FieldValues),
-      [dialogFieldKey]: this.data.dialogFieldValue as string,
+      [fieldEditorKey]: fieldEditorValue,
     };
 
     this.refreshPageData({
@@ -681,7 +706,7 @@ Page({
       contentInput: this.data.contentInput as string,
       imageList: this.data.imageList as PublishImageItem[],
     });
-    this.closeFieldDialog();
+    this.dismissFieldEditor();
   },
 
   async previewPublish() {
@@ -739,7 +764,7 @@ Page({
         icon: "success",
       });
 
-      this.closeFieldDialog();
+      this.dismissFieldEditor();
       this.finishImageDrag();
       this.refreshPageData({
         currentTab: this.data.currentTab as PublishTab,

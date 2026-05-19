@@ -135,48 +135,38 @@
     </button>
   </view>
 
-  <view wx:if="{{isFieldDialogVisible}}" class="publish-field-dialog">
-    <view class="publish-field-dialog__mask" bindtap="closeFieldDialog"></view>
-    <view class="publish-field-dialog__panel">
-      <view class="publish-field-dialog__header">
-        <text class="publish-field-dialog__title">{{dialogFieldLabel}}</text>
+  <view wx:if="{{isFieldDialogVisible}}" class="publish-field-editor" bindtap="dismissFieldEditor">
+    <view
+      class="publish-field-editor__panel"
+      style="bottom: {{fieldEditorKeyboardHeight}}px"
+      catchtap="noop"
+    >
+      <view class="publish-field-editor__title">{{fieldEditorLabel}}</view>
+      <view class="publish-field-editor__input-wrap">
+        <textarea
+          class="publish-field-editor__input {{fieldEditorInputType === 'textarea' ? 'publish-field-editor__input--textarea' : ''}}"
+          value="{{fieldEditorValue}}"
+          placeholder="{{fieldEditorPlaceholder}}"
+          placeholder-class="publish-placeholder"
+          maxlength="{{fieldEditorInputType === 'textarea' ? 120 : 50}}"
+          focus="{{fieldEditorInputFocused}}"
+          auto-focus
+          auto-height
+          show-confirm-bar="{{false}}"
+          adjust-position="{{false}}"
+          bindinput="handleDialogFieldInput"
+          bindkeyboardheightchange="onFieldEditorKeyboardHeightChange"
+        />
       </view>
-      <input
-        wx:if="{{dialogFieldInputType === 'text'}}"
-        class="publish-field-dialog__input"
-        value="{{dialogFieldValue}}"
-        placeholder="{{dialogFieldPlaceholder}}"
-        placeholder-class="publish-placeholder"
-        maxlength="50"
-        focus
-        bindinput="handleDialogFieldInput"
-      />
-
-      <textarea
-        wx:else
-        class="publish-field-dialog__textarea"
-        value="{{dialogFieldValue}}"
-        placeholder="{{dialogFieldPlaceholder}}"
-        placeholder-class="publish-placeholder"
-        maxlength="120"
-        auto-height
-        focus
-        bindinput="handleDialogFieldInput"
-      />
-
-      <view class="publish-field-dialog__actions">
+      <view class="publish-field-editor__action-wrap">
         <view
-          class="publish-field-dialog__action publish-field-dialog__action--ghost"
-          bindtap="closeFieldDialog"
-        >
-          取消
-        </view>
-        <view
-          class="publish-field-dialog__action publish-field-dialog__action--primary"
-          bindtap="confirmFieldDialog"
+          wx:if="{{canConfirmFieldEditor}}"
+          class="publish-field-editor__confirm"
+          bindtap="confirmFieldEditor"
         >
           确定
         </view>
+        <view wx:else class="publish-field-editor__confirm-disabled">确定</view>
       </view>
     </view>
   </view>
