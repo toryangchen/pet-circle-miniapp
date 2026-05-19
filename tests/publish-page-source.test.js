@@ -18,15 +18,83 @@ function cssBlock(source, selector) {
 test("publish page uses local-only four-tab form state", () => {
   const source = read("pages/publish/index.ts");
 
-  assert.equal(source.includes('type PublishTab = "PET_SOCIAL" | "FOSTER" | "HOME_VISIT" | "RESALE";'), true);
+  assert.equal(
+    source.includes('type PublishTab = "PET_SOCIAL" | "ADOPTION_FOSTER" | "HOME_VISIT" | "OTHER";'),
+    true,
+  );
   assert.equal(source.includes('currentTab: "PET_SOCIAL" as PublishTab'), true);
   assert.equal(source.includes('{ key: "PET_SOCIAL", label: "#宠物圈" }'), true);
-  assert.equal(source.includes('{ key: "FOSTER", label: "#寄养领养" }'), true);
+  assert.equal(source.includes('{ key: "ADOPTION_FOSTER", label: "#领养寄养" }'), true);
   assert.equal(source.includes('{ key: "HOME_VISIT", label: "#上门喂养" }'), true);
-  assert.equal(source.includes('{ key: "RESALE", label: "#二手闲置" }'), true);
+  assert.equal(source.includes('{ key: "OTHER", label: "#其它" }'), true);
+  assert.equal(source.includes("#寄养领养"), false);
+  assert.equal(source.includes("#二手闲置"), false);
   assert.equal(source.includes("fieldGroups"), true);
   assert.equal(source.includes("isFieldDialogVisible"), true);
   assert.equal(source.includes("isPublishEnabled"), true);
+});
+
+test("publish page optimized service forms cover adoption boarding feeding and other needs", () => {
+  const source = read("pages/publish/index.ts");
+
+  assert.equal(source.includes('label: "需求类型"'), true);
+  assert.equal(source.includes('options: ["领养", "寄养"]'), true);
+  assert.equal(source.includes('label: "宠物信息"'), true);
+  assert.equal(source.includes('inputType: "multiPicker"'), true);
+  assert.equal(source.includes('keys: ["adoptionFosterPetType", "adoptionFosterAge", "adoptionFosterGender"]'), true);
+  assert.equal(source.includes('columns: ['), true);
+  assert.equal(source.includes('label: "宠物类型"'), false);
+  assert.equal(source.includes('label: "年龄阶段"'), false);
+  assert.equal(source.includes('label: "性别"'), false);
+  assert.equal(source.includes('label: "是否绝育"'), true);
+  assert.equal(source.includes('label: "费用/要求"'), true);
+  assert.equal(source.includes('serviceCategory: fieldValues.adoptionFosterMode === "领养" ? "ADOPTION" : "BOARDING"'), true);
+  assert.equal(source.includes("adoptionDetail:"), true);
+  assert.equal(source.includes("boardingDetail:"), true);
+
+  assert.equal(source.includes('label: "服务区域"'), true);
+  assert.equal(source.includes('label: "可上门时间"'), true);
+  assert.equal(source.includes('label: "服务内容"'), true);
+  assert.equal(source.includes('label: "参考价格"'), true);
+  assert.equal(source.includes("homeFeedingDetail:"), true);
+
+  assert.equal(source.includes('label: "信息类型"'), true);
+  assert.equal(source.includes('options: ["求助", "组局", "闲置", "其它"]'), true);
+  assert.equal(source.includes('label: "所在区域"'), true);
+  assert.equal(source.includes('label: "预算/价格"'), true);
+  assert.equal(source.includes('label: "补充说明"'), true);
+  assert.equal(source.includes('serviceCategory: "SECOND_HAND"'), true);
+});
+
+test("publish page adoption foster pet info uses one multi-column picker but stores split fields", () => {
+  const wxmlSource = read("pages/publish/index.wxml");
+  const tsSource = read("pages/publish/index.ts");
+
+  assert.equal(wxmlSource.includes('mode="multiSelector"'), true);
+  assert.equal(wxmlSource.includes('range="{{item.columns}}"'), true);
+  assert.equal(wxmlSource.includes('value="{{item.optionIndexes}}"'), true);
+  assert.equal(wxmlSource.includes('bindchange="handleFieldMultiPickerChange"'), true);
+  assert.equal(wxmlSource.includes('wx:elif="{{item.inputType === \'multiPicker\'}}"'), true);
+
+  assert.equal(tsSource.includes('type FieldInputType = "text" | "textarea" | "picker" | "multiPicker";'), true);
+  assert.equal(tsSource.includes("keys?: PublishFieldKey[];"), true);
+  assert.equal(tsSource.includes("columns?: string[][];"), true);
+  assert.equal(tsSource.includes("optionIndexes: number[];"), true);
+  assert.equal(tsSource.includes("function resolveMultiPickerValue"), true);
+  assert.equal(tsSource.includes("handleFieldMultiPickerChange"), true);
+  assert.equal(tsSource.includes("nextValues[key] = fieldColumns[columnIndex]?.[optionIndex] ??"), true);
+  assert.equal(tsSource.includes("petType: fieldValues.adoptionFosterPetType"), true);
+  assert.equal(tsSource.includes("age: fieldValues.adoptionFosterAge"), true);
+  assert.equal(tsSource.includes("gender: fieldValues.adoptionFosterGender"), true);
+  assert.equal(tsSource.includes("acceptedPetTypes: [fieldValues.adoptionFosterPetType]"), true);
+});
+
+test("publish page validates multi-column picker through split field keys", () => {
+  const tsSource = read("pages/publish/index.ts");
+
+  assert.equal(tsSource.includes("function isFieldComplete"), true);
+  assert.equal(tsSource.includes("field.keys?.every((key) => values[key].trim())"), true);
+  assert.equal(tsSource.includes("return fieldGroups[currentTab].every((field) => isFieldComplete(field, values));"), true);
 });
 
 test("publish page no longer depends on auth or request helpers", () => {
@@ -43,8 +111,10 @@ test("publish page no longer depends on auth or request helpers", () => {
   assert.equal(source.includes("images: uploadedImages.map((item) => item.url)"), true);
   assert.equal(source.includes('title: "发布成功"'), true);
   assert.equal(source.includes('const HOME_FEED_REFRESH_FLAG = "home_feed_needs_refresh";'), true);
-  assert.equal(source.includes("wx.setStorageSync(HOME_FEED_REFRESH_FLAG, true);"), true);
-  assert.equal(source.includes('url: "/pages/tabbar/home/index"'), true);
+  assert.equal(source.includes('const SERVICE_FEED_REFRESH_FLAG = "service_feed_needs_refresh";'), true);
+  assert.equal(source.includes("const isServicePost = currentTab !== \"PET_SOCIAL\";"), true);
+  assert.equal(source.includes("wx.setStorageSync(isServicePost ? SERVICE_FEED_REFRESH_FLAG : HOME_FEED_REFRESH_FLAG, true);"), true);
+  assert.equal(source.includes('url: isServicePost ? "/pages/tabbar/service/index" : "/pages/tabbar/home/index"'), true);
 });
 
 test("home page consumes one-time refresh marker on show", () => {
@@ -54,6 +124,16 @@ test("home page consumes one-time refresh marker on show", () => {
   assert.equal(source.includes("wx.getStorageSync(HOME_FEED_REFRESH_FLAG)"), true);
   assert.equal(source.includes("wx.removeStorageSync(HOME_FEED_REFRESH_FLAG);"), true);
   assert.equal(source.includes("await this.reloadHomeFeed();"), true);
+});
+
+test("service page consumes one-time refresh marker on show", () => {
+  const source = read("pages/tabbar/service/index.ts");
+
+  assert.equal(source.includes('const SERVICE_FEED_REFRESH_FLAG = "service_feed_needs_refresh";'), true);
+  assert.equal(source.includes("async onShow()"), true);
+  assert.equal(source.includes("wx.getStorageSync(SERVICE_FEED_REFRESH_FLAG)"), true);
+  assert.equal(source.includes("wx.removeStorageSync(SERVICE_FEED_REFRESH_FLAG);"), true);
+  assert.equal(source.includes("await this.reloadServiceFeed();"), true);
 });
 
 test("home page supports pull down refresh", () => {

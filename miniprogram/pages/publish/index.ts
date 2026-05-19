@@ -4,23 +4,26 @@ import { getAuthState } from "@utils/session";
 import { uploadImageToCos } from "@utils/cos-upload";
 import { resolveUploadableFilePath, rpx2px } from "@utils/util";
 
-type PublishTab = "PET_SOCIAL" | "FOSTER" | "HOME_VISIT" | "RESALE";
+type PublishTab = "PET_SOCIAL" | "ADOPTION_FOSTER" | "HOME_VISIT" | "OTHER";
 type StructuredPublishTab = Exclude<PublishTab, "PET_SOCIAL">;
-type FieldInputType = "text" | "textarea" | "picker";
+type FieldInputType = "text" | "textarea" | "picker" | "multiPicker";
 type UploadStatus = "uploading" | "success" | "error";
 type PublishFieldKey =
-  | "fosterPetType"
-  | "fosterNeed"
-  | "fosterPickup"
-  | "fosterBudget"
+  | "adoptionFosterProfile"
+  | "adoptionFosterMode"
+  | "adoptionFosterPetType"
+  | "adoptionFosterAge"
+  | "adoptionFosterGender"
+  | "adoptionFosterNeutered"
+  | "adoptionFosterRequirement"
   | "homeVisitArea"
   | "homeVisitTime"
-  | "homeVisitPrice"
   | "homeVisitDescription"
-  | "resaleItem"
-  | "resaleCondition"
-  | "resalePrice"
-  | "resaleDelivery";
+  | "homeVisitPrice"
+  | "otherType"
+  | "otherArea"
+  | "otherBudget"
+  | "otherDescription";
 
 type FieldConfig = {
   key: PublishFieldKey;
@@ -28,12 +31,15 @@ type FieldConfig = {
   placeholder: string;
   inputType: FieldInputType;
   options?: string[];
+  keys?: PublishFieldKey[];
+  columns?: string[][];
 };
 
 type FieldValues = Record<PublishFieldKey, string>;
 type FieldView = FieldConfig & {
   value: string;
   optionIndex: number;
+  optionIndexes: number[];
 };
 
 type PublishImageItem = {
@@ -58,43 +64,50 @@ const IMAGE_COMPRESS_QUALITY = 80;
 const IMAGE_GAP_RPX = 12;
 const IMAGE_SOURCE_OPTIONS = ["从相册选择", "拍照"] as const;
 const HOME_FEED_REFRESH_FLAG = "home_feed_needs_refresh";
+const SERVICE_FEED_REFRESH_FLAG = "service_feed_needs_refresh";
 
 let imageIdSeed = 0;
 
 const tabs = [
   { key: "PET_SOCIAL", label: "#宠物圈" },
-  { key: "FOSTER", label: "#寄养领养" },
+  { key: "ADOPTION_FOSTER", label: "#领养寄养" },
   { key: "HOME_VISIT", label: "#上门喂养" },
-  { key: "RESALE", label: "#二手闲置" },
+  { key: "OTHER", label: "#其它" },
 ];
 
 const fieldGroups: Record<StructuredPublishTab, FieldConfig[]> = {
-  FOSTER: [
+  ADOPTION_FOSTER: [
     {
-      key: "fosterPetType",
-      label: "宠物类型",
-      placeholder: "猫咪",
+      key: "adoptionFosterMode",
+      label: "需求类型",
+      placeholder: "领养",
       inputType: "picker",
-      options: ["猫咪", "狗狗", "异宠", "其他"],
+      options: ["领养", "寄养"],
     },
     {
-      key: "fosterNeed",
-      label: "服务诉求",
-      placeholder: "找人帮忙照看",
-      inputType: "text",
+      key: "adoptionFosterProfile",
+      keys: ["adoptionFosterPetType", "adoptionFosterAge", "adoptionFosterGender"],
+      label: "宠物信息",
+      placeholder: "猫咪 / 幼年 / 未知",
+      inputType: "multiPicker",
+      columns: [
+        ["猫咪", "狗狗", "其他"],
+        ["幼年", "成年", "老年", "不确定"],
+        ["未知", "公", "母"],
+      ],
     },
     {
-      key: "fosterPickup",
-      label: "是否可上门",
-      placeholder: "可商议",
+      key: "adoptionFosterNeutered",
+      label: "是否绝育",
+      placeholder: "未绝育",
       inputType: "picker",
-      options: ["可商议", "可上门接送", "需自行送宠"],
+      options: ["已绝育", "未绝育", "不确定"],
     },
     {
-      key: "fosterBudget",
-      label: "预算范围",
-      placeholder: "300元/天起",
-      inputType: "text",
+      key: "adoptionFosterRequirement",
+      label: "费用/要求",
+      placeholder: "免费领养 / 30元每天 / 希望有养宠经验",
+      inputType: "textarea",
     },
   ],
   HOME_VISIT: [
@@ -111,59 +124,63 @@ const fieldGroups: Record<StructuredPublishTab, FieldConfig[]> = {
       inputType: "text",
     },
     {
+      key: "homeVisitDescription",
+      label: "服务内容",
+      placeholder: "喂饭、换水、清理砂盆",
+      inputType: "textarea",
+    },
+    {
       key: "homeVisitPrice",
       label: "参考价格",
       placeholder: "80元 / 次",
       inputType: "text",
     },
-    {
-      key: "homeVisitDescription",
-      label: "服务说明",
-      placeholder: "喂饭、换水、清理砂盆",
-      inputType: "textarea",
-    },
   ],
-  RESALE: [
+  OTHER: [
     {
-      key: "resaleItem",
-      label: "闲置物品",
-      placeholder: "猫抓板 / 猫爬架 / 宠物包",
+      key: "otherType",
+      label: "信息类型",
+      placeholder: "求助",
+      inputType: "picker",
+      options: ["求助", "组局", "闲置", "其它"],
+    },
+    {
+      key: "otherArea",
+      label: "所在区域",
+      placeholder: "雁塔区 / 高新区 / 可线上沟通",
       inputType: "text",
     },
     {
-      key: "resaleCondition",
-      label: "新旧程度",
-      placeholder: "9成新，功能完好",
+      key: "otherBudget",
+      label: "预算/价格",
+      placeholder: "可商议 / 50元以内 / 免费",
       inputType: "text",
     },
     {
-      key: "resalePrice",
-      label: "价格",
-      placeholder: "120元，可小刀",
-      inputType: "text",
-    },
-    {
-      key: "resaleDelivery",
-      label: "交易方式",
-      placeholder: "西安同城自提 / 核验自取",
-      inputType: "text",
+      key: "otherDescription",
+      label: "补充说明",
+      placeholder: "说明具体需求、规则或注意事项",
+      inputType: "textarea",
     },
   ],
 };
 
 const emptyFieldValues: FieldValues = {
-  fosterPetType: "",
-  fosterNeed: "",
-  fosterPickup: "",
-  fosterBudget: "",
+  adoptionFosterProfile: "",
+  adoptionFosterMode: "",
+  adoptionFosterPetType: "",
+  adoptionFosterAge: "",
+  adoptionFosterGender: "",
+  adoptionFosterNeutered: "",
+  adoptionFosterRequirement: "",
   homeVisitArea: "",
   homeVisitTime: "",
-  homeVisitPrice: "",
   homeVisitDescription: "",
-  resaleItem: "",
-  resaleCondition: "",
-  resalePrice: "",
-  resaleDelivery: "",
+  homeVisitPrice: "",
+  otherType: "",
+  otherArea: "",
+  otherBudget: "",
+  otherDescription: "",
 };
 
 function buildFieldViews(currentTab: PublishTab, values: FieldValues) {
@@ -173,9 +190,33 @@ function buildFieldViews(currentTab: PublishTab, values: FieldValues) {
 
   return fieldGroups[currentTab].map((field) => ({
     ...field,
-    value: values[field.key],
+    value:
+      field.inputType === "multiPicker"
+        ? resolveMultiPickerValue(field, values)
+        : values[field.key],
     optionIndex: Math.max((field.options ?? []).indexOf(values[field.key]), 0),
+    optionIndexes: resolveMultiPickerIndexes(field, values),
   }));
+}
+
+function resolveMultiPickerValue(field: FieldConfig, values: FieldValues) {
+  if (!field.keys?.length) {
+    return values[field.key];
+  }
+
+  const selectedValues = field.keys.map((key) => values[key]).filter(Boolean);
+  return selectedValues.length === field.keys.length ? selectedValues.join(" / ") : "";
+}
+
+function resolveMultiPickerIndexes(field: FieldConfig, values: FieldValues) {
+  if (!field.keys?.length || !field.columns?.length) {
+    return [];
+  }
+
+  return field.keys.map((key, index) => {
+    const column = field.columns?.[index] ?? [];
+    return Math.max(column.indexOf(values[key]), 0);
+  });
 }
 
 function findFieldConfig(currentTab: PublishTab, fieldKey: string) {
@@ -188,6 +229,14 @@ function findFieldConfig(currentTab: PublishTab, fieldKey: string) {
 
 function getUploadedImages(imageList: PublishImageItem[]) {
   return imageList.filter((item) => item.uploadStatus === "success" && item.url);
+}
+
+function isFieldComplete(field: FieldConfig, values: FieldValues) {
+  if (field.inputType === "multiPicker") {
+    return Boolean(field.keys?.every((key) => values[key].trim()));
+  }
+
+  return Boolean(values[field.key].trim());
 }
 
 function isPublishEnabled(
@@ -213,7 +262,7 @@ function isPublishEnabled(
     return true;
   }
 
-  return fieldGroups[currentTab].every((field) => values[field.key].trim());
+  return fieldGroups[currentTab].every((field) => isFieldComplete(field, values));
 }
 
 function createImageItem(filePath: string): PublishImageItem {
@@ -267,18 +316,37 @@ function buildPublishPayload(
     };
   }
 
-  if (currentTab === "FOSTER") {
+  if (currentTab === "ADOPTION_FOSTER") {
+    if (fieldValues.adoptionFosterMode === "领养") {
+      return {
+        type: "SERVICE",
+        serviceCategory: fieldValues.adoptionFosterMode === "领养" ? "ADOPTION" : "BOARDING",
+        title: titleInput.trim(),
+        content:
+          `${contentInput.trim()}\n领养要求：${fieldValues.adoptionFosterRequirement}`.trim(),
+        city,
+        images,
+        adoptionDetail: {
+          petType: fieldValues.adoptionFosterPetType,
+          age: fieldValues.adoptionFosterAge,
+          gender: fieldValues.adoptionFosterGender,
+          neutered: fieldValues.adoptionFosterNeutered === "已绝育",
+          adoptionRequirements: fieldValues.adoptionFosterRequirement,
+        },
+      };
+    }
+
     return {
       type: "SERVICE",
-      serviceCategory: "BOARDING",
+      serviceCategory: fieldValues.adoptionFosterMode === "领养" ? "ADOPTION" : "BOARDING",
       title: titleInput.trim(),
-      content: `${contentInput.trim()}\n是否可上门：${fieldValues.fosterPickup}`.trim(),
+      content: `${contentInput.trim()}\n寄养要求：${fieldValues.adoptionFosterRequirement}`.trim(),
       city,
       images,
       boardingDetail: {
-        boardingEnvironment: fieldValues.fosterNeed,
-        acceptedPetTypes: [fieldValues.fosterPetType],
-        price: fieldValues.fosterBudget,
+        boardingEnvironment: `${fieldValues.adoptionFosterAge} · ${fieldValues.adoptionFosterGender} · ${fieldValues.adoptionFosterNeutered}`,
+        acceptedPetTypes: [fieldValues.adoptionFosterPetType],
+        price: fieldValues.adoptionFosterRequirement,
       },
     };
   }
@@ -303,13 +371,13 @@ function buildPublishPayload(
     type: "SERVICE",
     serviceCategory: "SECOND_HAND",
     title: titleInput.trim(),
-    content: `${contentInput.trim()}\n交易方式：${fieldValues.resaleDelivery}`.trim(),
+    content: `${contentInput.trim()}\n补充说明：${fieldValues.otherDescription}`.trim(),
     city,
     images,
     secondHandDetail: {
-      itemType: fieldValues.resaleItem,
-      itemCondition: fieldValues.resaleCondition,
-      price: fieldValues.resalePrice,
+      itemType: fieldValues.otherType,
+      itemCondition: fieldValues.otherArea,
+      price: fieldValues.otherBudget,
     },
   };
 }
@@ -666,6 +734,39 @@ Page({
     });
   },
 
+  handleFieldMultiPickerChange(
+    event: WechatMiniprogram.CustomEvent<{ value?: number[] | string[] }>,
+  ) {
+    const { fieldKey } = event.currentTarget.dataset as { fieldKey?: PublishFieldKey };
+    const currentTab = this.data.currentTab as PublishTab;
+    if (!fieldKey || currentTab === "PET_SOCIAL") {
+      return;
+    }
+
+    const field = findFieldConfig(currentTab, fieldKey);
+    if (!field?.keys?.length || !field.columns?.length) {
+      return;
+    }
+
+    const fieldKeys = field.keys;
+    const fieldColumns = field.columns;
+    const optionIndexes = (event.detail.value ?? []).map((value) => Number(value));
+    const nextValues = { ...(this.data.fieldValues as FieldValues) };
+
+    fieldKeys.forEach((key, columnIndex) => {
+      const optionIndex = optionIndexes[columnIndex] ?? 0;
+      nextValues[key] = fieldColumns[columnIndex]?.[optionIndex] ?? "";
+    });
+
+    this.refreshPageData({
+      currentTab,
+      fieldValues: nextValues,
+      titleInput: this.data.titleInput as string,
+      contentInput: this.data.contentInput as string,
+      imageList: this.data.imageList as PublishImageItem[],
+    });
+  },
+
   noop() {},
 
   dismissFieldEditor() {
@@ -773,11 +874,13 @@ Page({
         contentInput: "",
         imageList: [],
       });
-      wx.setStorageSync(HOME_FEED_REFRESH_FLAG, true);
+      const currentTab = this.data.currentTab as PublishTab;
+      const isServicePost = currentTab !== "PET_SOCIAL";
+      wx.setStorageSync(isServicePost ? SERVICE_FEED_REFRESH_FLAG : HOME_FEED_REFRESH_FLAG, true);
 
       setTimeout(() => {
         wx.switchTab({
-          url: "/pages/tabbar/home/index",
+          url: isServicePost ? "/pages/tabbar/service/index" : "/pages/tabbar/home/index",
         });
       }, 300);
     } catch (error) {

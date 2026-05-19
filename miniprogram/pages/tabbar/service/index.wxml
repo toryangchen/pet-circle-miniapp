@@ -75,8 +75,6 @@
           >
             <feed-card
               item="{{post}}"
-              image-mode="aspectFill"
-              fixed-image-height="{{true}}"
               show-badge="{{true}}"
             ></feed-card>
           </open-container>

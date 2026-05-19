@@ -3,11 +3,13 @@ import { setPetSocialDetailPrefill } from "@utils/detail-prefill";
 import { request } from "@utils/request";
 import { rpx2px } from "@utils/util";
 
+const SERVICE_FEED_REFRESH_FLAG = "service_feed_needs_refresh";
+
 type ServiceFeedCardView = FeedCardView & {
   serviceCategory: FeedItem["serviceCategory"];
 };
 
-type ServiceTabCategory = "ALL" | "ADOPTION" | "BOARDING" | "HOME_FEEDING" | "SECOND_HAND";
+type ServiceTabCategory = "ALL" | "ADOPTION_FOSTER" | "HOME_FEEDING" | "OTHER";
 
 type ServiceTabPanel = {
   category: ServiceTabCategory;
@@ -17,18 +19,17 @@ type ServiceTabPanel = {
 const SERVICE_PAGE_COPY = {
   location: "西安",
   title: "服务",
-  tabs: ["全部", "领养", "寄养", "喂养", "闲置"],
-  tags: ["领养互助", "寄养照看", "同城闲置"],
+  tabs: ["全部", "领养寄养", "上门喂养", "其它"],
+  tags: ["领养寄养", "上门喂养", "其它服务"],
   highlightTitle: "找靠谱宠物服务，先看真实发布",
-  highlightSummary: "服务页直接读取线上服务列表，按领养、寄养、上门喂养和闲置分类浏览。",
+  highlightSummary: "服务页直接读取线上服务列表，按领养寄养、上门喂养和其它分类浏览。",
 };
 
 const TAB_CATEGORY_MAP: ServiceTabCategory[] = [
   "ALL",
-  "ADOPTION",
-  "BOARDING",
+  "ADOPTION_FOSTER",
   "HOME_FEEDING",
-  "SECOND_HAND",
+  "OTHER",
 ];
 
 function resolveFeedBadge(item: FeedItem) {
@@ -90,7 +91,22 @@ function buildPetSocialDetailPrefill(item: ServiceFeedCardView) {
 
 function filterPostsByTab(posts: ServiceFeedCardView[], tabIndex: number) {
   const category = TAB_CATEGORY_MAP[tabIndex] ?? "ALL";
-  return category === "ALL" ? posts : posts.filter((item) => item.serviceCategory === category);
+
+  if (category === "ALL") {
+    return posts;
+  }
+
+  if (category === "ADOPTION_FOSTER") {
+    return posts.filter(
+      (item) => item.serviceCategory === "ADOPTION" || item.serviceCategory === "BOARDING",
+    );
+  }
+
+  if (category === "OTHER") {
+    return posts.filter((item) => item.serviceCategory === "SECOND_HAND");
+  }
+
+  return posts.filter((item) => item.serviceCategory === category);
 }
 
 function buildServiceTabPanels(posts: ServiceFeedCardView[]): ServiceTabPanel[] {
@@ -142,11 +158,16 @@ Page({
     hasMore: true,
     gap: rpx2px(10),
   },
-  onShow() {
+  async onShow() {
     if (typeof this.getTabBar === "function" && this.getTabBar()) {
       this.getTabBar().setData({
         selected: 1, // 控制哪一项是选中状态
       });
+    }
+
+    if (wx.getStorageSync(SERVICE_FEED_REFRESH_FLAG)) {
+      wx.removeStorageSync(SERVICE_FEED_REFRESH_FLAG);
+      await this.reloadServiceFeed();
     }
   },
 

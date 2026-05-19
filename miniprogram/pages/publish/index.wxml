@@ -101,6 +101,31 @@
           </view>
         </picker>
 
+        <picker
+          wx:elif="{{item.inputType === 'multiPicker'}}"
+          mode="multiSelector"
+          range="{{item.columns}}"
+          value="{{item.optionIndexes}}"
+          data-field-key="{{item.key}}"
+          bindchange="handleFieldMultiPickerChange"
+        >
+          <view class="publish-field-row">
+            <text class="publish-field-row__label">{{item.label}}</text>
+            <view class="publish-field-row__value-wrap">
+              <view
+                class="publish-field-row__value {{!item.value ? 'publish-field-row__value--placeholder' : ''}}"
+              >
+                {{item.value || item.placeholder}}
+              </view>
+              <image
+                class="publish-field-row__arrow-icon"
+                src="/assets/icon-arrow-right.png"
+                mode="aspectFit"
+              ></image>
+            </view>
+          </view>
+        </picker>
+
         <view
           wx:else
           class="publish-field-row"
