@@ -66,7 +66,7 @@ test("request sends the current token with every business request", async () => 
 
   const { request } = loadRequestModule(sessionMock);
 
-  await request({ method: "GET", path: "/posts/feed" });
+  await request({ method: "POST", path: "/posts/feed" });
 
   assert.equal(requestHeaders.length, 1);
   assert.equal(requestHeaders[0].Authorization, "Bearer initial-token");
@@ -120,7 +120,7 @@ test("request recovers once on 401 and retries with the refreshed token", async 
   };
 
   const { request } = loadRequestModule(sessionMock);
-  const result = await request({ method: "GET", path: "/posts/feed" });
+  const result = await request({ method: "POST", path: "/posts/feed" });
 
   assert.deepEqual(result, { ok: true });
   assert.equal(recoverCalls, 1);

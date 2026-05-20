@@ -33,7 +33,7 @@ async function fetchPetSocialDetail(postId: string) {
   return withFallback(
     () =>
       request<PostDetail>({
-        method: "GET",
+        method: "POST",
         path: `/posts/${postId}`,
       }),
     getMockPostDetail(postId, "PET_SOCIAL"),
@@ -44,8 +44,8 @@ async function fetchComments(postId: string) {
   return withFallback(
     () =>
       request<CommentListResult>({
-        method: "GET",
-        path: `/posts/${postId}/comments`,
+        method: "POST",
+        path: `/posts/${postId}/comments/list`,
       }),
     getMockComments(postId),
   );
@@ -83,8 +83,8 @@ async function deletePostComment(commentId: string) {
   return withFallback(
     () =>
       request<{ id: string }>({
-        method: "DELETE",
-        path: `/comments/${commentId}`,
+        method: "POST",
+        path: `/comments/${commentId}/delete`,
       }),
     () => removeMockComment(commentId),
   );
@@ -94,8 +94,8 @@ async function updatePostLike(postId: string, liked: boolean) {
   return withFallback(
     () =>
       request<ToggleLikeResult>({
-        method: liked ? "POST" : "DELETE",
-        path: `/posts/${postId}/like`,
+        method: "POST",
+        path: liked ? `/posts/${postId}/like` : `/posts/${postId}/like/delete`,
       }),
     toggleMockLike(postId, liked),
   );
@@ -105,8 +105,8 @@ async function updatePostFavorite(postId: string, favorited: boolean) {
   return withFallback(
     () =>
       request<ToggleFavoriteResult>({
-        method: favorited ? "POST" : "DELETE",
-        path: `/posts/${postId}/favorite`,
+        method: "POST",
+        path: favorited ? `/posts/${postId}/favorite` : `/posts/${postId}/favorite/delete`,
       }),
     toggleMockFavorite(postId, favorited),
   );

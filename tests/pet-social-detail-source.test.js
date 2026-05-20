@@ -115,8 +115,8 @@ test("pet social detail renders real comment avatars and own-comment delete acti
   assert.equal(source.includes("currentUserId"), true);
   assert.equal(source.includes("canDelete:"), true);
   assert.equal(source.includes("reply.author.id === currentUserId"), true);
-  assert.equal(source.includes("path: `/comments/${commentId}`"), true);
-  assert.equal(source.includes('method: "DELETE"'), true);
+  assert.equal(source.includes("path: `/comments/${commentId}/delete`"), true);
+  assert.equal(source.includes('method: "POST"'), true);
   assert.equal(source.includes("() => removeMockComment(commentId)"), true);
   assert.equal(source.includes("wx.showModal"), true);
   assert.equal(styles.includes(".pet-social-comment__delete {"), true);

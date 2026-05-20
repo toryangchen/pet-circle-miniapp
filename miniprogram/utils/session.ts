@@ -2,7 +2,7 @@ import type { MiniappUserSummary } from "./api-types";
 
 const DEFAULT_API_BASE_URL = "https://pet.toryang.cc/api";
 
-type HttpMethod = "GET" | "POST";
+type HttpMethod = "POST";
 
 type ApiEnvelope<T> = {
   code: number;
@@ -281,7 +281,7 @@ export async function syncCurrentUser(options?: {
 
   if (!currentUserPromise) {
     currentUserPromise = requestApi<MiniappUserSummary>({
-      method: "GET",
+      method: "POST",
       path: "/auth/me",
       token: session.token,
     })

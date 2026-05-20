@@ -118,7 +118,7 @@ function buildServiceTabPanels(posts: ServiceFeedCardView[]): ServiceTabPanel[] 
 
 async function fetchServiceFeed(page: number, pageSize: number) {
   const result = await request<PagedResult<FeedItem>>({
-    method: "GET",
+    method: "POST",
     path: `/posts/feed?channel=SERVICE&page=${page}&pageSize=${pageSize}`,
   });
 

@@ -3,7 +3,7 @@ import {
   recoverSession,
 } from "./session";
 
-type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
+type HttpMethod = "POST";
 
 type ApiEnvelope<T> = {
   code: number;

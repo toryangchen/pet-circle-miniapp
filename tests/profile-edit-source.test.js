@@ -21,7 +21,7 @@ test("profile edit page exposes a shared updateUserProfile helper", () => {
   );
   assert.match(
     source,
-    /method: "PATCH"[\s\S]*path: "\/users\/me\/profile"/,
+    /method: "POST"[\s\S]*path: "\/users\/me\/profile"/,
   );
 });
 

@@ -32,7 +32,7 @@ function toFeedCardView(item: FeedItem): FeedCardView {
 
 async function fetchHomeFeed(page: number, pageSize: number) {
   const result = await request<PagedResult<FeedItem>>({
-    method: "GET",
+    method: "POST",
     path: `/posts/feed?channel=PET_SOCIAL&page=${page}&pageSize=${pageSize}`,
   });
 

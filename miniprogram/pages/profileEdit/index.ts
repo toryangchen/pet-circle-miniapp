@@ -158,7 +158,7 @@ Page({
 
   async updateUserProfile(payload: UpdateMyProfilePayload) {
     return request({
-      method: "PATCH",
+      method: "POST",
       path: "/users/me/profile",
       data: payload,
     });
