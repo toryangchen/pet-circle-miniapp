@@ -54,6 +54,8 @@ const DEFAULT_AUTH_STATE: AuthBootstrapState = {
   phoneMasked: "",
 };
 
+const SESSION_STORAGE_KEY = "pet_circle_miniapp_session";
+
 let authState: AuthBootstrapState = { ...DEFAULT_AUTH_STATE };
 let bootstrapPromise: Promise<void> | null = null;
 let loginPromise: Promise<AuthSession> | null = null;
@@ -71,6 +73,46 @@ function cloneSession(session: AuthSession | null) {
   return session ? { ...session } : null;
 }
 
+function isStoredSession(value: unknown): value is AuthSession {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<AuthSession>;
+  return (
+    typeof candidate.userId === "string" &&
+    typeof candidate.token === "string" &&
+    typeof candidate.nickname === "string" &&
+    Boolean(candidate.userId) &&
+    Boolean(candidate.token)
+  );
+}
+
+function readStoredSession() {
+  try {
+    const value = wx.getStorageSync(SESSION_STORAGE_KEY);
+    return isStoredSession(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredSession(session: AuthSession) {
+  try {
+    wx.setStorageSync(SESSION_STORAGE_KEY, session);
+  } catch {
+    // Storage failures should not block the active in-memory login state.
+  }
+}
+
+function removeStoredSession() {
+  try {
+    wx.removeStorageSync(SESSION_STORAGE_KEY);
+  } catch {
+    // Ignore storage cleanup failures; the next 401 will force a fresh login.
+  }
+}
+
 function setAuthState(nextState: Partial<AuthBootstrapState>) {
   authState = {
     ...authState,
@@ -80,13 +122,18 @@ function setAuthState(nextState: Partial<AuthBootstrapState>) {
 
 function applyAuthenticatedState(session: AuthSession, user?: MiniappUserSummary | null) {
   const nextUser = user === undefined ? authState.user : user;
+  const nextSession = {
+    ...session,
+    nickname: nextUser?.nickname || session.nickname,
+  };
   setAuthState({
     isAuthenticated: true,
-    session,
+    session: nextSession,
     user: nextUser,
     phoneAuthorized: nextUser?.phoneAuthorized ?? false,
     phoneMasked: nextUser?.phoneMasked ?? "",
   });
+  writeStoredSession(nextSession);
 }
 
 function resetAuthState() {
@@ -94,6 +141,7 @@ function resetAuthState() {
     ...DEFAULT_AUTH_STATE,
     isBootstrapping: authState.isBootstrapping,
   };
+  removeStoredSession();
 }
 
 function requestMiniappLoginCode() {
@@ -214,6 +262,7 @@ export async function recoverSession() {
     phoneAuthorized: false,
     phoneMasked: "",
   });
+  removeStoredSession();
 
   return ensureAuthenticated();
 }
@@ -243,6 +292,7 @@ export async function syncCurrentUser(options?: {
       .catch(async (error) => {
         if (options?.allowRelogin && isUnauthorizedError(error)) {
           await recoverSession();
+          currentUserPromise = null;
           return syncCurrentUser({ allowRelogin: false });
         }
 
@@ -267,7 +317,13 @@ export async function bootstrapSession() {
 
       try {
         try {
-          await ensureAuthenticated();
+          const storedSession = readStoredSession();
+          if (storedSession) {
+            applyAuthenticatedState(storedSession);
+            await syncCurrentUser({ allowRelogin: true });
+          } else {
+            await ensureAuthenticated();
+          }
         } catch {
           resetAuthState();
         }
