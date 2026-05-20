@@ -1,6 +1,6 @@
 export type PostType = "PET_SOCIAL" | "SERVICE";
 export type PostStatus = "PENDING" | "APPROVED" | "REJECTED" | "OFFLINE" | "COMPLETED";
-export type ServiceCategory = "ADOPTION" | "SECOND_HAND" | "HOME_FEEDING" | "BOARDING";
+export type ServiceCategory = "ADOPTION" | "HOME_FEEDING" | "BOARDING" | "OTHER" | "SECOND_HAND";
 export type NotificationType =
   | "LIKE_POST"
   | "COMMENT_POST"

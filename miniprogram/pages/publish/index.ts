@@ -296,6 +296,18 @@ function resolvePostCity() {
   return getAuthState().user?.region.city || "西安";
 }
 
+function resolveNeuteredStatus(value: string) {
+  if (value === "已绝育") {
+    return "YES";
+  }
+
+  if (value === "未绝育") {
+    return "NO";
+  }
+
+  return "UNKNOWN";
+}
+
 function buildPublishPayload(
   currentTab: PublishTab,
   titleInput: string,
@@ -330,7 +342,7 @@ function buildPublishPayload(
           petType: fieldValues.adoptionFosterPetType,
           age: fieldValues.adoptionFosterAge,
           gender: fieldValues.adoptionFosterGender,
-          neutered: fieldValues.adoptionFosterNeutered === "已绝育",
+          neuteredStatus: resolveNeuteredStatus(fieldValues.adoptionFosterNeutered),
           adoptionRequirements: fieldValues.adoptionFosterRequirement,
         },
       };
@@ -369,15 +381,16 @@ function buildPublishPayload(
 
   return {
     type: "SERVICE",
-    serviceCategory: "SECOND_HAND",
+    serviceCategory: "OTHER",
     title: titleInput.trim(),
     content: `${contentInput.trim()}\n补充说明：${fieldValues.otherDescription}`.trim(),
     city,
     images,
-    secondHandDetail: {
-      itemType: fieldValues.otherType,
-      itemCondition: fieldValues.otherArea,
-      price: fieldValues.otherBudget,
+    otherDetail: {
+      infoType: fieldValues.otherType,
+      area: fieldValues.otherArea,
+      budget: fieldValues.otherBudget,
+      description: fieldValues.otherDescription,
     },
   };
 }

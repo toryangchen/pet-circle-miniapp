@@ -170,6 +170,6 @@ test("service tab categories match publish service tabs", () => {
   assert.equal(source.includes('"HOME_FEEDING"'), true);
   assert.equal(source.includes('"OTHER"'), true);
   assert.equal(source.includes('item.serviceCategory === "ADOPTION" || item.serviceCategory === "BOARDING"'), true);
-  assert.equal(source.includes('item.serviceCategory === "SECOND_HAND"'), true);
+  assert.equal(source.includes('item.serviceCategory === "OTHER"'), true);
   assert.equal(source.includes('tabs: ["全部", "领养", "寄养", "喂养", "闲置"]'), false);
 });

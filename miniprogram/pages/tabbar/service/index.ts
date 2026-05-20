@@ -42,8 +42,8 @@ function resolveFeedBadge(item: FeedItem) {
       return "宠物寄养";
     case "ADOPTION":
       return "领养";
-    case "SECOND_HAND":
-      return "闲置";
+    case "OTHER":
+      return "其它";
     default:
       return "上门喂养";
   }
@@ -103,7 +103,7 @@ function filterPostsByTab(posts: ServiceFeedCardView[], tabIndex: number) {
   }
 
   if (category === "OTHER") {
-    return posts.filter((item) => item.serviceCategory === "SECOND_HAND");
+    return posts.filter((item) => item.serviceCategory === "OTHER");
   }
 
   return posts.filter((item) => item.serviceCategory === category);

@@ -63,7 +63,11 @@ test("publish page optimized service forms cover adoption boarding feeding and o
   assert.equal(source.includes('label: "所在区域"'), true);
   assert.equal(source.includes('label: "预算/价格"'), true);
   assert.equal(source.includes('label: "补充说明"'), true);
-  assert.equal(source.includes('serviceCategory: "SECOND_HAND"'), true);
+  assert.equal(source.includes('serviceCategory: "OTHER"'), true);
+  assert.equal(source.includes("otherDetail:"), true);
+  assert.equal(source.includes("secondHandDetail:"), false);
+  assert.equal(source.includes("neuteredStatus: resolveNeuteredStatus(fieldValues.adoptionFosterNeutered)"), true);
+  assert.equal(source.includes('neutered: fieldValues.adoptionFosterNeutered === "已绝育"'), false);
 });
 
 test("publish page adoption foster pet info uses one multi-column picker but stores split fields", () => {
