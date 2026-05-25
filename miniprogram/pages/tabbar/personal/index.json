@@ -1,5 +1,7 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "feed-card": "/components/feed-card/index"
+  },
   "renderer": "skyline",
   "componentFramework": "glass-easel"
 }

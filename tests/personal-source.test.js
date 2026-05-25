@@ -3,16 +3,12 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const personalPath = path.join(
-  __dirname,
-  "../miniprogram/pages/tabbar/personal/index.ts",
-);
-const personalWxmlPath = path.join(
-  __dirname,
-  "../miniprogram/pages/tabbar/personal/index.wxml",
-);
+const personalPath = path.join(__dirname, "../miniprogram/pages/tabbar/personal/index.ts");
+const personalWxmlPath = path.join(__dirname, "../miniprogram/pages/tabbar/personal/index.wxml");
+const personalJsonPath = path.join(__dirname, "../miniprogram/pages/tabbar/personal/index.json");
 const source = fs.readFileSync(personalPath, "utf8");
 const wxmlSource = fs.readFileSync(personalWxmlPath, "utf8");
+const jsonSource = fs.readFileSync(personalJsonPath, "utf8");
 
 test("personal page loads real user info from session state and auth me", () => {
   assert.match(source, /import \{ getAuthState, syncCurrentUser \} from "@utils\/session"/);
@@ -39,4 +35,25 @@ test("personal page uses scroll-view driven header opacity state", () => {
   assert.match(source, /opacityRate: rate >= 1 \? 1 : rate/);
   assert.match(wxmlSource, /bindscroll="onScroll"/);
   assert.match(wxmlSource, /sticky-section/);
+});
+
+test("personal page renders my posts with the shared feed card", () => {
+  assert.equal(jsonSource.includes('"feed-card": "/components/feed-card/index"'), true);
+  assert.equal(
+    wxmlSource.includes('<feed-card item="{{item}}" show-badge="{{true}}"></feed-card>'),
+    true,
+  );
+  assert.equal(wxmlSource.includes("wx:if=\"{{activeTab === '发布' && posts.length > 0}}\""), true);
+  assert.equal(wxmlSource.includes('bindtap="openPostDetail"'), true);
+});
+
+test("personal page loads and refreshes my published posts", () => {
+  assert.equal(
+    source.includes('const PERSONAL_POSTS_REFRESH_FLAG = "personal_posts_needs_refresh";'),
+    true,
+  );
+  assert.equal(source.includes("path: `/posts/my?page=${page}&pageSize=${pageSize}`"), true);
+  assert.equal(source.includes("void this.reloadPosts();"), true);
+  assert.equal(source.includes("wx.getStorageSync(PERSONAL_POSTS_REFRESH_FLAG)"), true);
+  assert.equal(source.includes("wx.removeStorageSync(PERSONAL_POSTS_REFRESH_FLAG);"), true);
 });

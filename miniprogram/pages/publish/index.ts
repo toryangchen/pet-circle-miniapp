@@ -65,6 +65,7 @@ const IMAGE_GAP_RPX = 12;
 const IMAGE_SOURCE_OPTIONS = ["从相册选择", "拍照"] as const;
 const HOME_FEED_REFRESH_FLAG = "home_feed_needs_refresh";
 const SERVICE_FEED_REFRESH_FLAG = "service_feed_needs_refresh";
+const PERSONAL_POSTS_REFRESH_FLAG = "personal_posts_needs_refresh";
 
 let imageIdSeed = 0;
 
@@ -890,6 +891,7 @@ Page({
       const currentTab = this.data.currentTab as PublishTab;
       const isServicePost = currentTab !== "PET_SOCIAL";
       wx.setStorageSync(isServicePost ? SERVICE_FEED_REFRESH_FLAG : HOME_FEED_REFRESH_FLAG, true);
+      wx.setStorageSync(PERSONAL_POSTS_REFRESH_FLAG, true);
 
       setTimeout(() => {
         wx.switchTab({

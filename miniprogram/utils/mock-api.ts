@@ -213,6 +213,21 @@ const posts: MyPostCardView[] = [
     title: "未央区可上门喂养，拍照反馈很及时",
     status: "PENDING",
     summary: "等待审核中，结构化服务字段已填写。",
+    coverImage: SERVICE_FEEDS[0].image,
+    city: "西安",
+    author: "糯米和团子的家",
+    authorAvatarUrl: null,
+    stats: {
+      likeCount: 0,
+      commentCount: 0,
+      favoriteCount: 0,
+    },
+    viewerState: {
+      favorited: false,
+    },
+    rejectReason: null,
+    createdAt: "2026-04-01T09:00:00.000Z",
+    updatedAt: "2026-04-01T09:05:00.000Z",
     route: "/pages/detail/pet-social/index?id=service-1",
   },
   {
@@ -222,6 +237,21 @@ const posts: MyPostCardView[] = [
     title: "猫咪春天第一次出门晒太阳",
     status: "APPROVED",
     summary: "已审核通过，正在展示。",
+    coverImage: HOME_FEEDS[0].image,
+    city: "西安",
+    author: "糯米和团子的家",
+    authorAvatarUrl: null,
+    stats: {
+      likeCount: 12,
+      commentCount: 3,
+      favoriteCount: 4,
+    },
+    viewerState: {
+      favorited: false,
+    },
+    rejectReason: null,
+    createdAt: "2026-04-01T08:00:00.000Z",
+    updatedAt: "2026-04-01T08:05:00.000Z",
     route: "/pages/detail/pet-social/index?id=home-1",
   },
 ];

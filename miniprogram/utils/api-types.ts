@@ -187,6 +187,21 @@ export interface MyPostCardView {
   title: string;
   status: PostStatus;
   summary: string;
+  coverImage: string | null;
+  city: string;
+  author?: string | null;
+  authorAvatarUrl?: string | null;
+  stats: {
+    likeCount: number;
+    commentCount: number;
+    favoriteCount: number;
+  };
+  viewerState: {
+    favorited: boolean;
+  };
+  rejectReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
   route: string;
 }
 
