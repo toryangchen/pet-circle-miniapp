@@ -47,6 +47,11 @@ test("personal page renders my posts with the shared feed card", () => {
   assert.equal(wxmlSource.includes('bindtap="openPostDetail"'), true);
 });
 
+test("personal publish grid is a direct sticky-section child for Skyline rendering", () => {
+  assert.equal(wxmlSource.includes('<list-view>\n      <view class="personal-panel">'), false);
+  assert.equal(wxmlSource.includes('class="personal-panel personal-post-grid"'), true);
+});
+
 test("personal page loads and refreshes my published posts", () => {
   assert.equal(
     source.includes('const PERSONAL_POSTS_REFRESH_FLAG = "personal_posts_needs_refresh";'),
