@@ -92,7 +92,7 @@
       cross-axis-count="2"
       main-axis-gap="{{gap}}"
       cross-axis-gap="{{gap}}"
-      padding="{{[10,0,10,0]}}"
+      padding="{{[8,4,8,4]}}"
     >
       <block wx:for="{{posts}}" wx:key="id">
         <open-container
