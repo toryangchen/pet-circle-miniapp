@@ -28,6 +28,7 @@ test("personal page shows basic user summaries from real fields", () => {
   assert.match(source, /subtitle: formatSubtitle\(user\)/);
   assert.match(source, /title: "我的收藏", summary: "还没有收藏内容"/);
   assert.match(source, /title: "我的发布", summary: "还没有发布记录"/);
+  assert.match(source, /tabs: \["发布", "收藏", "浏览"\]/);
 });
 
 test("personal page uses scroll-view driven header opacity state", () => {
@@ -47,6 +48,16 @@ test("personal page renders my posts with the shared feed card", () => {
   assert.equal(wxmlSource.includes('bindtap="openPostDetail"'), true);
 });
 
+test("personal page renders publish, favorite, and history card grids directly", () => {
+  assert.equal(wxmlSource.includes("activeTab === '发布' && posts.length > 0"), true);
+  assert.equal(wxmlSource.includes("activeTab === '收藏' && favoritePosts.length > 0"), true);
+  assert.equal(wxmlSource.includes("activeTab === '浏览' && historyPosts.length > 0"), true);
+  assert.equal(
+    wxmlSource.includes('<feed-card item="{{item}}" show-badge="{{true}}"></feed-card>'),
+    true,
+  );
+});
+
 test("personal publish grid is a direct sticky-section child for Skyline rendering", () => {
   assert.equal(wxmlSource.includes('<list-view>\n      <view class="personal-panel">'), false);
   assert.equal(wxmlSource.includes('class="personal-panel personal-post-grid"'), true);
@@ -61,6 +72,13 @@ test("personal page loads and refreshes my published posts", () => {
   assert.equal(source.includes("void this.reloadPosts();"), true);
   assert.equal(source.includes("wx.getStorageSync(PERSONAL_POSTS_REFRESH_FLAG)"), true);
   assert.equal(source.includes("wx.removeStorageSync(PERSONAL_POSTS_REFRESH_FLAG);"), true);
+});
+
+test("personal page loads favorites and browsing history from real endpoints", () => {
+  assert.equal(source.includes("path: `/favorites/my?page=${page}&pageSize=${pageSize}`"), true);
+  assert.equal(source.includes("path: `/posts/history?page=${page}&pageSize=${pageSize}`"), true);
+  assert.equal(source.includes('case "收藏":'), true);
+  assert.equal(source.includes('case "浏览":'), true);
 });
 
 test("personal page tolerates legacy my-post fields while rendering cards", () => {

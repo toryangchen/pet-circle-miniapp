@@ -111,6 +111,58 @@
       </block>
     </grid-view>
 
+    <grid-view
+      wx:elif="{{activeTab === '收藏' && favoritePosts.length > 0}}"
+      class="personal-panel personal-post-grid"
+      type="masonry"
+      cross-axis-count="2"
+      main-axis-gap="{{gap}}"
+      cross-axis-gap="{{gap}}"
+      padding="{{[8,4,8,4]}}"
+    >
+      <block wx:for="{{favoritePosts}}" wx:key="id">
+        <open-container
+          closed-elevation="{{closedElevation}}"
+          closed-border-radius="{{closedBorderRadius}}"
+          open-elevation="{{openElevation}}"
+          open-border-radius="{{openBorderRadius}}"
+          transition-type="{{type}}"
+          transition-duration="{{duration}}"
+          data-route="{{item.route}}"
+          data-post-id="{{item.id}}"
+          bindtap="openPostDetail"
+        >
+          <feed-card item="{{item}}" show-badge="{{true}}"></feed-card>
+        </open-container>
+      </block>
+    </grid-view>
+
+    <grid-view
+      wx:elif="{{activeTab === '浏览' && historyPosts.length > 0}}"
+      class="personal-panel personal-post-grid"
+      type="masonry"
+      cross-axis-count="2"
+      main-axis-gap="{{gap}}"
+      cross-axis-gap="{{gap}}"
+      padding="{{[8,4,8,4]}}"
+    >
+      <block wx:for="{{historyPosts}}" wx:key="id">
+        <open-container
+          closed-elevation="{{closedElevation}}"
+          closed-border-radius="{{closedBorderRadius}}"
+          open-elevation="{{openElevation}}"
+          open-border-radius="{{openBorderRadius}}"
+          transition-type="{{type}}"
+          transition-duration="{{duration}}"
+          data-route="{{item.route}}"
+          data-post-id="{{item.id}}"
+          bindtap="openPostDetail"
+        >
+          <feed-card item="{{item}}" show-badge="{{true}}"></feed-card>
+        </open-container>
+      </block>
+    </grid-view>
+
     <view wx:else class="personal-panel personal-empty">
       <view class="personal-empty__icon-wrap">
         <image class="personal-empty__icon" src="/assets/logo-paw.png" mode="aspectFit"></image>
@@ -129,8 +181,40 @@
       </view>
     </view>
 
+    <view wx:elif="{{activeTab === '收藏' && isLoadingMoreFavorites}}" class="personal-loading">
+      <text>收藏内容加载中</text>
+      <view class="personal-loading__dots" aria-hidden="true">
+        <text class="personal-loading__dot"></text>
+        <text class="personal-loading__dot"></text>
+        <text class="personal-loading__dot"></text>
+      </view>
+    </view>
+
+    <view wx:elif="{{activeTab === '浏览' && isLoadingMoreHistory}}" class="personal-loading">
+      <text>浏览记录加载中</text>
+      <view class="personal-loading__dots" aria-hidden="true">
+        <text class="personal-loading__dot"></text>
+        <text class="personal-loading__dot"></text>
+        <text class="personal-loading__dot"></text>
+      </view>
+    </view>
+
     <view
       wx:elif="{{activeTab === '发布' && !hasMore && posts.length > 0}}"
+      class="personal-loading"
+    >
+      <text>已经到底啦。</text>
+    </view>
+
+    <view
+      wx:elif="{{activeTab === '收藏' && !favoriteHasMore && favoritePosts.length > 0}}"
+      class="personal-loading"
+    >
+      <text>已经到底啦。</text>
+    </view>
+
+    <view
+      wx:elif="{{activeTab === '浏览' && !historyHasMore && historyPosts.length > 0}}"
       class="personal-loading"
     >
       <text>已经到底啦。</text>
