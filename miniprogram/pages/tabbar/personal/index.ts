@@ -96,19 +96,34 @@ function resolvePostTypeBadge(item: MyPostCardView) {
   }
 }
 
+function resolveStatusSummary(item: MyPostCardView) {
+  switch (item.status) {
+    case "PENDING":
+      return "内容已提交，正在等待审核。";
+    case "REJECTED":
+      return item.rejectReason || "内容未通过审核，可调整后重新发布。";
+    case "OFFLINE":
+      return "内容已下线，仅自己可见。";
+    case "COMPLETED":
+      return "这条服务已完成。";
+    default:
+      return item.type === "SERVICE" ? "服务发布已展示。" : "宠物日常已展示。";
+  }
+}
+
 function toPersonalPostCardView(item: MyPostCardView): PersonalPostCardView {
   return {
     id: item.id,
     title: item.title,
-    summary: item.summary,
+    summary: item.summary || resolveStatusSummary(item),
     image: item.coverImage || DEFAULT_POST_IMAGE,
     badge: resolveStatusBadge(item.status) || resolvePostTypeBadge(item),
     author: item.author || "我的发布",
     authorAvatarUrl: item.authorAvatarUrl ?? null,
     meta: item.city,
     route: item.route || `/pages/detail/pet-social/index?id=${item.id}`,
-    favoriteCount: item.stats.favoriteCount,
-    favorited: item.viewerState.favorited,
+    favoriteCount: item.stats?.favoriteCount ?? 0,
+    favorited: item.viewerState?.favorited ?? false,
     type: item.type,
     serviceCategory: item.serviceCategory,
     status: item.status,

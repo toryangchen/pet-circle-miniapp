@@ -57,3 +57,9 @@ test("personal page loads and refreshes my published posts", () => {
   assert.equal(source.includes("wx.getStorageSync(PERSONAL_POSTS_REFRESH_FLAG)"), true);
   assert.equal(source.includes("wx.removeStorageSync(PERSONAL_POSTS_REFRESH_FLAG);"), true);
 });
+
+test("personal page tolerates legacy my-post fields while rendering cards", () => {
+  assert.equal(source.includes("summary: item.summary || resolveStatusSummary(item)"), true);
+  assert.equal(source.includes("favoriteCount: item.stats?.favoriteCount ?? 0"), true);
+  assert.equal(source.includes("favorited: item.viewerState?.favorited ?? false"), true);
+});
