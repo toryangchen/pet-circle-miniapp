@@ -70,7 +70,10 @@
 
   <sticky-section class="section">
     <sticky-header>
-      <view class="personal-tabs">
+      <view
+        class="personal-tabs"
+        style="border-radius: {{pageDistance.tabRadius}}rpx {{pageDistance.tabRadius}}rpx 0 0; margin: 0 {{pageDistance.tabSpace}}rpx;"
+      >
         <view wx:for="{{tabs}}" wx:key="*this" class="personal-tab-wrap">
           <view
             class="personal-tab {{activeTab === item ? 'personal-tab--active' : ''}}"
@@ -200,21 +203,21 @@
     </view>
 
     <view
-      wx:elif="{{activeTab === '发布' && !hasMore && posts.length > 0}}"
+      wx:elif="{{activeTab === '发布' && !hasMore && page > 1 && posts.length > 0}}"
       class="personal-loading"
     >
       <text>已经到底啦。</text>
     </view>
 
     <view
-      wx:elif="{{activeTab === '收藏' && !favoriteHasMore && favoritePosts.length > 0}}"
+      wx:elif="{{activeTab === '收藏' && !favoriteHasMore && favoritePage > 1 && favoritePosts.length > 0}}"
       class="personal-loading"
     >
       <text>已经到底啦。</text>
     </view>
 
     <view
-      wx:elif="{{activeTab === '浏览' && !historyHasMore && historyPosts.length > 0}}"
+      wx:elif="{{activeTab === '浏览' && !historyHasMore && historyPage > 1 && historyPosts.length > 0}}"
       class="personal-loading"
     >
       <text>已经到底啦。</text>

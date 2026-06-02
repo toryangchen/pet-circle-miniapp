@@ -6,9 +6,11 @@ const path = require("node:path");
 const personalPath = path.join(__dirname, "../miniprogram/pages/tabbar/personal/index.ts");
 const personalWxmlPath = path.join(__dirname, "../miniprogram/pages/tabbar/personal/index.wxml");
 const personalJsonPath = path.join(__dirname, "../miniprogram/pages/tabbar/personal/index.json");
+const personalLessPath = path.join(__dirname, "../miniprogram/pages/tabbar/personal/index.less");
 const source = fs.readFileSync(personalPath, "utf8");
 const wxmlSource = fs.readFileSync(personalWxmlPath, "utf8");
 const jsonSource = fs.readFileSync(personalJsonPath, "utf8");
+const lessSource = fs.readFileSync(personalLessPath, "utf8");
 
 test("personal page loads real user info from session state and auth me", () => {
   assert.match(source, /import \{ getAuthState, syncCurrentUser \} from "@utils\/session"/);
@@ -61,6 +63,29 @@ test("personal page renders publish, favorite, and history card grids directly",
 test("personal publish grid is a direct sticky-section child for Skyline rendering", () => {
   assert.equal(wxmlSource.includes('<list-view>\n      <view class="personal-panel">'), false);
   assert.equal(wxmlSource.includes('class="personal-panel personal-post-grid"'), true);
+});
+
+test("personal page uses the card background as the page fallback color", () => {
+  assert.match(lessSource, /page\s*\{\s*background: #fffdfc;\s*\}/);
+});
+
+test("personal page hides bottom reached copy on the first page", () => {
+  assert.equal(
+    wxmlSource.includes("activeTab === '发布' && !hasMore && page > 1 && posts.length > 0"),
+    true,
+  );
+  assert.equal(
+    wxmlSource.includes(
+      "activeTab === '收藏' && !favoriteHasMore && favoritePage > 1 && favoritePosts.length > 0",
+    ),
+    true,
+  );
+  assert.equal(
+    wxmlSource.includes(
+      "activeTab === '浏览' && !historyHasMore && historyPage > 1 && historyPosts.length > 0",
+    ),
+    true,
+  );
 });
 
 test("personal page loads and refreshes my published posts", () => {

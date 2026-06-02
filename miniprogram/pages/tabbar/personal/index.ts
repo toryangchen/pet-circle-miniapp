@@ -314,13 +314,14 @@ Page({
     closedBorderRadius: 4,
     openElevation: 0,
     openBorderRadius: 0,
-
     pageDistance: {
       topHeight: 0,
       menuTop: 0,
       menuHeight: 0,
       opacityRate: 0,
       stickyHeight: 0,
+      tabRadius: 24,
+      tabSpace: 8,
     },
   },
   onLoad() {
@@ -352,17 +353,25 @@ Page({
       void this.reloadPosts();
     }
   },
+
   onScroll(event: WechatMiniprogram.ScrollViewScroll) {
     const { scrollTop } = event.detail;
     const { topHeight } = this.data.pageDistance;
     const rate = scrollTop / topHeight;
-
     this.setData({
       pageDistance: {
         ...this.data.pageDistance,
         opacityRate: rate >= 1 ? 1 : rate,
+        tabRadius: this.scrollCalculateSpace(rate, 24),
+        tabSpace: this.scrollCalculateSpace(rate, 8),
       },
     });
+  },
+
+  scrollCalculateSpace(rate: number, base: number) {
+    let space = rate < 1 ? 0 : base * (rate - 1);
+    space = space > base ? base : space;
+    return base - space;
   },
 
   async onScrollToLower() {
