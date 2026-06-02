@@ -34,6 +34,21 @@ test("home tab manages paged loading state in the page source", () => {
   assert.equal(source.includes("bindscrolltolower"), false);
 });
 
+test("home tab shows initial loading before the grid", () => {
+  const templatePath = path.join(__dirname, "../miniprogram/pages/tabbar/home/index.wxml");
+  const stylesPath = path.join(__dirname, "../miniprogram/app.less");
+  const template = fs.readFileSync(templatePath, "utf8");
+  const styles = fs.readFileSync(stylesPath, "utf8");
+
+  assert.equal(template.includes('wx:if="{{isLoading && featuredPosts.length === 0}}"'), true);
+  assert.equal(template.includes('class="pc-grid-loading"'), true);
+  assert.equal(template.includes('class="pc-grid-skeleton"'), true);
+  assert.equal(template.includes('wx:elif="{{featuredPosts.length > 0}}"'), true);
+  assert.equal(styles.includes("pc-grid-skeleton-shimmer 1.8s"), true);
+  assert.equal(styles.includes(".pc-grid-skeleton__image"), true);
+  assert.equal(styles.includes("@keyframes pc-grid-skeleton-shimmer"), true);
+});
+
 test("home tab caches tapped feed card for pet social detail prefill", () => {
   const pagePath = path.join(__dirname, "../miniprogram/pages/tabbar/home/index.ts");
   const templatePath = path.join(__dirname, "../miniprogram/pages/tabbar/home/index.wxml");

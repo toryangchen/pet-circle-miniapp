@@ -49,9 +49,10 @@ test("service tab uses the same feed card image presentation as home", () => {
   assert.equal(homeWxml.includes('fixed-image-height="{{true}}"'), false);
   assert.equal(serviceWxml.includes('image-mode="aspectFill"'), false);
   assert.equal(serviceWxml.includes('fixed-image-height="{{true}}"'), false);
-  assert.equal(serviceWxml.includes("<feed-card\n              item=\"{{post}}\"\n              show-badge=\"{{true}}\"\n            ></feed-card>"), true);
+  assert.equal(serviceWxml.includes("<feed-card"), true);
+  assert.equal(serviceWxml.includes('item="{{post}}"'), true);
+  assert.equal(serviceWxml.includes('show-badge="{{true}}"'), true);
 });
-
 
 test("shared feed card uses virtual host for Skyline grid measurement", () => {
   const componentSource = fs.readFileSync(
@@ -130,6 +131,16 @@ test("service tab supports pull refresh and paged load more like home", () => {
   assert.equal(styles.includes(".bottom-loading"), true);
 });
 
+test("service tab shows initial loading before grid cards", () => {
+  const templatePath = path.join(__dirname, "../miniprogram/pages/tabbar/service/index.wxml");
+  const template = fs.readFileSync(templatePath, "utf8");
+
+  assert.equal(template.includes('wx:if="{{isLoading && allServicePosts.length === 0}}"'), true);
+  assert.equal(template.includes('class="pc-grid-loading"'), true);
+  assert.equal(template.includes('class="pc-grid-skeleton"'), true);
+  assert.equal(template.includes('wx:elif="{{panel.posts.length > 0}}"'), true);
+});
+
 test("service tab uses a measured tab indicator for category switching", () => {
   const pagePath = path.join(__dirname, "../miniprogram/pages/tabbar/service/index.ts");
   const templatePath = path.join(__dirname, "../miniprogram/pages/tabbar/service/index.wxml");
@@ -164,12 +175,20 @@ test("service tab categories match publish service tabs", () => {
   const pagePath = path.join(__dirname, "../miniprogram/pages/tabbar/service/index.ts");
   const source = fs.readFileSync(pagePath, "utf8");
 
-  assert.equal(source.includes('type ServiceTabCategory = "ALL" | "ADOPTION_FOSTER" | "HOME_FEEDING" | "OTHER";'), true);
+  assert.equal(
+    source.includes(
+      'type ServiceTabCategory = "ALL" | "ADOPTION_FOSTER" | "HOME_FEEDING" | "OTHER";',
+    ),
+    true,
+  );
   assert.equal(source.includes('tabs: ["全部", "领养寄养", "上门喂养", "其它"]'), true);
   assert.equal(source.includes('"ADOPTION_FOSTER"'), true);
   assert.equal(source.includes('"HOME_FEEDING"'), true);
   assert.equal(source.includes('"OTHER"'), true);
-  assert.equal(source.includes('item.serviceCategory === "ADOPTION" || item.serviceCategory === "BOARDING"'), true);
+  assert.equal(
+    source.includes('item.serviceCategory === "ADOPTION" || item.serviceCategory === "BOARDING"'),
+    true,
+  );
   assert.equal(source.includes('item.serviceCategory === "OTHER"'), true);
   assert.equal(source.includes('tabs: ["全部", "领养", "寄养", "喂养", "闲置"]'), false);
 });

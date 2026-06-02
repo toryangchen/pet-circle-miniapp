@@ -46,7 +46,10 @@ test("personal page renders my posts with the shared feed card", () => {
     wxmlSource.includes('<feed-card item="{{item}}" show-badge="{{true}}"></feed-card>'),
     true,
   );
-  assert.equal(wxmlSource.includes("wx:if=\"{{activeTab === '发布' && posts.length > 0}}\""), true);
+  assert.equal(
+    wxmlSource.includes("wx:elif=\"{{activeTab === '发布' && posts.length > 0}}\""),
+    true,
+  );
   assert.equal(wxmlSource.includes('bindtap="openPostDetail"'), true);
 });
 
@@ -86,6 +89,25 @@ test("personal page hides bottom reached copy on the first page", () => {
     ),
     true,
   );
+});
+
+test("personal page shows tab-specific initial loading before empty states", () => {
+  assert.equal(
+    wxmlSource.includes("activeTab === '发布' && isLoadingPosts && posts.length === 0"),
+    true,
+  );
+  assert.equal(
+    wxmlSource.includes("activeTab === '收藏' && isLoadingFavorites && favoritePosts.length === 0"),
+    true,
+  );
+  assert.equal(
+    wxmlSource.includes("activeTab === '浏览' && isLoadingHistory && historyPosts.length === 0"),
+    true,
+  );
+  assert.equal(wxmlSource.includes('class="personal-panel pc-grid-loading"'), true);
+  assert.equal(wxmlSource.includes('class="pc-grid-skeleton"'), true);
+  assert.equal(source.includes("isLoadingFavorites: true"), true);
+  assert.equal(source.includes("isLoadingHistory: true"), true);
 });
 
 test("personal page loads and refreshes my published posts", () => {

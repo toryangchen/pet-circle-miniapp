@@ -25,12 +25,7 @@ const SERVICE_PAGE_COPY = {
   highlightSummary: "服务页直接读取线上服务列表，按领养寄养、上门喂养和其它分类浏览。",
 };
 
-const TAB_CATEGORY_MAP: ServiceTabCategory[] = [
-  "ALL",
-  "ADOPTION_FOSTER",
-  "HOME_FEEDING",
-  "OTHER",
-];
+const TAB_CATEGORY_MAP: ServiceTabCategory[] = ["ALL", "ADOPTION_FOSTER", "HOME_FEEDING", "OTHER"];
 
 function resolveFeedBadge(item: FeedItem) {
   if (item.badge) {
@@ -150,7 +145,7 @@ Page({
     openElevation: 0,
     openBorderRadius: 0,
 
-    isLoading: false,
+    isLoading: true,
     isLoadingMore: false,
     isRefreshing: false,
     page: 1,

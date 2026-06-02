@@ -74,7 +74,7 @@ Page({
     page: 1,
     pageSize: 10,
     hasMore: true,
-    isLoading: false,
+    isLoading: true,
     isLoadingMore: false,
     isRefreshing: false,
     gap: rpx2px(10),

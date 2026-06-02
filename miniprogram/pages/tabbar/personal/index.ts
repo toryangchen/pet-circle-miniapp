@@ -300,7 +300,7 @@ Page({
     hasMore: true,
     favoriteHasMore: true,
     historyHasMore: true,
-    isLoadingPosts: false,
+    isLoadingPosts: true,
     isLoadingMorePosts: false,
     isLoadingFavorites: false,
     isLoadingMoreFavorites: false,
@@ -565,25 +565,33 @@ Page({
       return;
     }
 
-    this.setData({
+    const nextData: Partial<typeof this.data> = {
       activeTab: tab,
       emptyState: resolveEmptyState(tab as PersonalTab),
-    });
+    };
 
     switch (tab as PersonalTab) {
       case "收藏":
         if (!(this.data.favoritePosts as PersonalPostCardView[]).length) {
+          nextData.isLoadingFavorites = true;
+          this.setData(nextData);
           void this.reloadFavoritePosts();
+          return;
         }
         break;
       case "浏览":
         if (!(this.data.historyPosts as PersonalPostCardView[]).length) {
+          nextData.isLoadingHistory = true;
+          this.setData(nextData);
           void this.reloadHistoryPosts();
+          return;
         }
         break;
       default:
         break;
     }
+
+    this.setData(nextData);
   },
 
   findPostCard(postId?: string) {

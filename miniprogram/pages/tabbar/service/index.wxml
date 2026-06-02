@@ -54,7 +54,22 @@
         </view>
       </view>
 
+      <view wx:if="{{isLoading && allServicePosts.length === 0}}" class="pc-grid-loading">
+        <view wx:for="{{[1, 2, 3, 4]}}" wx:key="*this" class="pc-grid-skeleton">
+          <view class="pc-grid-skeleton__image"></view>
+          <view class="pc-grid-skeleton__body">
+            <view class="pc-grid-skeleton__line"></view>
+            <view class="pc-grid-skeleton__line pc-grid-skeleton__line--short"></view>
+            <view class="pc-grid-skeleton__meta">
+              <view class="pc-grid-skeleton__avatar"></view>
+              <view class="pc-grid-skeleton__line pc-grid-skeleton__meta-line"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <grid-view
+        wx:elif="{{panel.posts.length > 0}}"
         type="masonry"
         cross-axis-count="2"
         cross-axis-gap="{{gap}}"
@@ -73,10 +88,7 @@
             data-post-id="{{post.id}}"
             bindtap="openDetail"
           >
-            <feed-card
-              item="{{post}}"
-              show-badge="{{true}}"
-            ></feed-card>
+            <feed-card item="{{post}}" show-badge="{{true}}"></feed-card>
           </open-container>
         </block>
       </grid-view>
