@@ -158,11 +158,10 @@ test("home page supports pull down refresh", () => {
   assert.equal(tsSource.includes("wx.stopPullDownRefresh();"), false);
 });
 
-test("home page loading indicator uses animated dots", () => {
+test("home page refresh loading indicator uses animated dots", () => {
   const wxmlSource = read("pages/tabbar/home/index.wxml");
   const lessSource = read("pages/tabbar/home/index.less");
 
-  assert.equal(wxmlSource.includes("内容加载中"), true);
   assert.equal(wxmlSource.includes('class="top-loading"'), true);
   assert.equal(wxmlSource.includes('class="bottom-loading__dots"'), true);
   assert.equal(wxmlSource.includes('class="bottom-loading__dot"'), true);

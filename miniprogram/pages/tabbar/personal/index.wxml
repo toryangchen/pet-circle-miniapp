@@ -226,30 +226,54 @@
       <view class="personal-empty__button" bindtap="goCreate">{{emptyState.cta}}</view>
     </view>
 
-    <view wx:if="{{activeTab === '发布' && isLoadingMorePosts}}" class="personal-loading">
-      <text>发布内容加载中</text>
-      <view class="personal-loading__dots" aria-hidden="true">
-        <text class="personal-loading__dot"></text>
-        <text class="personal-loading__dot"></text>
-        <text class="personal-loading__dot"></text>
+    <view
+      wx:if="{{activeTab === '发布' && isLoadingMorePosts}}"
+      class="personal-panel pc-grid-loading"
+    >
+      <view wx:for="{{[1, 2]}}" wx:key="*this" class="pc-grid-skeleton">
+        <view class="pc-grid-skeleton__image"></view>
+        <view class="pc-grid-skeleton__body">
+          <view class="pc-grid-skeleton__line"></view>
+          <view class="pc-grid-skeleton__line pc-grid-skeleton__line--short"></view>
+          <view class="pc-grid-skeleton__meta">
+            <view class="pc-grid-skeleton__avatar"></view>
+            <view class="pc-grid-skeleton__line pc-grid-skeleton__meta-line"></view>
+          </view>
+        </view>
       </view>
     </view>
 
-    <view wx:elif="{{activeTab === '收藏' && isLoadingMoreFavorites}}" class="personal-loading">
-      <text>收藏内容加载中</text>
-      <view class="personal-loading__dots" aria-hidden="true">
-        <text class="personal-loading__dot"></text>
-        <text class="personal-loading__dot"></text>
-        <text class="personal-loading__dot"></text>
+    <view
+      wx:elif="{{activeTab === '收藏' && isLoadingMoreFavorites}}"
+      class="personal-panel pc-grid-loading"
+    >
+      <view wx:for="{{[1, 2]}}" wx:key="*this" class="pc-grid-skeleton">
+        <view class="pc-grid-skeleton__image"></view>
+        <view class="pc-grid-skeleton__body">
+          <view class="pc-grid-skeleton__line"></view>
+          <view class="pc-grid-skeleton__line pc-grid-skeleton__line--short"></view>
+          <view class="pc-grid-skeleton__meta">
+            <view class="pc-grid-skeleton__avatar"></view>
+            <view class="pc-grid-skeleton__line pc-grid-skeleton__meta-line"></view>
+          </view>
+        </view>
       </view>
     </view>
 
-    <view wx:elif="{{activeTab === '浏览' && isLoadingMoreHistory}}" class="personal-loading">
-      <text>浏览记录加载中</text>
-      <view class="personal-loading__dots" aria-hidden="true">
-        <text class="personal-loading__dot"></text>
-        <text class="personal-loading__dot"></text>
-        <text class="personal-loading__dot"></text>
+    <view
+      wx:elif="{{activeTab === '浏览' && isLoadingMoreHistory}}"
+      class="personal-panel pc-grid-loading"
+    >
+      <view wx:for="{{[1, 2]}}" wx:key="*this" class="pc-grid-skeleton">
+        <view class="pc-grid-skeleton__image"></view>
+        <view class="pc-grid-skeleton__body">
+          <view class="pc-grid-skeleton__line"></view>
+          <view class="pc-grid-skeleton__line pc-grid-skeleton__line--short"></view>
+          <view class="pc-grid-skeleton__meta">
+            <view class="pc-grid-skeleton__avatar"></view>
+            <view class="pc-grid-skeleton__line pc-grid-skeleton__meta-line"></view>
+          </view>
+        </view>
       </view>
     </view>
 

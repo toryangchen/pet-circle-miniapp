@@ -49,6 +49,14 @@ test("home tab shows initial loading before the grid", () => {
   assert.equal(styles.includes("@keyframes pc-grid-skeleton-shimmer"), true);
 });
 
+test("home tab uses two skeleton cards for paged loading", () => {
+  const templatePath = path.join(__dirname, "../miniprogram/pages/tabbar/home/index.wxml");
+  const template = fs.readFileSync(templatePath, "utf8");
+
+  assert.equal(template.includes('wx:if="{{isLoadingMore}}"'), true);
+  assert.equal(template.includes('wx:for="{{[1, 2]}}"'), true);
+});
+
 test("home tab caches tapped feed card for pet social detail prefill", () => {
   const pagePath = path.join(__dirname, "../miniprogram/pages/tabbar/home/index.ts");
   const templatePath = path.join(__dirname, "../miniprogram/pages/tabbar/home/index.wxml");

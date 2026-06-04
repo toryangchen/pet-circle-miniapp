@@ -110,6 +110,13 @@ test("personal page shows tab-specific initial loading before empty states", () 
   assert.equal(source.includes("isLoadingHistory: true"), true);
 });
 
+test("personal page uses two skeleton cards for paged loading", () => {
+  assert.equal(wxmlSource.includes("activeTab === '发布' && isLoadingMorePosts"), true);
+  assert.equal(wxmlSource.includes("activeTab === '收藏' && isLoadingMoreFavorites"), true);
+  assert.equal(wxmlSource.includes("activeTab === '浏览' && isLoadingMoreHistory"), true);
+  assert.equal(wxmlSource.includes('wx:for="{{[1, 2]}}"'), true);
+});
+
 test("personal page loads and refreshes my published posts", () => {
   assert.equal(
     source.includes('const PERSONAL_POSTS_REFRESH_FLAG = "personal_posts_needs_refresh";'),

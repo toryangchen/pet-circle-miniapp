@@ -126,7 +126,8 @@ test("service tab supports pull refresh and paged load more like home", () => {
   assert.equal(template.includes('refresher-triggered="{{isRefreshing}}"'), true);
   assert.equal(template.includes('bindrefresherrefresh="onRefresherRefresh"'), true);
   assert.equal(template.includes('bindscrolltolower="onScrollToLower"'), true);
-  assert.equal(template.includes("服务内容加载中"), true);
+  assert.equal(template.includes('wx:if="{{isLoadingMore}}"'), true);
+  assert.equal(template.includes('wx:for="{{[1, 2]}}"'), true);
   assert.equal(styles.includes(".top-loading"), true);
   assert.equal(styles.includes(".bottom-loading"), true);
 });
