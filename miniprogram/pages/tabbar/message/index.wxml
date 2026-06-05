@@ -5,8 +5,33 @@
   type="custom"
   enhanced="{{true}}"
   show-scrollbar="{{false}}"
+  refresher-enabled="{{true}}"
+  refresher-triggered="{{isRefreshing}}"
+  bindrefresherrefresh="onPullDownRefresh"
+  bindscrolltolower="loadMoreNotifications"
 >
-  <view class="message-list">
+  <view wx:if="{{isLoading && !isRefreshing && !notifications.length}}" class="message-state">
+    <text>消息加载中...</text>
+  </view>
+
+  <view wx:elif="{{errorText && !notifications.length}}" class="message-state">
+    <text>{{errorText}}</text>
+    <button bindtap="loadNotifications">重新加载</button>
+  </view>
+
+  <view wx:elif="{{!notifications.length}}" class="message-empty">
+    <view class="message-empty__art">
+      <view class="message-empty__badge">
+        <image src="/assets/logo-paw.png" mode="aspectFit"></image>
+      </view>
+      <view class="message-empty__line message-empty__line--top"></view>
+      <view class="message-empty__line message-empty__line--bottom"></view>
+    </view>
+    <text class="message-empty__title">还没有新消息</text>
+    <text class="message-empty__text">点赞、评论和联系申请会出现在这里</text>
+  </view>
+
+  <view wx:else class="message-list">
     <view
       wx:for="{{notifications}}"
       wx:key="id"
@@ -15,7 +40,9 @@
       data-route="{{item.route}}"
       bindtap="openConversation"
     >
-      <image class="message-icon" src="{{item.icon}}" mode="aspectFit"></image>
+      <view class="message-icon message-icon--{{item.type}}">
+        <image src="{{item.icon}}" mode="aspectFit"></image>
+      </view>
 
       <view class="message-copy">
         <view class="message-head">
@@ -28,5 +55,6 @@
         <text class="message-summary">{{item.summary}}</text>
       </view>
     </view>
+    <view wx:if="{{isLoadingMore}}" class="message-more">继续加载...</view>
   </view>
 </scroll-view>

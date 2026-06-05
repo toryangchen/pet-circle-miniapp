@@ -92,6 +92,6 @@
   </view>
 
   <view wx:elif="{{!hasMore && featuredPosts.length > 0}}" class="bottom-loading">
-    <text> 已经到底啦，先逛逛这些内容。</text>
+    <text> 已经到底啦，先看看这些内容吧</text>
   </view>
 </scroll-view>

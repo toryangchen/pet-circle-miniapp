@@ -281,21 +281,21 @@
       wx:elif="{{activeTab === '发布' && !hasMore && page > 1 && posts.length > 0}}"
       class="personal-loading"
     >
-      <text>已经到底啦。</text>
+      <text>已经到底啦</text>
     </view>
 
     <view
       wx:elif="{{activeTab === '收藏' && !favoriteHasMore && favoritePage > 1 && favoritePosts.length > 0}}"
       class="personal-loading"
     >
-      <text>已经到底啦。</text>
+      <text>已经到底啦</text>
     </view>
 
     <view
       wx:elif="{{activeTab === '浏览' && !historyHasMore && historyPage > 1 && historyPosts.length > 0}}"
       class="personal-loading"
     >
-      <text>已经到底啦。</text>
+      <text>已经到底啦</text>
     </view>
   </sticky-section>
 </scroll-view>

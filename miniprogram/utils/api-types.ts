@@ -8,6 +8,8 @@ export type NotificationType =
   | "CONTACT_REQUEST"
   | "CONTACT_APPROVED";
 export type ConversationStatus = "INIT" | "PENDING" | "APPROVED" | "IGNORED";
+export type ConversationMessageType = "REQUEST_CONTACT" | "SHARE_WECHAT";
+export type MessageSenderType = "USER" | "SYSTEM";
 export type PublishDraftType = "PET_SOCIAL" | "SERVICE" | "RESALE";
 
 export interface PagedResult<T> {
@@ -140,6 +142,10 @@ export interface NotificationItem {
   summary: string;
 }
 
+export type NotificationListResult = PagedResult<NotificationItem> & {
+  unreadCount: number;
+};
+
 export interface NotificationCardView {
   id: string;
   type: NotificationType;
@@ -238,6 +244,27 @@ export interface PublishResult {
 export interface ContactRequestResult {
   conversationId: string;
   status: ConversationStatus;
+}
+
+export interface ConversationMessage {
+  senderType: MessageSenderType;
+  messageType: ConversationMessageType;
+  content: string;
+  createdAt: string;
+}
+
+export interface ConversationDetail {
+  id: string;
+  status: ConversationStatus;
+  canApprove: boolean;
+  post: {
+    id: string;
+    type: PostType;
+    serviceCategory: ServiceCategory | null;
+    title: string;
+    city: string;
+  } | null;
+  messages: ConversationMessage[];
 }
 
 export interface ToggleLikeResult {

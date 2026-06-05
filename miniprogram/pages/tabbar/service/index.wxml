@@ -108,7 +108,7 @@
       </view>
 
       <view wx:elif="{{!hasMore && allServicePosts.length > 0}}" class="bottom-loading">
-        <text>已经到底啦，先看看这些服务。</text>
+        <text>已经到底啦，先看看这些内容吧</text>
       </view>
     </scroll-view>
   </swiper-item>

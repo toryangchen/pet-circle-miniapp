@@ -1,0 +1,68 @@
+<navigation-bar back>
+  <view class="conversation-nav" slot="title">
+    <view class="conversation-avatar">
+      <image src="/assets/logo-paw.png" mode="aspectFit"></image>
+    </view>
+    <view class="conversation-nav__copy">
+      <text class="conversation-nav__name">{{peerName}}</text>
+      <text class="conversation-nav__sub">联系申请</text>
+    </view>
+  </view>
+</navigation-bar>
+
+<scroll-view
+  class="conversation-scroll"
+  scroll-y
+  type="custom"
+  enhanced="{{true}}"
+  show-scrollbar="{{false}}"
+>
+  <view wx:if="{{isLoading}}" class="conversation-state">会话加载中...</view>
+  <view wx:elif="{{errorText}}" class="conversation-state">
+    <text>{{errorText}}</text>
+    <button bindtap="loadConversation">重新加载</button>
+  </view>
+
+  <view wx:else class="conversation-content">
+    <view wx:if="{{statusTip}}" class="conversation-tip-line">
+      <view class="conversation-tip">{{statusTip}}</view>
+    </view>
+
+    <view wx:if="{{isInitial}}" class="conversation-empty">
+      <view class="conversation-empty__mark"></view>
+      <text class="conversation-empty__title">当前还没有发起联系申请</text>
+      <text class="conversation-empty__text">
+        点击底部按钮后，将自动发送固定申请文案，等待发布者确认。
+      </text>
+    </view>
+
+    <view wx:else class="conversation-messages">
+      <view
+        wx:for="{{messages}}"
+        wx:key="createdAt"
+        class="conversation-message {{item.isOutgoing ? 'conversation-message--out' : 'conversation-message--in'}}"
+      >
+        <view wx:if="{{!item.isOutgoing}}" class="conversation-avatar conversation-message__avatar">
+          <image src="/assets/logo-paw.png" mode="aspectFit"></image>
+        </view>
+        <view class="conversation-message__bubble">
+          <text class="conversation-message__content">{{item.content}}</text>
+          <text class="conversation-message__time">{{item.time}}</text>
+        </view>
+      </view>
+      <text wx:if="{{bodyTip}}" class="conversation-body-tip">{{bodyTip}}</text>
+    </view>
+  </view>
+</scroll-view>
+
+<view class="conversation-bottom">
+  <text class="conversation-bottom__hint">{{bottomHint}}</text>
+  <button
+    class="conversation-bottom__button conversation-bottom__button--{{bottomButtonMode}}"
+    loading="{{isApproving}}"
+    disabled="{{bottomButtonMode === 'disabled' || bottomButtonMode === 'done'}}"
+    bindtap="approveConversation"
+  >
+    {{isApproving ? '处理中...' : bottomButtonLabel}}
+  </button>
+</view>

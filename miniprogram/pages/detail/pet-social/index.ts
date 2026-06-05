@@ -443,9 +443,9 @@ Page({
     }
 
     const result = await requestPostContact(postId);
-    wx.showToast({
-      title: `申请已发送：${result.status}`,
-      icon: "success",
+    const peerName = encodeURIComponent(this.data.authorName || "宠友");
+    wx.navigateTo({
+      url: `/pages/detail/conversation/index?id=${result.conversationId}&peerName=${peerName}`,
     });
   },
 

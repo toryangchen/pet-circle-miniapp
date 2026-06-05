@@ -1,3 +1,10 @@
+import type {
+  NotificationItem,
+  NotificationListResult,
+  NotificationType,
+} from "@utils/api-types";
+import { request } from "@utils/request";
+
 type NotificationVisualType = "favorite" | "comment" | "direct";
 
 type NotificationItemView = {
@@ -9,77 +16,150 @@ type NotificationItemView = {
   time: string;
   type: NotificationVisualType;
   icon: string;
+  conversationId: string | null;
 };
 
-const MOCK_NOTIFICATIONS: NotificationItemView[] = [
-  {
-    id: "notification-1",
-    unread: true,
-    route: "/pages/detail/pet-social/index?id=service-1",
-    title: "雪球",
-    summary: "收藏了你的服务发布《周末可上门喂猫》",
-    time: "2分钟前",
-    type: "favorite",
-    icon: "/assets/message-favorite.png",
-  },
-  {
-    id: "notification-2",
-    unread: true,
-    route: "/pages/detail/pet-social/index?id=home-1",
-    title: "可乐妈",
-    summary: "收藏了你的笔记《城墙根下的橘猫日常》",
-    time: "18分钟前",
-    type: "favorite",
-    icon: "/assets/message-favorite.png",
-  },
-  {
-    id: "notification-3",
-    unread: true,
-    route: "/pages/detail/pet-social/index?id=service-1",
-    title: "阿满",
-    summary: "评论了你：周五晚上也可以接猫咪寄养吗？",
-    time: "今天 09:24",
-    type: "comment",
-    icon: "/assets/message-comment.png",
-  },
-  {
-    id: "notification-4",
-    unread: true,
-    route: "/pages/detail/pet-social/index?id=home-1",
-    title: "小雨",
-    summary: "回复了你：已私信你联系方式，记得查收。",
-    time: "昨天",
-    type: "comment",
-    icon: "/assets/message-comment.png",
-  },
-  {
-    id: "notification-5",
-    unread: true,
-    route: "/pages/detail/pet-social/index?id=service-1",
-    title: "西安宠友群",
-    summary: "你好，想咨询一下上门喂养的时间，清明假期可以约吗？",
-    time: "周一",
-    type: "direct",
-    icon: "/assets/message-direct.png",
-  },
-  {
-    id: "notification-6",
-    unread: true,
-    route: "/pages/detail/pet-social/index?id=service-1",
-    title: "豆包妈妈",
-    summary: "二手航空箱还在吗？如果方便的话我想周末自提。",
-    time: "3月28日",
-    type: "direct",
-    icon: "/assets/message-direct.png",
-  },
-];
+const PAGE_SIZE = 10;
+
+function formatRelativeTime(createdAt: string) {
+  const date = new Date(createdAt);
+  const timestamp = date.getTime();
+  if (Number.isNaN(timestamp)) {
+    return "刚刚";
+  }
+
+  const diff = Date.now() - timestamp;
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (diff >= 0 && diff < minute) {
+    return "刚刚";
+  }
+
+  if (diff >= minute && diff < hour) {
+    return `${Math.max(1, Math.floor(diff / minute))}分钟前`;
+  }
+
+  if (diff >= hour && diff < day) {
+    return `${Math.max(1, Math.floor(diff / hour))}小时前`;
+  }
+
+  if (diff >= day && diff < 2 * day) {
+    return "昨天";
+  }
+
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const dayOfMonth = `${date.getDate()}`.padStart(2, "0");
+  return `${month}-${dayOfMonth}`;
+}
+
+function getNotificationTitle(type: NotificationType) {
+  const titleMap: Record<NotificationType, string> = {
+    LIKE_POST: "新增点赞",
+    COMMENT_POST: "新评论",
+    REPLY_COMMENT: "评论回复",
+    CONTACT_REQUEST: "收到联系申请",
+    CONTACT_APPROVED: "联系申请通过",
+  };
+
+  return titleMap[type];
+}
+
+function getNotificationVisualType(type: NotificationType): NotificationVisualType {
+  if (type === "CONTACT_REQUEST" || type === "CONTACT_APPROVED") {
+    return "direct";
+  }
+
+  if (type === "COMMENT_POST" || type === "REPLY_COMMENT") {
+    return "comment";
+  }
+
+  return "favorite";
+}
+
+function getNotificationIcon(type: NotificationType) {
+  const visualType = getNotificationVisualType(type);
+  const iconMap: Record<NotificationVisualType, string> = {
+    favorite: "/assets/message-favorite.png",
+    comment: "/assets/message-comment.png",
+    direct: "/assets/message-direct.png",
+  };
+
+  return iconMap[visualType];
+}
+
+function buildNotificationRoute(item: NotificationItem) {
+  if (
+    (item.type === "CONTACT_REQUEST" || item.type === "CONTACT_APPROVED") &&
+    item.conversationId
+  ) {
+    const peerName = encodeURIComponent(item.actor?.nickname || "宠友");
+    return `/pages/detail/conversation/index?id=${item.conversationId}&peerName=${peerName}`;
+  }
+
+  if (item.post) {
+    return `/pages/detail/pet-social/index?id=${item.post.id}`;
+  }
+
+  return "";
+}
+
+function toNotificationView(item: NotificationItem): NotificationItemView {
+  const visualType = getNotificationVisualType(item.type);
+
+  return {
+    id: item.id,
+    unread: !item.isRead,
+    route: buildNotificationRoute(item),
+    title: item.actor?.nickname || getNotificationTitle(item.type),
+    summary: item.summary,
+    time: formatRelativeTime(item.createdAt),
+    type: visualType,
+    icon: getNotificationIcon(item.type),
+    conversationId: item.conversationId,
+  };
+}
+
+async function fetchNotifications(page: number) {
+  if (page === 1) {
+    return request<NotificationListResult>({
+      method: "POST",
+      path: "/notifications",
+    });
+  }
+
+  return request<NotificationListResult>({
+    method: "POST",
+    path: `/notifications?page=${page}&pageSize=${PAGE_SIZE}`,
+  });
+}
+
+async function markNotificationRead(notificationId: string) {
+  return request<{ id: string; isRead: boolean }>({
+    method: "POST",
+    path: `/notifications/${notificationId}/read`,
+  });
+}
+
+async function markNotificationsReadAll() {
+  return request<{ updatedCount: number }>({
+    method: "POST",
+    path: "/notifications/read-all",
+  });
+}
 
 Page({
   data: {
     title: "消息",
-    unreadCount: MOCK_NOTIFICATIONS.length,
-    notifications: MOCK_NOTIFICATIONS,
+    unreadCount: 0,
+    notifications: [] as NotificationItemView[],
+    page: 1,
+    hasMore: false,
     isLoading: false,
+    isLoadingMore: false,
+    isRefreshing: false,
+    errorText: "",
   },
 
   onShow() {
@@ -91,30 +171,94 @@ Page({
   },
 
   onLoad() {
-    this.setData({
-      notifications: MOCK_NOTIFICATIONS,
-      unreadCount: MOCK_NOTIFICATIONS.filter((item) => item.unread).length,
-    });
+    void this.loadNotifications({ reset: true });
   },
 
-  openConversation(event: WechatMiniprogram.BaseEvent) {
+  async loadNotifications(options: { reset?: boolean } = {}) {
+    if (this.data.isLoading || this.data.isLoadingMore) {
+      return;
+    }
+
+    const reset = Boolean(options.reset);
+    const nextPage = reset ? 1 : this.data.page + 1;
+
+    this.setData({
+      isLoading: reset,
+      isLoadingMore: !reset,
+      errorText: "",
+    });
+
+    try {
+      const result = await fetchNotifications(nextPage);
+      const nextItems = result.items.map(toNotificationView);
+      this.setData({
+        notifications: reset ? nextItems : this.data.notifications.concat(nextItems),
+        unreadCount: result.unreadCount,
+        page: result.page,
+        hasMore: result.hasMore,
+      });
+    } catch (error) {
+      this.setData({
+        errorText: error instanceof Error ? error.message : "消息加载失败",
+      });
+      wx.showToast({
+        title: "消息加载失败",
+        icon: "none",
+      });
+    } finally {
+      this.setData({
+        isLoading: false,
+        isLoadingMore: false,
+        isRefreshing: false,
+      });
+      wx.stopPullDownRefresh();
+    }
+  },
+
+  onPullDownRefresh() {
+    this.setData({
+      isRefreshing: true,
+    });
+    void this.loadNotifications({ reset: true });
+  },
+
+  loadMoreNotifications() {
+    if (!this.data.hasMore || this.data.isLoadingMore || this.data.isLoading) {
+      return;
+    }
+
+    void this.loadNotifications();
+  },
+
+  async openConversation(event: WechatMiniprogram.BaseEvent) {
     const { id, route } = event.currentTarget.dataset as {
       id?: string;
       route?: string;
     };
-    if (!route) {
+    if (!id || !route) {
       return;
     }
 
-    if (id) {
+    const currentItem = this.data.notifications.find((item) => item.id === id);
+    if (currentItem?.unread) {
       const nextNotifications = this.data.notifications.map((item) =>
         item.id === id ? { ...item, unread: false } : item,
       );
-
       this.setData({
         notifications: nextNotifications,
-        unreadCount: nextNotifications.filter((item) => item.unread).length,
+        unreadCount: Math.max(0, this.data.unreadCount - 1),
       });
+
+      try {
+        await markNotificationRead(id);
+      } catch {
+        await this.loadNotifications({ reset: true });
+        wx.showToast({
+          title: "已读状态同步失败",
+          icon: "none",
+        });
+        return;
+      }
     }
 
     wx.navigateTo({
@@ -122,18 +266,30 @@ Page({
     });
   },
 
-  markAllRead() {
-    this.setData({
-      notifications: this.data.notifications.map((item) => ({
-        ...item,
-        unread: false,
-      })),
-      unreadCount: 0,
-    });
+  async markAllRead() {
+    if (this.data.unreadCount === 0) {
+      return;
+    }
 
-    wx.showToast({
-      title: "已全部标记已读",
-      icon: "success",
-    });
+    try {
+      await markNotificationsReadAll();
+      this.setData({
+        notifications: this.data.notifications.map((item) => ({
+          ...item,
+          unread: false,
+        })),
+        unreadCount: 0,
+      });
+
+      wx.showToast({
+        title: "已全部标记已读",
+        icon: "success",
+      });
+    } catch (error) {
+      wx.showToast({
+        title: error instanceof Error ? error.message : "标记失败",
+        icon: "none",
+      });
+    }
   },
 });
